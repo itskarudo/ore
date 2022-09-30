@@ -15,7 +15,7 @@ namespace Ore::AST {
 void Literal::dump_impl(int indent) const
 {
   print_indent(indent);
-  std::cout << value() << std::endl;
+  std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << value() << "\033[0m" << std::endl;
 }
 
 Value Literal::execute(Interpreter& interpreter)
@@ -25,8 +25,14 @@ Value Literal::execute(Interpreter& interpreter)
 
 void ScopeNode::dump_impl(int indent) const
 {
+  for (auto& child : children())
+    child->dump_impl(indent);
+}
+
+void Program::dump_impl(int indent) const
+{
   print_indent(indent);
-  printf("%s\n", class_name());
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   for (auto& child : children())
     child->dump_impl(indent + 1);
 }
@@ -39,9 +45,8 @@ Value ScopeNode::execute(Interpreter& interpreter)
 void FunctionDeclaration::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("%s<%s>\n", class_name(), name().c_str());
+  printf("\033[32m%s \033[33m@ {%p} \033[34m%s\033[0m \n", class_name(), this, name().c_str());
   print_indent(indent);
-  printf(">\n");
   body()->dump_impl(indent + 1);
 }
 
@@ -56,7 +61,7 @@ Value FunctionDeclaration::execute(Interpreter& interpreter)
 void CallExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("%s<%s>\n", class_name(), name().c_str());
+  printf("\033[35m%s \033[33m@ {%p} \033[34m%s\033[0m\n", class_name(), this, name().c_str());
 }
 
 Value CallExpression::execute(Interpreter& interpreter)
@@ -74,10 +79,8 @@ Value CallExpression::execute(Interpreter& interpreter)
 void ReturnStatement::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("%s<\n", class_name());
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   argument().dump_impl(indent + 1);
-  print_indent(indent);
-  printf(">\n");
 }
 
 Value ReturnStatement::execute(Interpreter& interpreter)
@@ -88,15 +91,13 @@ Value ReturnStatement::execute(Interpreter& interpreter)
 void IfStatement::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("If<\n");
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   test().dump_impl(indent + 1);
-  print_indent(indent);
-  printf(">\n");
 
   consequent().dump_impl(indent + 1);
 
   print_indent(indent);
-  printf("Else\n");
+  printf("\033[32mElse\033[0m\n");
 
   alternate().dump_impl(indent + 1);
 }
@@ -112,9 +113,8 @@ Value IfStatement::execute(Interpreter& interpreter)
 void WhileStatement::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("While<\n");
+  printf("\033[32m%s \033[33m@ {%p}\033[0m<\n", class_name(), this);
   test().dump_impl(indent + 1);
-  printf(">\n");
   body().dump_impl(indent + 1);
 }
 
@@ -132,7 +132,7 @@ Value WhileStatement::execute(Interpreter& interpreter)
 void Identifier::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("%s<%s>\n", class_name(), name().c_str());
+  printf("\033[35m%s \033[33m@ {%p} \033[34m%s \033[0m\n", class_name(), this, name().c_str());
 }
 
 Value Identifier::execute(Interpreter& interpreter)
@@ -143,13 +143,8 @@ Value Identifier::execute(Interpreter& interpreter)
 void VariableDeclaration::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("%s<\n", class_name());
-  id().dump_impl(indent + 1);
-  print_indent(indent);
-  printf(" = \n");
+  printf("\033[32m%s \033[33m@ {%p} \033[34m%s\033[0m\n", class_name(), this, id().name().c_str());
   value().dump_impl(indent + 1);
-  print_indent(indent);
-  printf(">\n");
 }
 
 Value VariableDeclaration::execute(Interpreter& interpreter)

@@ -39,6 +39,7 @@ class ScopeNode : public ASTNode {
 class Program : public ScopeNode {
   public:
   virtual char const* class_name() const override { return "Program"; };
+  virtual void dump_impl(int indent) const override;
 };
 
 class Statement : public ASTNode {
