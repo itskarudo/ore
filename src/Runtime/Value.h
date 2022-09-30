@@ -61,7 +61,7 @@ class Value {
 
   Type type() const { return m_type; }
 
-  bool is_number() const { return type() == Type::Boolean; }
+  bool is_number() const { return type() == Type::Number; }
   bool is_string() const { return type() == Type::String; }
   bool is_object() const { return type() == Type::Object; }
   bool is_boolean() const { return type() == Type::Boolean; }
