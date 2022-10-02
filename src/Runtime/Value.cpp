@@ -21,17 +21,17 @@ bool Value::to_boolean() const
   }
 }
 
-std::shared_ptr<Object> Value::to_object() const
+Value Value::to_object(GC::Heap& heap) const
 {
   switch (type()) {
   case Value::Type::Number:
-    return std::make_shared<NumberObject>(as_number());
+    return Value(heap.allocate<NumberObject>(as_number()));
   case Value::Type::Boolean:
-    return std::make_shared<BooleanObject>(as_boolean());
+    return Value(heap.allocate<BooleanObject>(as_boolean()));
   case Value::Type::String:
-    return std::make_shared<StringObject>(as_string()->value());
+    return Value(heap.allocate<StringObject>(as_string()->value()));
   case Value::Type::Object:
-    return std::shared_ptr<Object>(as_object());
+    return Value(as_object());
   default:
     __builtin_unreachable();
   }

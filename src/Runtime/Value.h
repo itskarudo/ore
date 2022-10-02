@@ -99,7 +99,7 @@ class Value {
   }
 
   bool to_boolean() const;
-  std::shared_ptr<Object> to_object() const;
+  Value to_object(GC::Heap&) const;
 
   friend std::ostream& operator<<(std::ostream& os, Value const& value);
 
