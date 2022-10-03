@@ -29,7 +29,7 @@ Value Value::to_object(GC::Heap& heap) const
   case Value::Type::Boolean:
     return Value(heap.allocate<BooleanObject>(as_boolean()));
   case Value::Type::String:
-    return Value(heap.allocate<StringObject>(as_string()->value()));
+    return Value(heap.allocate<StringObject>(as_string()));
   case Value::Type::Object:
     return Value(as_object());
   default:

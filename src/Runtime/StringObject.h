@@ -1,22 +1,24 @@
 #pragma once
 
 #include "Object.h"
+#include "PrimitiveString.h"
 
 namespace Ore {
 class StringObject final : public Object {
   public:
-  explicit StringObject(std::string const& value)
+  explicit StringObject(PrimitiveString* value)
       : m_value(value)
   {
   }
 
   virtual ~StringObject() { }
+  virtual void visit_graph(Visitor&) override;
 
-  std::string const& value() const { return m_value; }
+  PrimitiveString* const& value() const { return m_value; }
   virtual char const* class_name() const override { return "StringObject"; }
 
   private:
-  std::string m_value;
+  PrimitiveString* m_value;
 };
 
 }

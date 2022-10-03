@@ -19,6 +19,7 @@ set(SOURCES src/test.cpp
             src/Interpreter.cpp
             src/Runtime/Value.cpp
             src/Runtime/Object.cpp
+            src/Runtime/StringObject.cpp
             src/GC/Cell.cpp
             src/GC/Heap.cpp
             src/GC/HeapBlock.cpp)
