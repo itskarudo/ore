@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <assert.h>
+#include <math.h>
 
 static void print_indent(int indent)
 {
@@ -151,6 +152,51 @@ Value VariableDeclaration::execute(Interpreter& interpreter)
 {
   interpreter.set_variable(id().name(), value().execute(interpreter));
   return Value();
+}
+
+void BinaryExpression::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[35m%s \033[33m@ {%p} \033[34m", class_name(), this);
+  switch (m_op) {
+  case Op::Add:
+    putchar('+');
+    break;
+  case Op::Sub:
+    putchar('-');
+    break;
+  case Op::Mult:
+    putchar('*');
+    break;
+  case Op::Div:
+    putchar('/');
+    break;
+  }
+  printf("\033[0m\n");
+  m_lhs->dump_impl(indent + 1);
+  m_rhs->dump_impl(indent + 1);
+}
+
+Value BinaryExpression::execute(Interpreter& interpreter)
+{
+  auto lhs_value = m_lhs->execute(interpreter);
+  assert(lhs_value.is_number());
+  auto rhs_value = m_rhs->execute(interpreter);
+  assert(rhs_value.is_number());
+
+  switch (m_op) {
+  case Op::Add:
+    return Value(lhs_value.as_number() + rhs_value.as_number());
+  case Op::Sub:
+    return Value(lhs_value.as_number() - rhs_value.as_number());
+  case Op::Mult:
+    return Value(lhs_value.as_number() * rhs_value.as_number());
+  case Op::Div:
+    assert(rhs_value.as_number() != 0);
+    return Value(lhs_value.as_number() / rhs_value.as_number());
+  default:
+    __builtin_unreachable();
+  }
 }
 
 }

@@ -203,4 +203,29 @@ class VariableDeclaration : public Statement {
   std::unique_ptr<Expression> m_value;
 };
 
+class BinaryExpression : public Expression {
+  public:
+  enum class Op {
+    Add,
+    Sub,
+    Mult,
+    Div,
+  };
+
+  BinaryExpression(std::unique_ptr<Expression> lhs, Op op, std::unique_ptr<Expression> rhs)
+      : m_lhs(std::move(lhs))
+      , m_op(op)
+      , m_rhs(std::move(rhs))
+  {
+  }
+
+  virtual char const* class_name() const override { return "BinaryExpression"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::unique_ptr<Expression> m_lhs, m_rhs;
+  Op m_op;
+};
+
 }
