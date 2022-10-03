@@ -171,6 +171,9 @@ void BinaryExpression::dump_impl(int indent) const
   case Op::Div:
     putchar('/');
     break;
+  case Op::StringConcat:
+    printf("..");
+    break;
   }
   printf("\033[0m\n");
   m_lhs->dump_impl(indent + 1);
@@ -180,20 +183,19 @@ void BinaryExpression::dump_impl(int indent) const
 Value BinaryExpression::execute(Interpreter& interpreter)
 {
   auto lhs_value = m_lhs->execute(interpreter);
-  assert(lhs_value.is_number());
   auto rhs_value = m_rhs->execute(interpreter);
-  assert(rhs_value.is_number());
 
   switch (m_op) {
   case Op::Add:
-    return Value(lhs_value.as_number() + rhs_value.as_number());
+    return add(lhs_value, rhs_value);
   case Op::Sub:
-    return Value(lhs_value.as_number() - rhs_value.as_number());
+    return sub(lhs_value, rhs_value);
   case Op::Mult:
-    return Value(lhs_value.as_number() * rhs_value.as_number());
+    return multiply(lhs_value, rhs_value);
   case Op::Div:
-    assert(rhs_value.as_number() != 0);
-    return Value(lhs_value.as_number() / rhs_value.as_number());
+    return divide(lhs_value, rhs_value);
+  case Op::StringConcat:
+    return string_concat(lhs_value, rhs_value, interpreter.heap());
   default:
     __builtin_unreachable();
   }

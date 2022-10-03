@@ -114,6 +114,12 @@ class Value {
   } m_value;
 };
 
+Value add(Value, Value);
+Value sub(Value, Value);
+Value multiply(Value, Value);
+Value divide(Value, Value);
+Value string_concat(Value v1, Value v2, GC::Heap&);
+
 inline Value ore_nil()
 {
   return Value(Value::Type::Nil);

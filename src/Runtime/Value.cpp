@@ -60,4 +60,48 @@ std::ostream& operator<<(std::ostream& os, Value const& value)
   return os;
 }
 
+Value add(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+
+  return Value(v1.as_number() + v2.as_number());
+}
+
+Value sub(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+
+  return Value(v1.as_number() - v2.as_number());
+}
+Value multiply(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+
+  return Value(v1.as_number() * v2.as_number());
+}
+Value divide(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+  assert(v2.as_number() != 0);
+
+  return Value(v1.as_number() / v2.as_number());
+}
+
+Value string_concat(Value v1, Value v2, GC::Heap& heap)
+{
+  assert(v1.is_string());
+  assert(v2.is_string());
+
+  auto str1 = v1.as_string()->value();
+  auto str2 = v2.as_string()->value();
+
+  auto* str = heap.allocate<PrimitiveString>(str1 + str2);
+
+  return Value(str);
+}
+
 }

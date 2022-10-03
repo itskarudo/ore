@@ -210,6 +210,7 @@ class BinaryExpression : public Expression {
     Sub,
     Mult,
     Div,
+    StringConcat
   };
 
   BinaryExpression(std::unique_ptr<Expression> lhs, Op op, std::unique_ptr<Expression> rhs)
