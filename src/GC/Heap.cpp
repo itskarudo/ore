@@ -25,6 +25,8 @@ class LivenessVisitor : public Cell::Visitor {
 
   virtual void did_visit(Cell* cell) const override
   {
+    if (cell->marked())
+      return;
     cell->set_marked(true);
   }
 };
