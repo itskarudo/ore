@@ -8,10 +8,8 @@ namespace Ore {
 class Interpreter {
 
   public:
-  Interpreter()
-      : m_heap(*this)
-  {
-  }
+  Interpreter();
+
   struct ScopeFrame {
     AST::ScopeNode& scope_node;
     std::map<std::string, Value> variables;

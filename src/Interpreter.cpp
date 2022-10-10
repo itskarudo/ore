@@ -2,6 +2,12 @@
 #include "AST.h"
 
 namespace Ore {
+
+Interpreter::Interpreter()
+    : m_heap(*this)
+{
+}
+
 void Interpreter::enter_scope(AST::ScopeNode& scope_frame)
 {
   m_scope_frames.push_back({ scope_frame, {} });
@@ -19,6 +25,9 @@ Value Interpreter::get_variable(std::string const& name) const
     if (frame->variables.count(name))
       return frame->variables.at(name);
 
+  if (global_object().contains(name))
+    return global_object().get(name);
+
   return Value();
 }
 
@@ -29,6 +38,11 @@ void Interpreter::set_variable(std::string const& name, Value value)
       frame->variables[name] = value;
       return;
     }
+
+  if (global_object().contains(name)) {
+    global_object().put(name, value);
+    return;
+  }
 
   current_scope().variables[name] = value;
 }
