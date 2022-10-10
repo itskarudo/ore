@@ -171,6 +171,18 @@ void BinaryExpression::dump_impl(int indent) const
   case Op::Div:
     putchar('/');
     break;
+  case Op::GreaterThan:
+    putchar('>');
+    break;
+  case Op::LessThan:
+    putchar('<');
+    break;
+  case Op::GreaterThanOrEquals:
+    printf(">=");
+    break;
+  case Op::LessThanOrEquals:
+    printf("<=");
+    break;
   case Op::StringConcat:
     printf("..");
     break;
@@ -194,6 +206,14 @@ Value BinaryExpression::execute(Interpreter& interpreter)
     return multiply(lhs_value, rhs_value);
   case Op::Div:
     return divide(lhs_value, rhs_value);
+  case Op::GreaterThan:
+    return greater_than(lhs_value, rhs_value);
+  case Op::LessThan:
+    return less_than(lhs_value, rhs_value);
+  case Op::GreaterThanOrEquals:
+    return greater_than_or_equals(lhs_value, rhs_value);
+  case Op::LessThanOrEquals:
+    return less_than_or_equals(lhs_value, rhs_value);
   case Op::StringConcat:
     return string_concat(lhs_value, rhs_value, interpreter.heap());
   default:

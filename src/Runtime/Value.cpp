@@ -90,6 +90,30 @@ Value divide(Value v1, Value v2)
 
   return Value(v1.as_number() / v2.as_number());
 }
+Value greater_than(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+  return Value(v1.as_number() > v2.as_number());
+}
+Value less_than(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+  return Value(v1.as_number() < v2.as_number());
+}
+Value greater_than_or_equals(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+  return Value(v1.as_number() >= v2.as_number());
+}
+Value less_than_or_equals(Value v1, Value v2)
+{
+  assert(v1.is_number());
+  assert(v2.is_number());
+  return Value(v1.as_number() <= v2.as_number());
+}
 
 Value string_concat(Value v1, Value v2, GC::Heap& heap)
 {
