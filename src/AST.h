@@ -182,7 +182,7 @@ class Identifier : public Expression {
   std::string m_name;
 };
 
-class AssignmentExpression : public Statement {
+class AssignmentExpression : public Expression {
   public:
   AssignmentExpression(std::unique_ptr<Identifier> id, std::unique_ptr<Expression> value)
       : m_id(std::move(id))

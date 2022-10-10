@@ -150,8 +150,9 @@ void AssignmentExpression::dump_impl(int indent) const
 
 Value AssignmentExpression::execute(Interpreter& interpreter)
 {
-  interpreter.set_variable(id().name(), value().execute(interpreter));
-  return Value();
+  auto v = value().execute(interpreter);
+  interpreter.set_variable(id().name(), v);
+  return v;
 }
 
 void BinaryExpression::dump_impl(int indent) const
