@@ -15,7 +15,7 @@ class Object : public GC::Cell {
   std::map<std::string, Value> properties() const { return m_properties; }
 
   Value get(std::string const& key) const { return m_properties.at(key); }
-  void put(std::string const& key, Object* value) { m_properties[key] = value; }
+  void put(std::string const& key, Value value) { m_properties[key] = value; }
   bool contains(std::string const& key) const { return m_properties.count(key); }
 
   virtual bool is_function() const { return false; }
