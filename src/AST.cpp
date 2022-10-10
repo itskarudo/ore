@@ -160,39 +160,12 @@ void BinaryExpression::dump_impl(int indent) const
   print_indent(indent);
   printf("\033[35m%s \033[33m@ {%p} \033[34m", class_name(), this);
   switch (m_op) {
-  case Op::Add:
-    putchar('+');
+#define __ENUM_BI_OP(op, sym) \
+  case Op::op:                \
+    printf(sym);              \
     break;
-  case Op::Sub:
-    putchar('-');
-    break;
-  case Op::Mult:
-    putchar('*');
-    break;
-  case Op::Div:
-    putchar('/');
-    break;
-  case Op::Equals:
-    printf("==");
-    break;
-  case Op::NotEquals:
-    printf("!=");
-    break;
-  case Op::GreaterThan:
-    putchar('>');
-    break;
-  case Op::LessThan:
-    putchar('<');
-    break;
-  case Op::GreaterThanOrEquals:
-    printf(">=");
-    break;
-  case Op::LessThanOrEquals:
-    printf("<=");
-    break;
-  case Op::StringConcat:
-    printf("..");
-    break;
+    ENUMERATE_BINARY_OPS
+#undef __ENUM_BI_OP
   }
   printf("\033[0m\n");
   m_lhs->dump_impl(indent + 1);
@@ -227,6 +200,12 @@ Value BinaryExpression::execute(Interpreter& interpreter)
     return less_than_or_equals(lhs_value, rhs_value);
   case Op::StringConcat:
     return string_concat(lhs_value, rhs_value, interpreter.heap());
+  case Op::And:
+    return value_and(lhs_value, rhs_value);
+  case Op::Or:
+    return value_or(lhs_value, rhs_value);
+  case Op::Xor:
+    return value_xor(lhs_value, rhs_value);
   default:
     __builtin_unreachable();
   }

@@ -125,6 +125,9 @@ Value less_than(Value, Value);
 Value greater_than_or_equals(Value, Value);
 Value less_than_or_equals(Value, Value);
 Value string_concat(Value v1, Value v2, GC::Heap&);
+Value value_and(Value, Value);
+Value value_or(Value, Value);
+Value value_xor(Value, Value);
 
 inline Value ore_nil()
 {

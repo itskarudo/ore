@@ -6,6 +6,22 @@
 #include "Runtime/Object.h"
 #include "Runtime/Value.h"
 
+#define ENUMERATE_BINARY_OPS              \
+  __ENUM_BI_OP(Add, "+")                  \
+  __ENUM_BI_OP(Sub, "-")                  \
+  __ENUM_BI_OP(Mult, "*")                 \
+  __ENUM_BI_OP(Div, "/")                  \
+  __ENUM_BI_OP(Equals, "==")              \
+  __ENUM_BI_OP(NotEquals, "!=")           \
+  __ENUM_BI_OP(GreaterThan, ">")          \
+  __ENUM_BI_OP(LessThan, "<")             \
+  __ENUM_BI_OP(GreaterThanOrEquals, ">=") \
+  __ENUM_BI_OP(LessThanOrEquals, "<=")    \
+  __ENUM_BI_OP(And, "and")                \
+  __ENUM_BI_OP(Or, "or")                  \
+  __ENUM_BI_OP(Xor, "xor")                \
+  __ENUM_BI_OP(StringConcat, "..")
+
 namespace Ore::AST {
 
 class ASTNode {
@@ -206,17 +222,9 @@ class AssignmentExpression : public Expression {
 class BinaryExpression : public Expression {
   public:
   enum class Op {
-    Add,
-    Sub,
-    Mult,
-    Div,
-    Equals,
-    NotEquals,
-    GreaterThan,
-    LessThan,
-    GreaterThanOrEquals,
-    LessThanOrEquals,
-    StringConcat
+#define __ENUM_BI_OP(op, sym) op,
+    ENUMERATE_BINARY_OPS
+#undef __ENUM_BI_OP
   };
 
   BinaryExpression(std::unique_ptr<Expression> lhs, Op op, std::unique_ptr<Expression> rhs)

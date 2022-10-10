@@ -165,4 +165,23 @@ Value string_concat(Value v1, Value v2, GC::Heap& heap)
   return Value(str);
 }
 
+Value value_and(Value v1, Value v2)
+{
+  assert(v1.is_boolean());
+  assert(v2.is_boolean());
+  return Value(v1.as_boolean() && v2.as_boolean());
+}
+Value value_or(Value v1, Value v2)
+{
+  assert(v1.is_boolean());
+  assert(v2.is_boolean());
+  return Value(v1.as_boolean() || v2.as_boolean());
+}
+Value value_xor(Value v1, Value v2)
+{
+  assert(v1.is_boolean());
+  assert(v2.is_boolean());
+  return Value(v1.as_boolean() != v2.as_boolean());
+}
+
 }
