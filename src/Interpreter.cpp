@@ -1,11 +1,17 @@
 #include "Interpreter.h"
 #include "AST.h"
+#include "Runtime/NativeFunction.h"
+#include "Runtime/Value.h"
 
 namespace Ore {
 
 Interpreter::Interpreter()
     : m_heap(*this)
 {
+  global_object().put("$gc", heap().allocate<NativeFunction>([&]() {
+    heap().collect_garbage();
+    return ore_nil();
+  }));
 }
 
 void Interpreter::enter_scope(AST::ScopeNode& scope_frame)

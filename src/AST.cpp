@@ -1,5 +1,6 @@
 #include "AST.h"
 #include "Runtime/FunctionObject.h"
+#include "Runtime/NativeFunction.h"
 #include <iostream>
 
 #include <assert.h>
@@ -71,10 +72,16 @@ Value CallExpression::execute(Interpreter& interpreter)
   assert(value.is_object());
 
   auto* callee = value.as_object();
-  assert(callee->is_function());
 
-  auto& function = static_cast<FunctionObject&>(*callee);
-  return interpreter.run(*function.body());
+  if (callee->is_function()) {
+    auto& function = static_cast<FunctionObject&>(*callee);
+    return interpreter.run(*function.body());
+  } else if (callee->is_native_function()) {
+    auto& function = static_cast<NativeFunction&>(*callee);
+    return function.native_function()();
+  }
+
+  __builtin_unreachable();
 }
 
 void ReturnStatement::dump_impl(int indent) const

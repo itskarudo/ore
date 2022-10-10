@@ -19,6 +19,7 @@ class Object : public GC::Cell {
   bool contains(std::string const& key) const { return m_properties.count(key); }
 
   virtual bool is_function() const { return false; }
+  virtual bool is_native_function() const { return false; }
 
   virtual void visit_graph(Visitor&) override;
   virtual char const* class_name() const override { return "Object"; }
