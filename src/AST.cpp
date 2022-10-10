@@ -141,14 +141,14 @@ Value Identifier::execute(Interpreter& interpreter)
   return interpreter.get_variable(name());
 }
 
-void VariableDeclaration::dump_impl(int indent) const
+void AssignmentExpression::dump_impl(int indent) const
 {
   print_indent(indent);
   printf("\033[32m%s \033[33m@ {%p} \033[34m%s\033[0m\n", class_name(), this, id().name().c_str());
   value().dump_impl(indent + 1);
 }
 
-Value VariableDeclaration::execute(Interpreter& interpreter)
+Value AssignmentExpression::execute(Interpreter& interpreter)
 {
   interpreter.set_variable(id().name(), value().execute(interpreter));
   return Value();

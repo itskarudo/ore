@@ -9,12 +9,12 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  program.append<AST::VariableDeclaration>(
+  program.append<AST::AssignmentExpression>(
       make_unique<AST::Identifier>("counter"),
       make_unique<AST::Literal>(0));
 
   auto while_body = make_unique<AST::ScopeNode>();
-  while_body->append<AST::VariableDeclaration>(
+  while_body->append<AST::AssignmentExpression>(
       make_unique<AST::Identifier>("counter"),
       make_unique<AST::BinaryExpression>(
           make_unique<AST::Identifier>("counter"),

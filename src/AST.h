@@ -182,15 +182,15 @@ class Identifier : public Expression {
   std::string m_name;
 };
 
-class VariableDeclaration : public Statement {
+class AssignmentExpression : public Statement {
   public:
-  VariableDeclaration(std::unique_ptr<Identifier> id, std::unique_ptr<Expression> value)
+  AssignmentExpression(std::unique_ptr<Identifier> id, std::unique_ptr<Expression> value)
       : m_id(std::move(id))
       , m_value(std::move(value))
   {
   }
 
-  virtual char const* class_name() const override { return "VariableDeclaration"; }
+  virtual char const* class_name() const override { return "AssignmentExpression"; }
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
