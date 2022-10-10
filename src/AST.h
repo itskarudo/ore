@@ -210,6 +210,8 @@ class BinaryExpression : public Expression {
     Sub,
     Mult,
     Div,
+    Equals,
+    NotEquals,
     GreaterThan,
     LessThan,
     GreaterThanOrEquals,

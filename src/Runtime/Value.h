@@ -118,6 +118,8 @@ Value add(Value, Value);
 Value sub(Value, Value);
 Value multiply(Value, Value);
 Value divide(Value, Value);
+Value equals(Value, Value);
+Value not_equals(Value, Value);
 Value greater_than(Value, Value);
 Value less_than(Value, Value);
 Value greater_than_or_equals(Value, Value);

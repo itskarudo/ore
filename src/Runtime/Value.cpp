@@ -90,6 +90,43 @@ Value divide(Value v1, Value v2)
 
   return Value(v1.as_number() / v2.as_number());
 }
+Value equals(Value v1, Value v2)
+{
+  assert(v1.type() == v2.type());
+  switch (v1.type()) {
+  case Value::Type::Number:
+    return Value(v1.as_number() == v2.as_number());
+  case Value::Type::Boolean:
+    return Value(v1.as_boolean() == v2.as_boolean());
+  case Value::Type::Nil:
+    return Value(true);
+  case Value::Type::String:
+    return Value(v1.as_string()->value() == v2.as_string()->value());
+  case Value::Type::Object:
+    return Value(v1.as_object() == v2.as_object());
+  default:
+    __builtin_unreachable();
+  }
+}
+Value not_equals(Value v1, Value v2)
+{
+  assert(v1.type() == v2.type());
+  switch (v1.type()) {
+  case Value::Type::Number:
+    return Value(v1.as_number() != v2.as_number());
+  case Value::Type::Boolean:
+    return Value(v1.as_boolean() != v2.as_boolean());
+  case Value::Type::Nil:
+    return Value(false);
+  case Value::Type::String:
+    return Value(v1.as_string()->value() != v2.as_string()->value());
+  case Value::Type::Object:
+    return Value(v1.as_object() != v2.as_object());
+  default:
+    __builtin_unreachable();
+  }
+}
+
 Value greater_than(Value v1, Value v2)
 {
   assert(v1.is_number());
