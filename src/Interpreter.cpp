@@ -71,9 +71,6 @@ Value Interpreter::run(AST::ScopeNode& scope_node)
 
 void Interpreter::collect_roots(std::vector<GC::Cell*>& roots)
 {
-
-  roots.push_back(&global_object());
-
   for (auto& frame : m_scope_frames) {
     for (auto& [name, value] : frame.variables) {
       if (value.is_object())

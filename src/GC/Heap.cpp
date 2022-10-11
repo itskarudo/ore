@@ -31,12 +31,15 @@ class LivenessVisitor : public Cell::Visitor {
   }
 };
 
-void Heap::collect_garbage()
+void Heap::collect_garbage(bool collect_global_object)
 {
   LivenessVisitor visitor;
   std::vector<Cell*> roots;
 
   // mark all live cells
+  if (!collect_global_object)
+    roots.push_back(&m_interpreter.global_object());
+
   m_interpreter.collect_roots(roots);
 
   for (auto* root : roots)

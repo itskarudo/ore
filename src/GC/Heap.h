@@ -14,6 +14,7 @@ class Heap {
   }
   ~Heap()
   {
+    collect_garbage(true);
     for (auto* it : m_blocks)
       free(it);
   }
@@ -26,7 +27,7 @@ class Heap {
     return static_cast<T*>(memory);
   }
 
-  void collect_garbage();
+  void collect_garbage(bool collect_global_object = false);
 
   private:
   Cell* allocate_cell(size_t);
