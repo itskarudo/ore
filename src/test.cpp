@@ -11,14 +11,18 @@ int main(void)
   AST::Program program;
 
   program.append<AST::AssignmentExpression>(
-      make_unique<AST::Identifier>("foo"),
-      make_unique<AST::Literal>(
-          interpreter.heap().allocate<PrimitiveString>("manama jeff")));
+      make_unique<AST::MemberExpression>(
+          make_unique<AST::Identifier>("$gc"),
+          make_unique<AST::Identifier>("foo")),
+      make_unique<AST::Literal>(5));
 
   program.append<AST::ReturnStatement>(
-      make_unique<AST::MemberExpression>(
-          make_unique<AST::Identifier>("foo"),
-          make_unique<AST::Identifier>("length")));
+      make_unique<AST::BinaryExpression>(
+          make_unique<AST::MemberExpression>(
+              make_unique<AST::Identifier>("$gc"),
+              make_unique<AST::Identifier>("foo")),
+          AST::BinaryExpression::Op::Add,
+          make_unique<AST::Literal>(1)));
 
   program.dump();
 

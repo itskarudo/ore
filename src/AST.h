@@ -31,6 +31,9 @@ class ASTNode {
   virtual char const* class_name() const = 0;
   virtual void dump_impl(int indent) const = 0;
   virtual Value execute(Interpreter&) = 0;
+
+  virtual bool is_identifier() const { return false; }
+  virtual bool is_member_expression() const { return false; }
 };
 
 class ScopeNode : public ASTNode {
@@ -192,6 +195,8 @@ class Identifier : public Expression {
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
+  virtual bool is_identifier() const override { return true; }
+
   std::string name() const { return m_name; }
 
   private:
@@ -200,9 +205,9 @@ class Identifier : public Expression {
 
 class AssignmentExpression : public Expression {
   public:
-  AssignmentExpression(std::unique_ptr<Identifier> id, std::unique_ptr<Expression> value)
-      : m_id(std::move(id))
-      , m_value(std::move(value))
+  AssignmentExpression(std::unique_ptr<ASTNode> lhs, std::unique_ptr<Expression> rhs)
+      : m_lhs(std::move(lhs))
+      , m_rhs(std::move(rhs))
   {
   }
 
@@ -210,13 +215,9 @@ class AssignmentExpression : public Expression {
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
-  Identifier const& id() const { return *m_id; }
-  Expression& value() { return *m_value; }
-  Expression const& value() const { return *m_value; }
-
   private:
-  std::unique_ptr<Identifier> m_id;
-  std::unique_ptr<Expression> m_value;
+  std::unique_ptr<ASTNode> m_lhs;
+  std::unique_ptr<Expression> m_rhs;
 };
 
 class BinaryExpression : public Expression {
@@ -245,7 +246,7 @@ class BinaryExpression : public Expression {
 
 class MemberExpression : public Expression {
   public:
-  MemberExpression(std::unique_ptr<Expression> object, std::unique_ptr<Identifier> id)
+  explicit MemberExpression(std::unique_ptr<Expression> object, std::unique_ptr<Identifier> id)
       : m_object(std::move(object))
       , m_id(std::move(id))
   {
@@ -259,6 +260,8 @@ class MemberExpression : public Expression {
   virtual char const* class_name() const override { return "MemberExpression"; }
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
+
+  virtual bool is_member_expression() const override { return true; }
 
   private:
   std::unique_ptr<Expression> m_object;

@@ -151,14 +151,27 @@ Value Identifier::execute(Interpreter& interpreter)
 void AssignmentExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p} \033[34m%s\033[0m\n", class_name(), this, id().name().c_str());
-  value().dump_impl(indent + 1);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  m_lhs->dump_impl(indent + 1);
+  m_rhs->dump_impl(indent + 1);
 }
 
 Value AssignmentExpression::execute(Interpreter& interpreter)
 {
-  auto v = value().execute(interpreter);
-  interpreter.set_variable(id().name(), v);
+  auto v = m_rhs->execute(interpreter);
+
+  if (m_lhs->is_identifier()) {
+    auto id = static_cast<Identifier&>(*m_lhs);
+    interpreter.set_variable(id.name(), v);
+  } else if (m_lhs->is_member_expression()) {
+    auto object_value = static_cast<MemberExpression&>(*m_lhs).object().execute(interpreter);
+    auto* object = object_value.to_object(interpreter.heap()).as_object();
+
+    object->put(static_cast<MemberExpression&>(*m_lhs).id().name(), Value(5));
+  } else {
+    __builtin_unreachable();
+  }
+
   return v;
 }
 
