@@ -17,6 +17,9 @@ int main(void)
       make_unique<AST::FunctionDeclaration>(
           std::nullopt, body));
 
+  program.append<AST::CallExpression>(
+      make_unique<AST::Identifier>("foo"));
+
   program.dump();
 
   auto ret = interpreter.run(program);

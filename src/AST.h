@@ -108,18 +108,17 @@ class FunctionDeclaration : public Expression {
 
 class CallExpression : public Expression {
   public:
-  CallExpression(std::string const& name)
-      : m_name(name)
+  CallExpression(std::unique_ptr<ASTNode> callee)
+      : m_callee(std::move(callee))
   {
   }
 
-  std::string const& name() const { return m_name; }
   virtual char const* class_name() const override { return "CallExpression"; }
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
   private:
-  std::string m_name;
+  std::unique_ptr<ASTNode> m_callee;
 };
 
 class ReturnStatement : public Statement {

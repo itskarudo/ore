@@ -64,12 +64,20 @@ Value FunctionDeclaration::execute(Interpreter& interpreter)
 void CallExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[35m%s \033[33m@ {%p} \033[34m%s\033[0m\n", class_name(), this, name().c_str());
+  printf("\033[35m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  m_callee->dump_impl(indent + 1);
 }
 
 Value CallExpression::execute(Interpreter& interpreter)
 {
-  auto value = interpreter.get_variable(name());
+  Value value;
+  if (m_callee->is_identifier()) {
+    value = interpreter.get_variable(static_cast<Identifier&>(*m_callee).name());
+  } else if (m_callee->is_member_expression()) {
+    value = static_cast<MemberExpression&>(*m_callee).execute(interpreter);
+  } else
+    __builtin_unreachable();
+
   assert(value.is_object());
 
   auto* callee = value.as_object();
@@ -168,7 +176,7 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
     auto object_value = static_cast<MemberExpression&>(*m_lhs).object().execute(interpreter);
     auto* object = object_value.to_object(interpreter.heap()).as_object();
 
-    object->put(static_cast<MemberExpression&>(*m_lhs).id().name(), Value(5));
+    object->put(static_cast<MemberExpression&>(*m_lhs).id().name(), v);
   } else {
     __builtin_unreachable();
   }
