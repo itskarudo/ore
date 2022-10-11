@@ -218,4 +218,21 @@ Value BinaryExpression::execute(Interpreter& interpreter)
   }
 }
 
+void MemberExpression::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p} \033[34m%s\033[0m\n", class_name(), this, id().name().c_str());
+  object().dump_impl(indent + 1);
+}
+
+Value MemberExpression::execute(Interpreter& interpreter)
+{
+  auto obj = object().execute(interpreter).to_object(interpreter.heap()).as_object();
+
+  if (obj->contains(id().name()))
+    return obj->get(id().name());
+
+  return ore_nil();
+}
+
 }

@@ -6,10 +6,7 @@
 namespace Ore {
 class StringObject final : public Object {
   public:
-  explicit StringObject(PrimitiveString* value)
-      : m_value(value)
-  {
-  }
+  explicit StringObject(PrimitiveString*);
 
   virtual ~StringObject() { }
   virtual void visit_graph(Visitor&) override;

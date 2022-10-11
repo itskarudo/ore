@@ -243,4 +243,26 @@ class BinaryExpression : public Expression {
   Op m_op;
 };
 
+class MemberExpression : public Expression {
+  public:
+  MemberExpression(std::unique_ptr<Expression> object, std::unique_ptr<Identifier> id)
+      : m_object(std::move(object))
+      , m_id(std::move(id))
+  {
+  }
+
+  Expression& object() { return *m_object; }
+  Expression const& object() const { return *m_object; }
+  Identifier& id() { return *m_id; }
+  Identifier const& id() const { return *m_id; }
+
+  virtual char const* class_name() const override { return "MemberExpression"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::unique_ptr<Expression> m_object;
+  std::unique_ptr<Identifier> m_id;
+};
+
 }
