@@ -47,15 +47,16 @@ Value ScopeNode::execute(Interpreter& interpreter)
 void FunctionDeclaration::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p} \033[34m%s\033[0m \n", class_name(), this, name().c_str());
-  print_indent(indent);
+  std::cout << "\033[32m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << name().value_or("(anonymous)") << "\033[0m" << std::endl;
   body()->dump_impl(indent + 1);
 }
 
 Value FunctionDeclaration::execute(Interpreter& interpreter)
 {
   auto* function = interpreter.heap().allocate<FunctionObject>(name(), body());
-  interpreter.set_variable(name(), function);
+
+  if (name().has_value())
+    interpreter.set_variable(name().value(), function);
 
   return Value(function);
 }

@@ -10,10 +10,12 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  program.append<AST::UnaryExpression>(
-      AST::UnaryExpression::Op::Length,
-      make_unique<AST::Literal>(
-          ore_string(interpreter.heap(), "foo")));
+  auto body = std::make_shared<AST::ScopeNode>();
+
+  program.append<AST::AssignmentExpression>(
+      make_unique<AST::Identifier>("foo"),
+      make_unique<AST::FunctionDeclaration>(
+          std::nullopt, body));
 
   program.dump();
 

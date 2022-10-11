@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "Interpreter.h"
@@ -85,15 +86,15 @@ class Literal : public Expression {
   Value m_value;
 };
 
-class FunctionDeclaration : public Statement {
+class FunctionDeclaration : public Expression {
   public:
-  FunctionDeclaration(std::string const& name, std::shared_ptr<ScopeNode> body)
+  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<ScopeNode> body)
       : m_name(name)
       , m_body(body)
   {
   }
 
-  std::string name() const { return m_name; }
+  std::optional<std::string> name() const { return m_name; }
   std::shared_ptr<ScopeNode> body() const { return m_body; }
 
   virtual char const* class_name() const override { return "FunctionDeclaration"; }
@@ -101,7 +102,7 @@ class FunctionDeclaration : public Statement {
   virtual Value execute(Interpreter&) override;
 
   private:
-  std::string m_name;
+  std::optional<std::string> m_name;
   std::shared_ptr<ScopeNode> m_body;
 };
 
