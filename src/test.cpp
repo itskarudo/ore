@@ -10,19 +10,10 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  program.append<AST::AssignmentExpression>(
-      make_unique<AST::MemberExpression>(
-          make_unique<AST::Identifier>("$gc"),
-          make_unique<AST::Identifier>("foo")),
-      make_unique<AST::Literal>(5));
-
-  program.append<AST::ReturnStatement>(
-      make_unique<AST::BinaryExpression>(
-          make_unique<AST::MemberExpression>(
-              make_unique<AST::Identifier>("$gc"),
-              make_unique<AST::Identifier>("foo")),
-          AST::BinaryExpression::Op::Add,
-          make_unique<AST::Literal>(1)));
+  program.append<AST::UnaryExpression>(
+      AST::UnaryExpression::Op::Length,
+      make_unique<AST::Literal>(
+          ore_string(interpreter.heap(), "foo")));
 
   program.dump();
 

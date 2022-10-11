@@ -175,6 +175,35 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
   return v;
 }
 
+void UnaryExpression::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[35m%s \033[33m@ {%p} \033[34m", class_name(), this);
+  switch (m_op) {
+  case Op::Not:
+    printf("not");
+    break;
+  case Op::Length:
+    putchar('#');
+    break;
+  }
+  printf("\033[0m\n");
+  m_operand->dump_impl(indent + 1);
+}
+
+Value UnaryExpression::execute(Interpreter& interpreter)
+{
+  auto value = m_operand->execute(interpreter);
+  switch (m_op) {
+  case Op::Not:
+    return value_not(value);
+  case Op::Length:
+    return length(value);
+  default:
+    __builtin_unreachable();
+  }
+}
+
 void BinaryExpression::dump_impl(int indent) const
 {
   print_indent(indent);

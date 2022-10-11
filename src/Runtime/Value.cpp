@@ -184,4 +184,17 @@ Value value_xor(Value v1, Value v2)
   return Value(v1.as_boolean() != v2.as_boolean());
 }
 
+Value value_not(Value v)
+{
+  assert(v.is_boolean());
+  return Value(!v.as_boolean());
+}
+
+Value length(Value v)
+{
+  assert(v.is_string());
+  // FIXME: this just feels illegal somehow.
+  return Value((int)v.as_string()->string().length());
+}
+
 }

@@ -220,6 +220,28 @@ class AssignmentExpression : public Expression {
   std::unique_ptr<Expression> m_rhs;
 };
 
+class UnaryExpression : public Expression {
+  public:
+  enum class Op {
+    Not,
+    Length
+  };
+
+  UnaryExpression(Op op, std::unique_ptr<Expression> operand)
+      : m_op(op)
+      , m_operand(std::move(operand))
+  {
+  }
+
+  virtual char const* class_name() const override { return "UnaryExpression"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  Op m_op;
+  std::unique_ptr<Expression> m_operand;
+};
+
 class BinaryExpression : public Expression {
   public:
   enum class Op {

@@ -129,6 +129,9 @@ Value value_and(Value, Value);
 Value value_or(Value, Value);
 Value value_xor(Value, Value);
 
+Value value_not(Value);
+Value length(Value);
+
 inline Value ore_nil()
 {
   return Value(Value::Type::Nil);
