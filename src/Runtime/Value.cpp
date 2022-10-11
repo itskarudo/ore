@@ -13,7 +13,7 @@ bool Value::to_boolean() const
   case Value::Type::Boolean:
     return as_boolean();
   case Value::Type::String:
-    return !as_string()->value().empty();
+    return !as_string()->string().empty();
   case Value::Type::Object:
     return true;
   default:
@@ -47,7 +47,7 @@ std::ostream& operator<<(std::ostream& os, Value const& value)
     os << (value.as_boolean() ? "true" : "false");
     break;
   case Value::Type::String:
-    os << value.as_string()->value();
+    os << value.as_string()->string();
     break;
   case Value::Type::Object:
     os << "[Object]";
@@ -101,7 +101,7 @@ Value equals(Value v1, Value v2)
   case Value::Type::Nil:
     return Value(true);
   case Value::Type::String:
-    return Value(v1.as_string()->value() == v2.as_string()->value());
+    return Value(v1.as_string()->string() == v2.as_string()->string());
   case Value::Type::Object:
     return Value(v1.as_object() == v2.as_object());
   default:
@@ -119,7 +119,7 @@ Value not_equals(Value v1, Value v2)
   case Value::Type::Nil:
     return Value(false);
   case Value::Type::String:
-    return Value(v1.as_string()->value() != v2.as_string()->value());
+    return Value(v1.as_string()->string() != v2.as_string()->string());
   case Value::Type::Object:
     return Value(v1.as_object() != v2.as_object());
   default:
@@ -157,8 +157,8 @@ Value string_concat(Value v1, Value v2, GC::Heap& heap)
   assert(v1.is_string());
   assert(v2.is_string());
 
-  auto str1 = v1.as_string()->value();
-  auto str2 = v2.as_string()->value();
+  auto str1 = v1.as_string()->string();
+  auto str2 = v2.as_string()->string();
 
   auto* str = heap.allocate<PrimitiveString>(str1 + str2);
 

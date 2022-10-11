@@ -4,15 +4,15 @@
 namespace Ore {
 class PrimitiveString : public GC::Cell {
   public:
-  PrimitiveString(std::string const& value)
-      : m_value(value)
+  PrimitiveString(std::string const& string)
+      : m_string(string)
   {
   }
 
-  std::string value() const { return m_value; }
+  std::string string() const { return m_string; }
   virtual char const* class_name() const override { return "PrimitiveString"; }
 
   private:
-  std::string m_value;
+  std::string m_string;
 };
 }
