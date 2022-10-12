@@ -144,7 +144,7 @@ class ReturnStatement : public Statement {
 
 class IfStatement : public Statement {
   public:
-  IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<BlockStatement> consequent, std::unique_ptr<BlockStatement> alternate)
+  IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> consequent, std::unique_ptr<Statement> alternate)
       : m_test(std::move(test))
       , m_consequent(std::move(consequent))
       , m_alternate(std::move(alternate))
@@ -152,8 +152,8 @@ class IfStatement : public Statement {
   }
 
   Expression& test() const { return *m_test; }
-  BlockStatement& consequent() const { return *m_consequent; }
-  BlockStatement& alternate() const { return *m_alternate; }
+  Statement& consequent() const { return *m_consequent; }
+  Statement& alternate() const { return *m_alternate; }
 
   virtual char const* class_name() const override { return "IfStatement"; }
   virtual void dump_impl(int indent) const override;
@@ -161,19 +161,19 @@ class IfStatement : public Statement {
 
   private:
   std::unique_ptr<Expression> m_test;
-  std::unique_ptr<BlockStatement> m_consequent, m_alternate;
+  std::unique_ptr<Statement> m_consequent, m_alternate;
 };
 
 class WhileStatement : public Statement {
   public:
-  WhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<BlockStatement> body)
+  WhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> body)
       : m_test(std::move(test))
       , m_body(std::move(body))
   {
   }
 
   Expression& test() const { return *m_test; }
-  BlockStatement& body() const { return *m_body; }
+  Statement& body() const { return *m_body; }
 
   virtual char const* class_name() const override { return "WhileStatement"; }
   virtual void dump_impl(int indent) const override;
@@ -181,7 +181,7 @@ class WhileStatement : public Statement {
 
   private:
   std::unique_ptr<Expression> m_test;
-  std::unique_ptr<BlockStatement> m_body;
+  std::unique_ptr<Statement> m_body;
 };
 
 class Identifier : public Expression {

@@ -10,15 +10,11 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  auto body = std::make_shared<AST::BlockStatement>();
-
-  program.append<AST::AssignmentExpression>(
-      make_unique<AST::Identifier>("foo"),
-      make_unique<AST::FunctionDeclaration>(
-          std::nullopt, body));
-
-  program.append<AST::CallExpression>(
-      make_unique<AST::Identifier>("foo"));
+  program.append<AST::IfStatement>(
+      make_unique<AST::Literal>(true),
+      make_unique<AST::CallExpression>(
+          make_unique<AST::Identifier>("$gc")),
+      make_unique<AST::BlockStatement>());
 
   program.dump();
 
