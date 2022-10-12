@@ -11,7 +11,7 @@ class Interpreter {
   Interpreter();
 
   struct ScopeFrame {
-    AST::ScopeNode& scope_node;
+    AST::BlockStatement& block;
     std::map<std::string, Value> variables;
   };
 
@@ -21,11 +21,11 @@ class Interpreter {
   Object const& global_object() const { return m_global_object; }
   Object& global_object() { return m_global_object; }
 
-  Value run(AST::ScopeNode&);
+  Value run(AST::BlockStatement&);
 
   ScopeFrame& current_scope() { return m_scope_frames.back(); }
 
-  void enter_scope(AST::ScopeNode&);
+  void enter_scope(AST::BlockStatement&);
   void leave_scope();
 
   Value get_variable(std::string const& name) const;

@@ -10,7 +10,7 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  auto body = std::make_shared<AST::ScopeNode>();
+  auto body = std::make_shared<AST::BlockStatement>();
 
   program.append<AST::AssignmentExpression>(
       make_unique<AST::Identifier>("foo"),

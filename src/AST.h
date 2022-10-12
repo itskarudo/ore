@@ -37,9 +37,15 @@ class ASTNode {
   virtual bool is_member_expression() const { return false; }
 };
 
-class ScopeNode : public ASTNode {
+class Statement : public ASTNode {
+};
+
+class Expression : public Statement {
+};
+
+class BlockStatement : public Statement {
   public:
-  virtual char const* class_name() const override { return "ScopeNode"; };
+  virtual char const* class_name() const override { return "BlockStatement"; };
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
@@ -56,16 +62,10 @@ class ScopeNode : public ASTNode {
   std::vector<std::shared_ptr<ASTNode>> m_children;
 };
 
-class Program : public ScopeNode {
+class Program : public BlockStatement {
   public:
   virtual char const* class_name() const override { return "Program"; };
   virtual void dump_impl(int indent) const override;
-};
-
-class Statement : public ASTNode {
-};
-
-class Expression : public Statement {
 };
 
 class Literal : public Expression {
@@ -88,14 +88,14 @@ class Literal : public Expression {
 
 class FunctionDeclaration : public Expression {
   public:
-  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<ScopeNode> body)
+  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<BlockStatement> body)
       : m_name(name)
       , m_body(body)
   {
   }
 
   std::optional<std::string> name() const { return m_name; }
-  std::shared_ptr<ScopeNode> body() const { return m_body; }
+  std::shared_ptr<BlockStatement> body() const { return m_body; }
 
   virtual char const* class_name() const override { return "FunctionDeclaration"; }
   virtual void dump_impl(int indent) const override;
@@ -103,7 +103,7 @@ class FunctionDeclaration : public Expression {
 
   private:
   std::optional<std::string> m_name;
-  std::shared_ptr<ScopeNode> m_body;
+  std::shared_ptr<BlockStatement> m_body;
 };
 
 class CallExpression : public Expression {
@@ -144,7 +144,7 @@ class ReturnStatement : public Statement {
 
 class IfStatement : public Statement {
   public:
-  IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<ScopeNode> consequent, std::unique_ptr<ScopeNode> alternate)
+  IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<BlockStatement> consequent, std::unique_ptr<BlockStatement> alternate)
       : m_test(std::move(test))
       , m_consequent(std::move(consequent))
       , m_alternate(std::move(alternate))
@@ -152,8 +152,8 @@ class IfStatement : public Statement {
   }
 
   Expression& test() const { return *m_test; }
-  ScopeNode& consequent() const { return *m_consequent; }
-  ScopeNode& alternate() const { return *m_alternate; }
+  BlockStatement& consequent() const { return *m_consequent; }
+  BlockStatement& alternate() const { return *m_alternate; }
 
   virtual char const* class_name() const override { return "IfStatement"; }
   virtual void dump_impl(int indent) const override;
@@ -161,19 +161,19 @@ class IfStatement : public Statement {
 
   private:
   std::unique_ptr<Expression> m_test;
-  std::unique_ptr<ScopeNode> m_consequent, m_alternate;
+  std::unique_ptr<BlockStatement> m_consequent, m_alternate;
 };
 
 class WhileStatement : public Statement {
   public:
-  WhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<ScopeNode> body)
+  WhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<BlockStatement> body)
       : m_test(std::move(test))
       , m_body(std::move(body))
   {
   }
 
   Expression& test() const { return *m_test; }
-  ScopeNode& body() const { return *m_body; }
+  BlockStatement& body() const { return *m_body; }
 
   virtual char const* class_name() const override { return "WhileStatement"; }
   virtual void dump_impl(int indent) const override;
@@ -181,7 +181,7 @@ class WhileStatement : public Statement {
 
   private:
   std::unique_ptr<Expression> m_test;
-  std::unique_ptr<ScopeNode> m_body;
+  std::unique_ptr<BlockStatement> m_body;
 };
 
 class Identifier : public Expression {

@@ -25,7 +25,7 @@ Value Literal::execute(Interpreter& interpreter)
   return value();
 }
 
-void ScopeNode::dump_impl(int indent) const
+void BlockStatement::dump_impl(int indent) const
 {
   for (auto& child : children())
     child->dump_impl(indent);
@@ -39,7 +39,7 @@ void Program::dump_impl(int indent) const
     child->dump_impl(indent + 1);
 }
 
-Value ScopeNode::execute(Interpreter& interpreter)
+Value BlockStatement::execute(Interpreter& interpreter)
 {
   return interpreter.run(*this);
 }

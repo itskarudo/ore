@@ -14,7 +14,7 @@ Interpreter::Interpreter()
   }));
 }
 
-void Interpreter::enter_scope(AST::ScopeNode& scope_frame)
+void Interpreter::enter_scope(AST::BlockStatement& scope_frame)
 {
   m_scope_frames.push_back({ scope_frame, {} });
 }
@@ -53,14 +53,14 @@ void Interpreter::set_variable(std::string const& name, Value value)
   current_scope().variables[name] = value;
 }
 
-Value Interpreter::run(AST::ScopeNode& scope_node)
+Value Interpreter::run(AST::BlockStatement& block)
 {
 
-  enter_scope(scope_node);
+  enter_scope(block);
 
   Value return_value;
 
-  for (auto child : scope_node.children()) {
+  for (auto child : block.children()) {
     return_value = child->execute(*this);
   }
 

@@ -4,7 +4,7 @@ namespace Ore {
 
 namespace AST {
 class ASTNode;
-class ScopeNode;
+class BlockStatement;
 };
 
 namespace GC {
