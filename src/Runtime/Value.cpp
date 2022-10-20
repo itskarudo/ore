@@ -21,17 +21,17 @@ bool Value::to_boolean() const
   }
 }
 
-Value Value::to_object(GC::Heap& heap) const
+Object* Value::to_object(GC::Heap& heap) const
 {
   switch (type()) {
   case Value::Type::Number:
-    return Value(heap.allocate<NumberObject>(as_number()));
+    return heap.allocate<NumberObject>(as_number());
   case Value::Type::Boolean:
-    return Value(heap.allocate<BooleanObject>(as_boolean()));
+    return heap.allocate<BooleanObject>(as_boolean());
   case Value::Type::String:
-    return Value(heap.allocate<StringObject>(as_string()));
+    return heap.allocate<StringObject>(as_string());
   case Value::Type::Object:
-    return Value(as_object());
+    return as_object();
   default:
     __builtin_unreachable();
   }

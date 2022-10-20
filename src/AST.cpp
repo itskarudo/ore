@@ -175,7 +175,7 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
     interpreter.set_variable(id.name(), v);
   } else if (m_lhs->is_member_expression()) {
     auto object_value = static_cast<MemberExpression&>(*m_lhs).object().execute(interpreter);
-    auto* object = object_value.to_object(interpreter.heap()).as_object();
+    auto* object = object_value.to_object(interpreter.heap());
 
     object->put(static_cast<MemberExpression&>(*m_lhs).id().name(), v);
   } else {
@@ -279,7 +279,7 @@ void MemberExpression::dump_impl(int indent) const
 
 Value MemberExpression::execute(Interpreter& interpreter)
 {
-  auto obj = object().execute(interpreter).to_object(interpreter.heap()).as_object();
+  auto obj = object().execute(interpreter).to_object(interpreter.heap());
 
   if (obj->contains(id().name()))
     return obj->get(id().name());
