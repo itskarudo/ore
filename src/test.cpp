@@ -10,10 +10,25 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  program.append<AST::IfStatement>(
+  auto tr = make_unique<AST::BlockStatement>();
+  tr->append<AST::ReturnStatement>(
+      make_unique<AST::Literal>(true));
+
+  auto body = make_unique<AST::BlockStatement>();
+  body->append<AST::IfStatement>(
       make_unique<AST::Literal>(true),
+      std::move(tr),
+      make_unique<AST::BlockStatement>());
+
+  program.append<AST::FunctionDeclaration>(
+      "foo",
+      std::move(body));
+
+  program.append<AST::IfStatement>(
       make_unique<AST::CallExpression>(
-          make_unique<AST::Identifier>("$gc")),
+          make_unique<AST::Identifier>("foo")),
+      make_unique<AST::CallExpression>(
+          make_unique<AST::Identifier>("DEBUG")),
       make_unique<AST::BlockStatement>());
 
   program.dump();

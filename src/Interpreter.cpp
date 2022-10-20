@@ -8,15 +8,19 @@ namespace Ore {
 Interpreter::Interpreter()
     : m_heap(*this)
 {
+  global_object().put("DEBUG", heap().allocate<NativeFunction>([&]() {
+    printf("DEBUG FUNCTION REMOVE LATER\n");
+    return ore_nil();
+  }));
   global_object().put("$gc", heap().allocate<NativeFunction>([&]() {
     heap().collect_garbage();
     return ore_nil();
   }));
 }
 
-void Interpreter::enter_scope(AST::BlockStatement& scope_frame)
+void Interpreter::enter_scope(AST::BlockStatement& scope_frame, ScopeType type)
 {
-  m_scope_frames.push_back({ scope_frame, {} });
+  m_scope_frames.push_back({ scope_frame, {}, type });
 }
 
 void Interpreter::leave_scope()
@@ -53,16 +57,23 @@ void Interpreter::set_variable(std::string const& name, Value value)
   current_scope().variables[name] = value;
 }
 
-Value Interpreter::run(AST::BlockStatement& block)
+Value Interpreter::run(AST::BlockStatement& block, ScopeType type)
 {
 
-  enter_scope(block);
+  enter_scope(block, type);
 
-  Value return_value;
+  Value return_value = ore_nil();
 
   for (auto child : block.children()) {
-    return_value = child->execute(*this);
+    auto last_value = child->execute(*this);
+    if (m_do_return) {
+      return_value = last_value;
+      break;
+    }
   }
+
+  if (type == ScopeType::Function && m_do_return)
+    m_do_return = false;
 
   leave_scope();
 

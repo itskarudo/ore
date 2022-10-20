@@ -84,7 +84,7 @@ Value CallExpression::execute(Interpreter& interpreter)
 
   if (callee->is_function()) {
     auto& function = static_cast<FunctionObject&>(*callee);
-    return interpreter.run(*function.body());
+    return interpreter.run(*function.body(), Interpreter::ScopeType::Function);
   } else if (callee->is_native_function()) {
     auto& function = static_cast<NativeFunction&>(*callee);
     return function.native_function()();
@@ -102,6 +102,7 @@ void ReturnStatement::dump_impl(int indent) const
 
 Value ReturnStatement::execute(Interpreter& interpreter)
 {
+  interpreter.do_return();
   return argument().execute(interpreter);
 }
 
