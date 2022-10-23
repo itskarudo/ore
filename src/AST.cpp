@@ -206,9 +206,9 @@ Value UnaryExpression::execute(Interpreter& interpreter)
   auto value = m_operand->execute(interpreter);
   switch (m_op) {
   case Op::Not:
-    return value_not(value);
+    return !value;
   case Op::Length:
-    return length(value);
+    return Value::length(value);
   default:
     __builtin_unreachable();
   }
@@ -238,33 +238,33 @@ Value BinaryExpression::execute(Interpreter& interpreter)
 
   switch (m_op) {
   case Op::Add:
-    return add(lhs_value, rhs_value);
+    return lhs_value + rhs_value;
   case Op::Sub:
-    return sub(lhs_value, rhs_value);
+    return lhs_value - rhs_value;
   case Op::Mult:
-    return multiply(lhs_value, rhs_value);
+    return lhs_value * rhs_value;
   case Op::Div:
-    return divide(lhs_value, rhs_value);
+    return lhs_value / rhs_value;
   case Op::Equals:
-    return equals(lhs_value, rhs_value);
+    return lhs_value == rhs_value;
   case Op::NotEquals:
-    return not_equals(lhs_value, rhs_value);
+    return lhs_value != rhs_value;
   case Op::GreaterThan:
-    return greater_than(lhs_value, rhs_value);
+    return lhs_value > rhs_value;
   case Op::LessThan:
-    return less_than(lhs_value, rhs_value);
+    return lhs_value < rhs_value;
   case Op::GreaterThanOrEquals:
-    return greater_than_or_equals(lhs_value, rhs_value);
+    return lhs_value >= rhs_value;
   case Op::LessThanOrEquals:
-    return less_than_or_equals(lhs_value, rhs_value);
+    return lhs_value <= rhs_value;
   case Op::StringConcat:
-    return string_concat(lhs_value, rhs_value, interpreter.heap());
+    return Value::string_concat(lhs_value, rhs_value, interpreter.heap());
   case Op::And:
-    return value_and(lhs_value, rhs_value);
+    return Value::logical_and(lhs_value, rhs_value);
   case Op::Or:
-    return value_or(lhs_value, rhs_value);
+    return Value::logical_or(lhs_value, rhs_value);
   case Op::Xor:
-    return value_xor(lhs_value, rhs_value);
+    return Value::logical_xor(lhs_value, rhs_value);
   default:
     __builtin_unreachable();
   }

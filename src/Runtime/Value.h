@@ -103,6 +103,24 @@ class Value {
 
   friend std::ostream& operator<<(std::ostream& os, Value const& value);
 
+  static Value string_concat(Value const&, Value const&, GC::Heap&);
+  static Value logical_and(Value const&, Value const&);
+  static Value logical_or(Value const&, Value const&);
+  static Value logical_xor(Value const&, Value const&);
+  static Value length(Value const&);
+
+  Value operator+(Value const&);
+  Value operator-(Value const&);
+  Value operator*(Value const&);
+  Value operator/(Value const&);
+  Value operator==(Value const&);
+  Value operator!=(Value const&);
+  Value operator<(Value const&);
+  Value operator<=(Value const&);
+  Value operator>(Value const&);
+  Value operator>=(Value const&);
+  Value operator!(void);
+
   private:
   Type m_type;
   union {
@@ -113,24 +131,6 @@ class Value {
     GC::Cell* as_cell;
   } m_value;
 };
-
-Value add(Value, Value);
-Value sub(Value, Value);
-Value multiply(Value, Value);
-Value divide(Value, Value);
-Value equals(Value, Value);
-Value not_equals(Value, Value);
-Value greater_than(Value, Value);
-Value less_than(Value, Value);
-Value greater_than_or_equals(Value, Value);
-Value less_than_or_equals(Value, Value);
-Value string_concat(Value v1, Value v2, GC::Heap&);
-Value value_and(Value, Value);
-Value value_or(Value, Value);
-Value value_xor(Value, Value);
-
-Value value_not(Value);
-Value length(Value);
 
 inline Value ore_nil()
 {

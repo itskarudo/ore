@@ -60,141 +60,114 @@ std::ostream& operator<<(std::ostream& os, Value const& value)
   return os;
 }
 
-Value add(Value v1, Value v2)
+Value Value::string_concat(Value const& str1, Value const& str2, GC::Heap& heap)
 {
-  assert(v1.is_number());
-  assert(v2.is_number());
-
-  return Value(v1.as_number() + v2.as_number());
+  assert(str1.is_string() && str2.is_string());
+  return ore_string(heap, str1.as_string()->string() + str2.as_string()->string());
 }
 
-Value sub(Value v1, Value v2)
+Value Value::logical_and(Value const& v1, Value const& v2)
 {
-  assert(v1.is_number());
-  assert(v2.is_number());
-
-  return Value(v1.as_number() - v2.as_number());
-}
-Value multiply(Value v1, Value v2)
-{
-  assert(v1.is_number());
-  assert(v2.is_number());
-
-  return Value(v1.as_number() * v2.as_number());
-}
-Value divide(Value v1, Value v2)
-{
-  assert(v1.is_number());
-  assert(v2.is_number());
-  assert(v2.as_number() != 0);
-
-  return Value(v1.as_number() / v2.as_number());
-}
-Value equals(Value v1, Value v2)
-{
-  assert(v1.type() == v2.type());
-  switch (v1.type()) {
-  case Value::Type::Number:
-    return Value(v1.as_number() == v2.as_number());
-  case Value::Type::Boolean:
-    return Value(v1.as_boolean() == v2.as_boolean());
-  case Value::Type::Nil:
-    return Value(true);
-  case Value::Type::String:
-    return Value(v1.as_string()->string() == v2.as_string()->string());
-  case Value::Type::Object:
-    return Value(v1.as_object() == v2.as_object());
-  default:
-    __builtin_unreachable();
-  }
-}
-Value not_equals(Value v1, Value v2)
-{
-  assert(v1.type() == v2.type());
-  switch (v1.type()) {
-  case Value::Type::Number:
-    return Value(v1.as_number() != v2.as_number());
-  case Value::Type::Boolean:
-    return Value(v1.as_boolean() != v2.as_boolean());
-  case Value::Type::Nil:
-    return Value(false);
-  case Value::Type::String:
-    return Value(v1.as_string()->string() != v2.as_string()->string());
-  case Value::Type::Object:
-    return Value(v1.as_object() != v2.as_object());
-  default:
-    __builtin_unreachable();
-  }
-}
-
-Value greater_than(Value v1, Value v2)
-{
-  assert(v1.is_number());
-  assert(v2.is_number());
-  return Value(v1.as_number() > v2.as_number());
-}
-Value less_than(Value v1, Value v2)
-{
-  assert(v1.is_number());
-  assert(v2.is_number());
-  return Value(v1.as_number() < v2.as_number());
-}
-Value greater_than_or_equals(Value v1, Value v2)
-{
-  assert(v1.is_number());
-  assert(v2.is_number());
-  return Value(v1.as_number() >= v2.as_number());
-}
-Value less_than_or_equals(Value v1, Value v2)
-{
-  assert(v1.is_number());
-  assert(v2.is_number());
-  return Value(v1.as_number() <= v2.as_number());
-}
-
-Value string_concat(Value v1, Value v2, GC::Heap& heap)
-{
-  assert(v1.is_string());
-  assert(v2.is_string());
-
-  auto str1 = v1.as_string()->string();
-  auto str2 = v2.as_string()->string();
-
-  auto* str = heap.allocate<PrimitiveString>(str1 + str2);
-
-  return Value(str);
-}
-
-Value value_and(Value v1, Value v2)
-{
-  assert(v1.is_boolean());
-  assert(v2.is_boolean());
+  assert(v1.is_boolean() && v2.is_boolean());
   return Value(v1.as_boolean() && v2.as_boolean());
 }
-Value value_or(Value v1, Value v2)
+
+Value Value::logical_or(Value const& v1, Value const& v2)
 {
-  assert(v1.is_boolean());
-  assert(v2.is_boolean());
+  assert(v1.is_boolean() && v2.is_boolean());
   return Value(v1.as_boolean() || v2.as_boolean());
 }
-Value value_xor(Value v1, Value v2)
+
+Value Value::logical_xor(Value const& v1, Value const& v2)
 {
-  assert(v1.is_boolean());
-  assert(v2.is_boolean());
+  assert(v1.is_boolean() && v2.is_boolean());
   return Value(v1.as_boolean() != v2.as_boolean());
 }
 
-Value value_not(Value v)
+Value Value::length(Value const& str)
 {
-  assert(v.is_boolean());
-  return Value(!v.as_boolean());
+  assert(str.is_string());
+  return Value(static_cast<int>(str.as_string()->string().length()));
 }
 
-Value length(Value v)
+Value Value::operator+(Value const& other)
 {
-  assert(v.is_string());
-  // FIXME: this just feels illegal somehow.
-  return Value((int)v.as_string()->string().length());
+  assert(is_number() && other.is_number());
+  return Value(as_number() + other.as_number());
+}
+
+Value Value::operator-(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(as_number() - other.as_number());
+}
+
+Value Value::operator*(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(as_number() * other.as_number());
+}
+
+Value Value::operator/(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  assert(other.as_number() != 0);
+  return Value(as_number() / other.as_number());
+}
+
+Value Value::operator==(Value const& other)
+{
+  assert(type() == other.type());
+
+  switch (type()) {
+  case Value::Type::Number:
+    return Value(as_number() == other.as_number());
+  case Value::Type::Boolean:
+    return Value(as_boolean() == other.as_boolean());
+  case Value::Type::Nil:
+    return Value(true);
+  case Value::Type::String:
+    return Value(as_string()->string() == other.as_string()->string());
+  case Value::Type::Object:
+    return Value(as_object() == other.as_object());
+  default:
+    __builtin_unreachable();
+  }
+}
+
+Value Value::operator!=(Value const& other)
+{
+  return Value(!(*this == other).as_boolean());
+}
+
+Value Value::operator<(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(as_number() < other.as_number());
+}
+
+Value Value::operator<=(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(as_number() <= other.as_number());
+}
+
+Value Value::operator>(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(as_number() > other.as_number());
+}
+
+Value Value::operator>=(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(as_number() >= other.as_number());
+}
+
+Value Value::operator!(void)
+{
+  assert(is_boolean());
+  return Value(!as_boolean());
 }
 
 }
