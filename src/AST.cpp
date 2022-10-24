@@ -123,8 +123,9 @@ void ReturnStatement::dump_impl(int indent) const
 
 Value ReturnStatement::execute(Interpreter& interpreter)
 {
+  auto argument_value = argument().execute(interpreter);
   interpreter.do_return();
-  return argument().execute(interpreter);
+  return argument_value;
 }
 
 void IfStatement::dump_impl(int indent) const
