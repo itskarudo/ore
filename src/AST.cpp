@@ -108,7 +108,12 @@ Value CallExpression::execute(Interpreter& interpreter)
 
   } else if (callee->is_native_function()) {
     auto& function = static_cast<NativeFunction&>(*callee);
-    return function.native_function()();
+
+    std::vector<Value> passed_arguments;
+    for (auto argument : m_arguments)
+      passed_arguments.push_back(argument->execute(interpreter));
+
+    return function.native_function()(passed_arguments);
   }
 
   __builtin_unreachable();
