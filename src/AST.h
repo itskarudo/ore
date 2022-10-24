@@ -88,14 +88,16 @@ class Literal : public Expression {
 
 class FunctionDeclaration : public Expression {
   public:
-  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<BlockStatement> body)
+  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<BlockStatement> body, std::vector<std::string> parameters = {})
       : m_name(name)
       , m_body(body)
+      , m_parameters(parameters)
   {
   }
 
   std::optional<std::string> name() const { return m_name; }
   std::shared_ptr<BlockStatement> body() const { return m_body; }
+  std::vector<std::string> const& parameters() const { return m_parameters; }
 
   virtual char const* class_name() const override { return "FunctionDeclaration"; }
   virtual void dump_impl(int indent) const override;
@@ -104,12 +106,14 @@ class FunctionDeclaration : public Expression {
   private:
   std::optional<std::string> m_name;
   std::shared_ptr<BlockStatement> m_body;
+  std::vector<std::string> m_parameters;
 };
 
 class CallExpression : public Expression {
   public:
-  CallExpression(std::unique_ptr<ASTNode> callee)
+  CallExpression(std::unique_ptr<ASTNode> callee, std::vector<std::shared_ptr<Expression>> const& arguments = {})
       : m_callee(std::move(callee))
+      , m_arguments(arguments)
   {
   }
 
@@ -119,6 +123,7 @@ class CallExpression : public Expression {
 
   private:
   std::unique_ptr<ASTNode> m_callee;
+  std::vector<std::shared_ptr<Expression>> m_arguments;
 };
 
 class ReturnStatement : public Statement {

@@ -27,12 +27,12 @@ class Interpreter {
   Object const& global_object() const { return m_global_object; }
   Object& global_object() { return m_global_object; }
 
-  Value run(AST::BlockStatement&, ScopeType type = ScopeType::Block);
+  Value run(AST::BlockStatement&, ScopeType type = ScopeType::Block, std::map<std::string, Value> const& arguments = {});
 
   ScopeFrame& current_scope() { return m_scope_frames.back(); }
   void do_return() { m_do_return = true; }
 
-  void enter_scope(AST::BlockStatement&, ScopeType);
+  void enter_scope(AST::BlockStatement&, ScopeType, std::map<std::string, Value> const& arguments);
   void leave_scope();
 
   Value get_variable(std::string const& name) const;

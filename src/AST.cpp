@@ -47,13 +47,19 @@ Value BlockStatement::execute(Interpreter& interpreter)
 void FunctionDeclaration::dump_impl(int indent) const
 {
   print_indent(indent);
-  std::cout << "\033[32m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << name().value_or("(anonymous)") << "\033[0m" << std::endl;
+  std::cout << "\033[32m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << name().value_or("(anonymous)") << " (";
+
+  for (auto& parameter : parameters())
+    std::cout << parameter << ",";
+
+  printf(")\033[0m\n");
+
   body()->dump_impl(indent + 1);
 }
 
 Value FunctionDeclaration::execute(Interpreter& interpreter)
 {
-  auto* function = interpreter.heap().allocate<FunctionObject>(name(), body());
+  auto* function = interpreter.heap().allocate<FunctionObject>(name(), body(), parameters());
 
   if (name().has_value())
     interpreter.set_variable(name().value(), function);
@@ -65,7 +71,11 @@ void CallExpression::dump_impl(int indent) const
 {
   print_indent(indent);
   printf("\033[35m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+
   m_callee->dump_impl(indent + 1);
+
+  for (auto argument : m_arguments)
+    argument->dump_impl(indent + 1);
 }
 
 Value CallExpression::execute(Interpreter& interpreter)
@@ -84,7 +94,18 @@ Value CallExpression::execute(Interpreter& interpreter)
 
   if (callee->is_function()) {
     auto& function = static_cast<FunctionObject&>(*callee);
-    return interpreter.run(*function.body(), Interpreter::ScopeType::Function);
+
+    assert(function.parameters().size() == m_arguments.size());
+
+    std::map<std::string, Value> passed_arguments;
+
+    for (size_t i = 0; i < m_arguments.size(); i++) {
+      auto value = m_arguments[i]->execute(interpreter);
+      passed_arguments[function.parameters()[i]] = value;
+    }
+
+    return interpreter.run(*function.body(), Interpreter::ScopeType::Function, passed_arguments);
+
   } else if (callee->is_native_function()) {
     auto& function = static_cast<NativeFunction&>(*callee);
     return function.native_function()();

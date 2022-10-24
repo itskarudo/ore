@@ -18,9 +18,9 @@ Interpreter::Interpreter()
   }));
 }
 
-void Interpreter::enter_scope(AST::BlockStatement& scope_frame, ScopeType type)
+void Interpreter::enter_scope(AST::BlockStatement& scope_frame, ScopeType type, std::map<std::string, Value> const& arguments)
 {
-  m_scope_frames.push_back({ scope_frame, {}, type });
+  m_scope_frames.push_back({ scope_frame, arguments, type });
 }
 
 void Interpreter::leave_scope()
@@ -57,10 +57,10 @@ void Interpreter::set_variable(std::string const& name, Value value)
   current_scope().variables[name] = value;
 }
 
-Value Interpreter::run(AST::BlockStatement& block, ScopeType type)
+Value Interpreter::run(AST::BlockStatement& block, ScopeType type, std::map<std::string, Value> const& arguments)
 {
 
-  enter_scope(block, type);
+  enter_scope(block, type, arguments);
 
   Value return_value = ore_nil();
 
