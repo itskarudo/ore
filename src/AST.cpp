@@ -314,4 +314,26 @@ Value MemberExpression::execute(Interpreter& interpreter)
   return ore_nil();
 }
 
+void ObjectExpression::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  for (auto& [key, value] : m_properties) {
+    print_indent(indent + 1);
+    printf("\033[34mKey: %s\033[0m\n", key.c_str());
+    value->dump_impl(indent + 2);
+  }
+}
+
+Value ObjectExpression::execute(Interpreter& interpreter)
+{
+
+  auto* object = interpreter.heap().allocate<Object>();
+
+  for (auto& [key, value] : m_properties)
+    object->put(key, value->execute(interpreter));
+
+  return Value(object);
+}
+
 }

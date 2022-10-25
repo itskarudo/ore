@@ -295,4 +295,19 @@ class MemberExpression : public Expression {
   std::unique_ptr<Identifier> m_id;
 };
 
+class ObjectExpression : public Expression {
+  public:
+  ObjectExpression(std::map<std::string, std::unique_ptr<Expression>> properties = {})
+      : m_properties(std::move(properties))
+  {
+  }
+
+  virtual char const* class_name() const override { return "ObjectExpression"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::map<std::string, std::unique_ptr<Expression>> m_properties;
+};
+
 }

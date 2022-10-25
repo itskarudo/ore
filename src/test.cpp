@@ -12,13 +12,14 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  std::vector<std::unique_ptr<AST::Expression>> args;
-  args.push_back(make_unique<AST::Literal>(
-      ore_string(interpreter.heap(), "bonjour world")));
+  std::map<std::string, std::unique_ptr<AST::Expression>> a;
+  a["bar"] = make_unique<AST::Literal>(5);
+  a["baz"] = make_unique<AST::ObjectExpression>();
 
-  program.append<AST::CallExpression>(
-      make_unique<AST::Identifier>("print"),
-      std::move(args));
+  program.append<AST::AssignmentExpression>(
+      make_unique<AST::Identifier>("foo"),
+      make_unique<AST::ObjectExpression>(
+          std::move(a)));
 
   program.dump();
 
