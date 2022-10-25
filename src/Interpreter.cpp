@@ -69,7 +69,7 @@ Value Interpreter::run(AST::BlockStatement& block, ScopeType type, std::map<std:
 
   Value return_value = ore_nil();
 
-  for (auto child : block.children()) {
+  for (auto& child : block.children()) {
     auto last_value = child->execute(*this);
     if (m_do_return) {
       return_value = last_value;

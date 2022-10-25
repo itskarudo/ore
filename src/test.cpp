@@ -12,10 +12,13 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
+  std::vector<std::unique_ptr<AST::Expression>> args;
+  args.push_back(make_unique<AST::Literal>(
+      ore_string(interpreter.heap(), "bonjour world")));
+
   program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),
-      std::vector<std::shared_ptr<AST::Expression>>({ std::make_shared<AST::Literal>(ore_string(interpreter.heap(), "hello")),
-          std::make_shared<AST::Literal>(ore_string(interpreter.heap(), "world")) }));
+      std::move(args));
 
   program.dump();
 

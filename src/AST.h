@@ -49,17 +49,17 @@ class BlockStatement : public Statement {
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
-  std::vector<std::shared_ptr<ASTNode>> children() const { return m_children; };
+  std::vector<std::unique_ptr<ASTNode>> const& children() const { return m_children; };
 
   template<typename T, typename... Args>
   void append(Args&&... args)
   {
-    auto child = std::make_shared<T>(std::forward<Args>(args)...);
+    auto child = std::make_unique<T>(std::forward<Args>(args)...);
     m_children.push_back(std::move(child));
   }
 
   private:
-  std::vector<std::shared_ptr<ASTNode>> m_children;
+  std::vector<std::unique_ptr<ASTNode>> m_children;
 };
 
 class Program : public BlockStatement {
@@ -111,9 +111,9 @@ class FunctionDeclaration : public Expression {
 
 class CallExpression : public Expression {
   public:
-  CallExpression(std::unique_ptr<ASTNode> callee, std::vector<std::shared_ptr<Expression>> const& arguments = {})
+  CallExpression(std::unique_ptr<ASTNode> callee, std::vector<std::unique_ptr<Expression>> arguments = {})
       : m_callee(std::move(callee))
-      , m_arguments(arguments)
+      , m_arguments(std::move(arguments))
   {
   }
 
@@ -123,7 +123,7 @@ class CallExpression : public Expression {
 
   private:
   std::unique_ptr<ASTNode> m_callee;
-  std::vector<std::shared_ptr<Expression>> m_arguments;
+  std::vector<std::unique_ptr<Expression>> const m_arguments;
 };
 
 class ReturnStatement : public Statement {

@@ -74,7 +74,7 @@ void CallExpression::dump_impl(int indent) const
 
   m_callee->dump_impl(indent + 1);
 
-  for (auto argument : m_arguments)
+  for (auto& argument : m_arguments)
     argument->dump_impl(indent + 1);
 }
 
@@ -110,7 +110,7 @@ Value CallExpression::execute(Interpreter& interpreter)
     auto& function = static_cast<NativeFunction&>(*callee);
 
     std::vector<Value> passed_arguments;
-    for (auto argument : m_arguments)
+    for (auto& argument : m_arguments)
       passed_arguments.push_back(argument->execute(interpreter));
 
     return function.native_function()(passed_arguments);
