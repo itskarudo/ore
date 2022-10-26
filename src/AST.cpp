@@ -1,4 +1,5 @@
 #include "AST.h"
+#include "Runtime/ArrayObject.h"
 #include "Runtime/FunctionObject.h"
 #include "Runtime/NativeFunction.h"
 #include <iostream>
@@ -334,6 +335,23 @@ Value ObjectExpression::execute(Interpreter& interpreter)
     object->put(key, value->execute(interpreter));
 
   return Value(object);
+}
+
+void ArrayExpression::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  for (auto& element : m_elements)
+    element->dump_impl(indent + 1);
+}
+
+Value ArrayExpression::execute(Interpreter& interpreter)
+{
+  std::vector<Value> values;
+  for (auto& element : m_elements)
+    values.push_back(element->execute(interpreter));
+
+  return interpreter.heap().allocate<ArrayObject>(values);
 }
 
 }

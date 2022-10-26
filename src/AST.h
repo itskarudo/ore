@@ -310,4 +310,19 @@ class ObjectExpression : public Expression {
   std::map<std::string, std::unique_ptr<Expression>> m_properties;
 };
 
+class ArrayExpression : public Expression {
+  public:
+  ArrayExpression(std::vector<std::unique_ptr<Expression>> elements = {})
+      : m_elements(std::move(elements))
+  {
+  }
+
+  virtual char const* class_name() const override { return "ArrayExpression"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::vector<std::unique_ptr<Expression>> m_elements;
+};
+
 }
