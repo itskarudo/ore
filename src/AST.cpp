@@ -2,10 +2,6 @@
 #include "Runtime/ArrayObject.h"
 #include "Runtime/FunctionObject.h"
 #include "Runtime/NativeFunction.h"
-#include <iostream>
-
-#include <assert.h>
-#include <math.h>
 
 static void print_indent(int indent)
 {
