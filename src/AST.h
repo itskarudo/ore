@@ -273,16 +273,19 @@ class BinaryExpression : public Expression {
 
 class MemberExpression : public Expression {
   public:
-  explicit MemberExpression(std::unique_ptr<Expression> object, std::unique_ptr<Identifier> id)
+  explicit MemberExpression(std::unique_ptr<Expression> object, std::unique_ptr<Expression> property, bool computed = false)
       : m_object(std::move(object))
-      , m_id(std::move(id))
+      , m_property(std::move(property))
+      , m_computed(computed)
   {
   }
 
   Expression& object() { return *m_object; }
   Expression const& object() const { return *m_object; }
-  Identifier& id() { return *m_id; }
-  Identifier const& id() const { return *m_id; }
+  Expression& property() { return *m_property; }
+  Expression const& property() const { return *m_property; }
+
+  bool is_computed() const { return m_computed; }
 
   virtual char const* class_name() const override { return "MemberExpression"; }
   virtual void dump_impl(int indent) const override;
@@ -292,7 +295,8 @@ class MemberExpression : public Expression {
 
   private:
   std::unique_ptr<Expression> m_object;
-  std::unique_ptr<Identifier> m_id;
+  std::unique_ptr<Expression> m_property;
+  bool m_computed { false };
 };
 
 class ObjectExpression : public Expression {

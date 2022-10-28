@@ -3,17 +3,21 @@
 namespace Ore {
 class ArrayObject final : public Object {
   public:
-  ArrayObject(std::vector<Value> properties = {})
-      : m_properties(properties)
+  ArrayObject(std::vector<Value> elements = {})
+      : m_elements(elements)
   {
   }
 
   virtual ~ArrayObject() { }
 
-  std::vector<Value> const& properties() const { return m_properties; }
+  std::vector<Value> const& elements() const { return m_elements; }
   virtual char const* class_name() const override { return "ArrayObject"; }
 
+  virtual Value get(PropertyKey key) const override;
+  virtual void put(PropertyKey key, Value value) override;
+  virtual bool contains(PropertyKey key) const override;
+
   private:
-  std::vector<Value> m_properties;
+  std::vector<Value> m_elements;
 };
 }

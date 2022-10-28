@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GC/Cell.h"
+#include "PropertyKey.h"
 #include "Value.h"
 #include <map>
 #include <memory>
@@ -14,9 +15,9 @@ class Object : public GC::Cell {
 
   std::map<std::string, Value> properties() const { return m_properties; }
 
-  Value get(std::string const& key) const { return m_properties.at(key); }
-  void put(std::string const& key, Value value) { m_properties[key] = value; }
-  bool contains(std::string const& key) const { return m_properties.count(key); }
+  virtual Value get(PropertyKey key) const;
+  virtual void put(PropertyKey key, Value value);
+  virtual bool contains(PropertyKey key) const;
 
   virtual bool is_function() const { return false; }
   virtual bool is_native_function() const { return false; }
@@ -24,7 +25,7 @@ class Object : public GC::Cell {
   virtual void visit_graph(Visitor&) override;
   virtual char const* class_name() const override { return "Object"; }
 
-  private:
+  protected:
   std::map<std::string, Value> m_properties;
 };
 

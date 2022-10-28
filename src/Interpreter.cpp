@@ -8,7 +8,7 @@ namespace Ore {
 Interpreter::Interpreter()
     : m_heap(*this)
 {
-  global_object().put("print", heap().allocate<NativeFunction>([&](std::vector<Value> args) {
+  global_object().put(std::string("print"), heap().allocate<NativeFunction>([&](std::vector<Value> args) {
     for (auto arg : args) {
       assert(arg.is_string());
       printf("%s\n", arg.as_string()->string().c_str());
@@ -17,7 +17,7 @@ Interpreter::Interpreter()
     return ore_nil();
   }));
 
-  global_object().put("$gc", heap().allocate<NativeFunction>([&](std::vector<Value>) {
+  global_object().put(std::string("$gc"), heap().allocate<NativeFunction>([&](std::vector<Value>) {
     heap().collect_garbage();
     return ore_nil();
   }));

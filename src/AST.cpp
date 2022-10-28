@@ -202,10 +202,25 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
     auto id = static_cast<Identifier&>(*m_lhs);
     interpreter.set_variable(id.name(), v);
   } else if (m_lhs->is_member_expression()) {
-    auto object_value = static_cast<MemberExpression&>(*m_lhs).object().execute(interpreter);
+    auto& member_expression = static_cast<MemberExpression&>(*m_lhs);
+
+    auto object_value = member_expression.object().execute(interpreter);
     auto* object = object_value.to_object(interpreter.heap());
 
-    object->put(static_cast<MemberExpression&>(*m_lhs).id().name(), v);
+    if (member_expression.is_computed()) {
+      auto computed_value = member_expression.property().execute(interpreter);
+      if (computed_value.is_number())
+        object->put(computed_value.as_number(), v);
+      else if (computed_value.is_string())
+        object->put(computed_value.as_string()->string(), v);
+      __builtin_unreachable();
+    } else {
+      assert(member_expression.property().is_identifier());
+      auto& id = static_cast<Identifier&>(member_expression.property());
+
+      object->put(id.name(), v);
+    }
+
   } else {
     __builtin_unreachable();
   }
@@ -301,16 +316,34 @@ Value BinaryExpression::execute(Interpreter& interpreter)
 void MemberExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p} \033[34m%s\033[0m\n", class_name(), this, id().name().c_str());
+  printf("\033[32m%s \033[33m@ {%p} \033[34m{computed: %s}\033[0m\n", class_name(), this, is_computed() ? "true" : "false");
   object().dump_impl(indent + 1);
+  property().dump_impl(indent + 1);
 }
 
 Value MemberExpression::execute(Interpreter& interpreter)
 {
   auto obj = object().execute(interpreter).to_object(interpreter.heap());
 
-  if (obj->contains(id().name()))
-    return obj->get(id().name());
+  PropertyKey key;
+
+  if (is_computed()) {
+    auto computed_value = property().execute(interpreter);
+    if (computed_value.is_number())
+      key = PropertyKey(computed_value.as_number());
+    else if (computed_value.is_string())
+      key = PropertyKey(computed_value.as_string()->string());
+    else
+      __builtin_unreachable();
+
+  } else {
+    assert(property().is_identifier());
+    auto id = static_cast<Identifier&>(property());
+    key = PropertyKey(id.name());
+  }
+
+  if (obj->contains(key))
+    return obj->get(key);
 
   return ore_nil();
 }
