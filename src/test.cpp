@@ -16,6 +16,7 @@ int main(void)
 
   elements.push_back(make_unique<AST::Literal>(
       ore_string(interpreter.heap(), "Good Morning USA")));
+  elements.push_back(make_unique<AST::Literal>(5));
 
   program.append<AST::AssignmentExpression>(
       make_unique<AST::Identifier>("bar"),
@@ -23,9 +24,9 @@ int main(void)
 
   std::vector<std::unique_ptr<AST::Expression>> params;
 
-  params.push_back(make_unique<AST::MemberExpression>(
-      make_unique<AST::Identifier>("bar"),
-      make_unique<AST::Literal>(0), true));
+  params.push_back(make_unique<AST::UnaryExpression>(
+      AST::UnaryExpression::Op::Length,
+      make_unique<AST::Identifier>("bar")));
 
   program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),

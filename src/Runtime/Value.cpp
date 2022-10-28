@@ -1,4 +1,5 @@
 #include "Value.h"
+#include "ArrayObject.h"
 #include "BooleanObject.h"
 #include "NumberObject.h"
 #include "Object.h"
@@ -84,10 +85,14 @@ Value Value::logical_xor(Value const& v1, Value const& v2)
   return Value(v1.as_boolean() != v2.as_boolean());
 }
 
-Value Value::length(Value const& str)
+Value Value::length(Value const& value)
 {
-  assert(str.is_string());
-  return Value(static_cast<int>(str.as_string()->string().length()));
+  if (value.is_string())
+    return Value(static_cast<int>(value.as_string()->string().length()));
+  else if (value.is_object() && value.as_object()->is_array()) {
+    return Value(static_cast<ArrayObject*>(value.as_object())->length());
+  }
+  __builtin_unreachable();
 }
 
 Value Value::operator+(Value const& other)

@@ -10,8 +10,14 @@ Interpreter::Interpreter()
 {
   global_object().put(std::string("print"), heap().allocate<NativeFunction>([&](std::vector<Value> args) {
     for (auto arg : args) {
-      assert(arg.is_string());
-      printf("%s\n", arg.as_string()->string().c_str());
+      if (arg.is_string())
+        printf("%s\n", arg.as_string()->string().c_str());
+      else if (arg.is_number())
+        printf("%s\n", std::to_string(arg.as_number()).c_str());
+      else if (arg.is_boolean())
+        printf("%s\n", arg.as_boolean() ? "true" : "false");
+      else
+        __builtin_unreachable();
     }
 
     return ore_nil();
