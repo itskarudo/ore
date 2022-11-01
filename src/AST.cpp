@@ -5,7 +5,7 @@
 
 static void print_indent(int indent)
 {
-  for (int i = 0; i < indent; i++)
+  for (int i = 0; i < indent * 2; i++)
     putchar(' ');
 }
 
@@ -44,7 +44,7 @@ Value BlockStatement::execute(Interpreter& interpreter)
 void FunctionDeclaration::dump_impl(int indent) const
 {
   print_indent(indent);
-  std::cout << "\033[32m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << name().value_or("(anonymous)") << "\033[0m\n";
+  std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << name().value_or("(anonymous)") << "\033[0m\n";
 
   for (auto& parameter : parameters()) {
     print_indent(indent + 1);
@@ -213,7 +213,7 @@ Value Identifier::execute(Interpreter& interpreter)
 void AssignmentExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  printf("\033[35m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   m_lhs->dump_impl(indent + 1);
   m_rhs->dump_impl(indent + 1);
 }
@@ -340,7 +340,7 @@ Value BinaryExpression::execute(Interpreter& interpreter)
 void MemberExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p} \033[34m{computed: %s}\033[0m\n", class_name(), this, is_computed() ? "true" : "false");
+  printf("\033[35m%s \033[33m@ {%p} \033[34m{computed: %s}\033[0m\n", class_name(), this, is_computed() ? "true" : "false");
   object().dump_impl(indent + 1);
   property().dump_impl(indent + 1);
 }
@@ -375,7 +375,7 @@ Value MemberExpression::execute(Interpreter& interpreter)
 void ObjectExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  printf("\033[35m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   for (auto& [key, value] : m_properties) {
     print_indent(indent + 1);
     printf("\033[34mKey: %s\033[0m\n", key.c_str());
@@ -397,7 +397,7 @@ Value ObjectExpression::execute(Interpreter& interpreter)
 void ArrayExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  printf("\033[35m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   for (auto& element : m_elements)
     element->dump_impl(indent + 1);
 }
