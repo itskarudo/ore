@@ -12,25 +12,31 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  std::vector<std::unique_ptr<AST::Expression>> elements;
+  auto foo_body = make_unique<AST::BlockStatement>();
 
-  elements.push_back(make_unique<AST::Literal>(
-      ore_string(interpreter.heap(), "Good Morning USA")));
-  elements.push_back(make_unique<AST::Literal>(5));
+  std::vector<std::unique_ptr<AST::Expression>> print_args;
+  print_args.push_back(make_unique<AST::Identifier>("str"));
+  print_args.push_back(make_unique<AST::Identifier>("num"));
 
-  program.append<AST::AssignmentExpression>(
-      make_unique<AST::Identifier>("bar"),
-      make_unique<AST::ArrayExpression>(std::move(elements)));
+  foo_body->append<AST::CallExpression>(
+      make_unique<AST::Identifier>("print"),
+      std::move(print_args));
 
-  std::vector<std::unique_ptr<AST::Expression>> params;
+  std::vector<AST::FunctionDeclaration::Parameter> foo_params;
+  foo_params.push_back({ "str", std::nullopt });
+  foo_params.push_back({ "num", make_unique<AST::Literal>(69) });
 
-  params.push_back(make_unique<AST::UnaryExpression>(
-      AST::UnaryExpression::Op::Length,
-      make_unique<AST::Identifier>("bar")));
+  program.append<AST::FunctionDeclaration>(
+      "foo",
+      std::move(foo_body),
+      std::move(foo_params));
+
+  std::vector<std::unique_ptr<AST::Expression>> foo_args;
+  foo_args.push_back(make_unique<AST::Literal>(ore_string(interpreter.heap(), "Aloha, universe!")));
 
   program.append<AST::CallExpression>(
-      make_unique<AST::Identifier>("print"),
-      std::move(params));
+      make_unique<AST::Identifier>("foo"),
+      std::move(foo_args));
 
   program.dump();
 

@@ -44,19 +44,42 @@ Value BlockStatement::execute(Interpreter& interpreter)
 void FunctionDeclaration::dump_impl(int indent) const
 {
   print_indent(indent);
-  std::cout << "\033[32m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << name().value_or("(anonymous)") << " (";
+  std::cout << "\033[32m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << name().value_or("(anonymous)") << "\033[0m\n";
 
-  for (auto& parameter : parameters())
-    std::cout << parameter << ",";
-
-  printf(")\033[0m\n");
+  for (auto& parameter : parameters()) {
+    print_indent(indent + 1);
+    printf("\033[34mParameter: '%s'\033[0m\n", parameter.name.c_str());
+    if (parameter.default_value.has_value())
+      parameter.default_value.value()->dump_impl(indent + 2);
+  }
 
   body()->dump_impl(indent + 1);
 }
 
 Value FunctionDeclaration::execute(Interpreter& interpreter)
 {
-  auto* function = interpreter.heap().allocate<FunctionObject>(name(), body(), parameters());
+  bool did_find_optional = false;
+
+  std::vector<FunctionObject::Parameter> parameter_values;
+
+  for (auto& parameter : parameters()) {
+    FunctionObject::Parameter parameter_value;
+    parameter_value.name = parameter.name;
+
+    // make sure all required parameters come before the optionals
+    if (did_find_optional)
+      assert(parameter.default_value.has_value());
+
+    if (parameter.default_value.has_value()) {
+      did_find_optional = true;
+      parameter_value.default_value = parameter.default_value.value()->execute(interpreter);
+    } else
+      parameter_value.default_value = std::nullopt;
+
+    parameter_values.push_back(parameter_value);
+  }
+
+  auto* function = interpreter.heap().allocate<FunctionObject>(name(), body(), std::move(parameter_values));
 
   if (name().has_value())
     interpreter.set_variable(name().value(), function);
@@ -92,13 +115,18 @@ Value CallExpression::execute(Interpreter& interpreter)
   if (callee->is_function()) {
     auto& function = static_cast<FunctionObject&>(*callee);
 
-    assert(function.parameters().size() == m_arguments.size());
+    assert(m_arguments.size() <= function.parameters().size());
 
     std::map<std::string, Value> passed_arguments;
 
-    for (size_t i = 0; i < m_arguments.size(); i++) {
-      auto value = m_arguments[i]->execute(interpreter);
-      passed_arguments[function.parameters()[i]] = value;
+    for (size_t i = 0; i < function.parameters().size(); ++i) {
+      if (i < m_arguments.size()) {
+        auto value = m_arguments[i]->execute(interpreter);
+        passed_arguments[function.parameters()[i].name] = value;
+      } else {
+        assert(function.parameters()[i].default_value.has_value());
+        passed_arguments[function.parameters()[i].name] = function.parameters()[i].default_value.value();
+      }
     }
 
     return interpreter.run(*function.body(), Interpreter::ScopeType::Function, passed_arguments);

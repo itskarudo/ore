@@ -88,16 +88,21 @@ class Literal : public Expression {
 
 class FunctionDeclaration : public Expression {
   public:
-  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<BlockStatement> body, std::vector<std::string> parameters = {})
+  struct Parameter {
+    std::string name;
+    std::optional<std::unique_ptr<Expression>> default_value;
+  };
+
+  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<BlockStatement> body, std::vector<Parameter> parameters = {})
       : m_name(name)
       , m_body(body)
-      , m_parameters(parameters)
+      , m_parameters(std::move(parameters))
   {
   }
 
   std::optional<std::string> name() const { return m_name; }
   std::shared_ptr<BlockStatement> body() const { return m_body; }
-  std::vector<std::string> const& parameters() const { return m_parameters; }
+  std::vector<Parameter> const& parameters() const { return m_parameters; }
 
   virtual char const* class_name() const override { return "FunctionDeclaration"; }
   virtual void dump_impl(int indent) const override;
@@ -106,7 +111,7 @@ class FunctionDeclaration : public Expression {
   private:
   std::optional<std::string> m_name;
   std::shared_ptr<BlockStatement> m_body;
-  std::vector<std::string> m_parameters;
+  std::vector<Parameter> m_parameters;
 };
 
 class CallExpression : public Expression {
