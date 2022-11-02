@@ -8,6 +8,11 @@
 namespace Ore::GC {
 class Heap {
   public:
+  enum class CollectionType {
+    Garbage,
+    Everything
+  };
+
   Heap(Interpreter& interpreter)
       : m_interpreter(interpreter)
   {
@@ -22,7 +27,7 @@ class Heap {
     return static_cast<T*>(memory);
   }
 
-  void collect_garbage(bool collect_global_object = false);
+  void collect_garbage(CollectionType = CollectionType::Garbage);
 
   private:
   Cell* allocate_cell(size_t);

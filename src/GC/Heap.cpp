@@ -6,7 +6,7 @@ namespace Ore::GC {
 
 Heap::~Heap()
 {
-  collect_garbage(true);
+  collect_garbage(CollectionType::Everything);
   for (auto* it : m_blocks)
     free(it);
 }
@@ -44,13 +44,13 @@ class LivenessVisitor : public Cell::Visitor {
   }
 };
 
-void Heap::collect_garbage(bool collect_global_object)
+void Heap::collect_garbage(CollectionType collection_type)
 {
   LivenessVisitor visitor;
   std::vector<Cell*> roots;
 
   // mark all live cells
-  if (!collect_global_object)
+  if (collection_type == CollectionType::Garbage)
     roots.push_back(&m_interpreter.global_object());
 
   m_interpreter.collect_roots(roots);
