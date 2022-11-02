@@ -12,12 +12,7 @@ class Heap {
       : m_interpreter(interpreter)
   {
   }
-  ~Heap()
-  {
-    collect_garbage(true);
-    for (auto* it : m_blocks)
-      free(it);
-  }
+  ~Heap();
 
   template<typename T, typename... Args>
   T* allocate(Args&&... args)
@@ -36,5 +31,8 @@ class Heap {
 
   std::vector<HeapBlock*> m_blocks;
   Interpreter& m_interpreter;
+
+  size_t m_allocations_since_last_gc { 0 };
+  size_t m_max_allocations_between_gcs { 1024 };
 };
 }

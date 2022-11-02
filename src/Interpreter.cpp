@@ -37,7 +37,6 @@ void Interpreter::enter_scope(AST::BlockStatement& scope_frame, ScopeType type, 
 void Interpreter::leave_scope()
 {
   m_scope_frames.pop_back();
-  heap().collect_garbage();
 }
 
 Value Interpreter::get_variable(std::string const& name) const

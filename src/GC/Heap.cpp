@@ -3,8 +3,21 @@
 #include "HeapBlock.h"
 
 namespace Ore::GC {
+
+Heap::~Heap()
+{
+  collect_garbage(true);
+  for (auto* it : m_blocks)
+    free(it);
+}
+
 Cell* Heap::allocate_cell(size_t cell_size)
 {
+  if (m_allocations_since_last_gc > m_max_allocations_between_gcs) {
+    m_allocations_since_last_gc = 0;
+    collect_garbage();
+  } else
+    m_allocations_since_last_gc++;
 
   for (auto& block : m_blocks) {
     if (cell_size > block->cell_size())
