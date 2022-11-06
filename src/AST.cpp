@@ -411,4 +411,18 @@ Value ArrayExpression::execute(Interpreter& interpreter)
   return interpreter.heap().allocate<ArrayObject>(values);
 }
 
+void ExportStatement::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  m_argument->dump_impl(indent + 1);
+}
+
+Value ExportStatement::execute(Interpreter& interpreter)
+{
+  // FIXME: Actually implement exports.
+  m_argument->execute(interpreter);
+  return ore_nil();
+}
+
 }

@@ -334,4 +334,19 @@ class ArrayExpression : public Expression {
   std::vector<std::unique_ptr<Expression>> m_elements;
 };
 
+class ExportStatement : public Statement {
+  public:
+  ExportStatement(std::unique_ptr<Expression> argument)
+      : m_argument(std::move(argument))
+  {
+  }
+
+  virtual char const* class_name() const override { return "ExportStatement"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::unique_ptr<Expression> m_argument;
+};
+
 }

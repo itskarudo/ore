@@ -12,8 +12,10 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  for (int i = 0; i < 1024; ++i)
-    program.append<AST::ObjectExpression>();
+  program.append<AST::ExportStatement>(
+      make_unique<AST::AssignmentExpression>(
+          make_unique<AST::Identifier>("foo"),
+          make_unique<AST::Literal>(69)));
 
   program.dump();
 
