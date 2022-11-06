@@ -12,10 +12,12 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  program.append<AST::ExportStatement>(
-      make_unique<AST::AssignmentExpression>(
-          make_unique<AST::Identifier>("foo"),
-          make_unique<AST::Literal>(69)));
+  std::vector<std::unique_ptr<AST::Expression>> args;
+  args.push_back(make_unique<AST::Literal>(69));
+
+  program.append<AST::CallExpression>(
+      make_unique<AST::Identifier>("print"),
+      std::move(args));
 
   program.dump();
 

@@ -7,26 +7,8 @@ namespace Ore {
 
 Interpreter::Interpreter()
     : m_heap(*this)
+    , m_global_object(*this)
 {
-  global_object().put(std::string("print"), heap().allocate<NativeFunction>([&](std::vector<Value> args) {
-    for (auto arg : args) {
-      if (arg.is_string())
-        printf("%s\n", arg.as_string()->string().c_str());
-      else if (arg.is_number())
-        printf("%s\n", std::to_string(arg.as_number()).c_str());
-      else if (arg.is_boolean())
-        printf("%s\n", arg.as_boolean() ? "true" : "false");
-      else
-        __builtin_unreachable();
-    }
-
-    return ore_nil();
-  }));
-
-  global_object().put(std::string("$gc"), heap().allocate<NativeFunction>([&](std::vector<Value>) {
-    heap().collect_garbage();
-    return ore_nil();
-  }));
 }
 
 void Interpreter::enter_scope(AST::BlockStatement& scope_frame, ScopeType type, std::map<std::string, Value> const& arguments)

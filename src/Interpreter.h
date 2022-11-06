@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GC/Heap.h"
+#include "Runtime/GlobalObject.h"
 #include "Runtime/Object.h"
 #include <vector>
 
@@ -24,8 +25,8 @@ class Interpreter {
   const GC::Heap& heap() const { return m_heap; }
   GC::Heap& heap() { return m_heap; }
 
-  Object const& global_object() const { return m_global_object; }
-  Object& global_object() { return m_global_object; }
+  GlobalObject const& global_object() const { return m_global_object; }
+  GlobalObject& global_object() { return m_global_object; }
 
   Value run(AST::BlockStatement&, ScopeType type = ScopeType::Block, std::map<std::string, Value> const& arguments = {});
 
@@ -42,7 +43,7 @@ class Interpreter {
 
   private:
   GC::Heap m_heap;
-  Object m_global_object;
+  GlobalObject m_global_object;
   std::vector<ScopeFrame> m_scope_frames;
   bool m_do_return { false };
 };
