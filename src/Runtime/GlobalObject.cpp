@@ -11,7 +11,7 @@ GlobalObject::GlobalObject(Interpreter& interpreter)
 
 void GlobalObject::initalize()
 {
-  put(std::string("print"), m_interpreter.heap().allocate<NativeFunction>([&](std::vector<Value> args) {
+  put(PropertyKey("print"), m_interpreter.heap().allocate<NativeFunction>([&](std::vector<Value> args) {
     for (auto arg : args) {
       if (arg.is_string())
         printf("%s\n", arg.as_string()->string().c_str());
@@ -26,7 +26,7 @@ void GlobalObject::initalize()
     return ore_nil();
   }));
 
-  put(std::string("$gc"), m_interpreter.heap().allocate<NativeFunction>([&](std::vector<Value>) {
+  put(PropertyKey("$gc"), m_interpreter.heap().allocate<NativeFunction>([&](std::vector<Value>) {
     m_interpreter.heap().collect_garbage();
     return ore_nil();
   }));
