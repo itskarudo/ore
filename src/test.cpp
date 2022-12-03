@@ -13,7 +13,8 @@ int main(void)
   AST::Program program;
 
   std::vector<std::unique_ptr<AST::Expression>> args;
-  args.push_back(make_unique<AST::Literal>(69));
+  args.push_back(make_unique<AST::CallExpression>(
+      make_unique<AST::Identifier>("input")));
 
   program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),

@@ -25,6 +25,13 @@ void GlobalObject::initalize()
     return ore_nil();
   });
 
+  put_native_function(PropertyKey("input"), [&](std::vector<Value>) {
+    std::string input;
+    std::getline(std::cin, input);
+
+    return ore_string(GC::HeapBlock::from_cell(this)->heap(), input);
+  });
+
   put_native_function(PropertyKey("$gc"), [&](std::vector<Value>) {
     GC::HeapBlock::from_cell(this)->heap().collect_garbage();
     return ore_nil();
