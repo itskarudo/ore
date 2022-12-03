@@ -51,7 +51,7 @@ void Heap::collect_garbage(CollectionType collection_type)
 
   // mark all live cells
   if (collection_type == CollectionType::Garbage)
-    roots.push_back(&m_interpreter.global_object());
+    roots.push_back(m_interpreter.global_object());
 
   m_interpreter.collect_roots(roots);
 

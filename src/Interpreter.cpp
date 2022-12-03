@@ -7,8 +7,8 @@ namespace Ore {
 
 Interpreter::Interpreter()
     : m_heap(*this)
-    , m_global_object(*this)
 {
+  m_global_object = m_heap.allocate<GlobalObject>(*this);
 }
 
 void Interpreter::enter_scope(AST::BlockStatement& scope_frame, ScopeType type, std::map<std::string, Value> const& arguments)
@@ -27,8 +27,8 @@ Value Interpreter::get_variable(std::string const& name) const
     if (frame->variables.count(name))
       return frame->variables.at(name);
 
-  if (global_object().contains(name))
-    return global_object().get(name);
+  if (global_object()->contains(name))
+    return global_object()->get(name);
 
   return Value();
 }
@@ -41,8 +41,8 @@ void Interpreter::set_variable(std::string const& name, Value value)
       return;
     }
 
-  if (global_object().contains(name)) {
-    global_object().put(name, value);
+  if (global_object()->contains(name)) {
+    global_object()->put(name, value);
     return;
   }
 
