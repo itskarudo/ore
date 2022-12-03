@@ -6,13 +6,10 @@ namespace Ore {
 
 class GlobalObject : public Object {
   public:
-  GlobalObject(Interpreter&);
+  GlobalObject();
   virtual ~GlobalObject() { }
 
   void initalize();
-
-  private:
-  Interpreter& m_interpreter;
 };
 
 }

@@ -26,8 +26,9 @@ Cell* Heap::allocate_cell(size_t cell_size)
       return cell;
   }
 
-  auto* block = (HeapBlock*)malloc(HeapBlock::block_size);
-  new (block) HeapBlock(cell_size);
+  auto* block = (HeapBlock*)aligned_alloc(HeapBlock::block_size, HeapBlock::block_size);
+  assert(block != nullptr);
+  new (block) HeapBlock(*this, cell_size);
   m_blocks.push_back(block);
   return block->allocate();
 }

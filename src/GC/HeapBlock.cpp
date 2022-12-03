@@ -2,8 +2,9 @@
 #include <utility>
 
 namespace Ore::GC {
-HeapBlock::HeapBlock(size_t cell_size)
-    : m_cell_size(cell_size)
+HeapBlock::HeapBlock(Heap& heap, size_t cell_size)
+    : m_heap(heap)
+    , m_cell_size(cell_size)
 {
   for (int i = 0; i < cell_count(); ++i) {
     auto* entry = reinterpret_cast<FreelistEntry*>(cell(i));

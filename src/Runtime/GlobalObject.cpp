@@ -3,15 +3,14 @@
 #include "NativeFunction.h"
 
 namespace Ore {
-GlobalObject::GlobalObject(Interpreter& interpreter)
-    : m_interpreter(interpreter)
+GlobalObject::GlobalObject()
 {
   initalize();
 }
 
 void GlobalObject::initalize()
 {
-  put(PropertyKey("print"), m_interpreter.heap().allocate<NativeFunction>([&](std::vector<Value> args) {
+  put_native_function(PropertyKey("print"), [&](std::vector<Value> args) {
     for (auto arg : args) {
       if (arg.is_string())
         printf("%s\n", arg.as_string()->string().c_str());
@@ -24,12 +23,12 @@ void GlobalObject::initalize()
     }
 
     return ore_nil();
-  }));
+  });
 
-  put(PropertyKey("$gc"), m_interpreter.heap().allocate<NativeFunction>([&](std::vector<Value>) {
-    m_interpreter.heap().collect_garbage();
+  put_native_function(PropertyKey("$gc"), [&](std::vector<Value>) {
+    GC::HeapBlock::from_cell(this)->heap().collect_garbage();
     return ore_nil();
-  }));
+  });
 }
 
 }

@@ -3,6 +3,7 @@
 #include "../GC/Cell.h"
 #include "PropertyKey.h"
 #include "Value.h"
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -17,6 +18,7 @@ class Object : public GC::Cell {
 
   virtual Value get(PropertyKey key) const;
   virtual void put(PropertyKey key, Value value);
+  virtual void put_native_function(PropertyKey key, std::function<Value(std::vector<Value>)>);
   virtual bool contains(PropertyKey key) const;
 
   virtual bool is_function() const { return false; }

@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "NativeFunction.h"
 
 namespace Ore {
 void Object::visit_graph(Visitor& visitor)
@@ -20,6 +21,11 @@ void Object::put(PropertyKey key, Value value)
 {
   assert(key.is_string());
   m_properties[key.string()] = value;
+}
+
+void Object::put_native_function(PropertyKey key, std::function<Value(std::vector<Value>)> func)
+{
+  put(key, GC::HeapBlock::from_cell(this)->heap().allocate<NativeFunction>(func));
 }
 
 bool Object::contains(PropertyKey key) const
