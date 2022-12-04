@@ -183,7 +183,7 @@ Value IfStatement::execute(Interpreter& interpreter)
 void WhileStatement::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[32m%s \033[33m@ {%p}\033[0m<\n", class_name(), this);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   test().dump_impl(indent + 1);
   body().dump_impl(indent + 1);
 }
