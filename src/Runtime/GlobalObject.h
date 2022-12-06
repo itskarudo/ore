@@ -9,6 +9,7 @@ class GlobalObject : public Object {
   GlobalObject();
   virtual ~GlobalObject() { }
 
+  private:
   void initalize();
 };
 
