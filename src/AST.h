@@ -134,7 +134,7 @@ class CallExpression : public Expression {
 class ReturnStatement : public Statement {
   public:
   ReturnStatement()
-      : m_argument(std::make_unique<Literal>(Value()))
+      : m_argument(std::make_unique<Literal>(ore_nil()))
   {
   }
 
