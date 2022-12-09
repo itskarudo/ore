@@ -14,8 +14,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SOURCES src/test.cpp
-            src/AST.cpp
+set(LIB_SOURCES src/AST.cpp
             src/Interpreter.cpp
             src/Runtime/Value.cpp
             src/Runtime/Object.cpp
@@ -26,5 +25,9 @@ set(SOURCES src/test.cpp
             src/GC/Heap.cpp
             src/GC/HeapBlock.cpp)
 
-add_executable(ore ${SOURCES})
+add_library(ore SHARED ${LIB_SOURCES})
 target_compile_features(ore PRIVATE cxx_std_17)
+
+add_executable(ore_test tests/main.cpp)
+target_include_directories(ore_test PRIVATE src/)
+target_link_libraries(ore_test ore)
