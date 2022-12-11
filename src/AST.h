@@ -225,9 +225,27 @@ class AssignmentExpression : public Expression {
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
+  ASTNode& lhs() { return *m_lhs; }
+  Expression& rhs() { return *m_rhs; }
+
   private:
   std::unique_ptr<ASTNode> m_lhs;
   std::unique_ptr<Expression> m_rhs;
+};
+
+class GlobalStatement : public Statement {
+  public:
+  GlobalStatement(std::unique_ptr<AssignmentExpression> assignment)
+      : m_assignment(std::move(assignment))
+  {
+  }
+
+  virtual char const* class_name() const override { return "GlobalStatement"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::unique_ptr<AssignmentExpression> m_assignment;
 };
 
 class UnaryExpression : public Expression {

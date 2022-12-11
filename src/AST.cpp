@@ -252,6 +252,22 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
   return v;
 }
 
+void GlobalStatement::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  m_assignment->dump_impl(indent + 1);
+}
+
+Value GlobalStatement::execute(Interpreter& interpreter)
+{
+  assert(m_assignment->lhs().is_identifier());
+  auto& id = static_cast<Identifier&>(m_assignment->lhs());
+  auto value = m_assignment->rhs().execute(interpreter);
+  interpreter.global_object()->put(PropertyKey(id.name()), value);
+  return value;
+}
+
 void UnaryExpression::dump_impl(int indent) const
 {
   print_indent(indent);
