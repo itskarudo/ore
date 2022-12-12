@@ -18,6 +18,8 @@ class ArrayObject final : public Object {
   virtual void put(PropertyKey key, Value value) override;
   virtual bool contains(PropertyKey key) const override;
 
+  virtual void visit_graph(Visitor&) override;
+
   int length() const { return m_elements.size(); }
 
   private:

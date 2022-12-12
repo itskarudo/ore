@@ -2,6 +2,15 @@
 
 namespace Ore {
 
+void ArrayObject::visit_graph(Visitor& visitor)
+{
+  Object::visit_graph(visitor);
+
+  for (auto& element : m_elements)
+    if (element.is_cell())
+      element.as_cell()->visit_graph(visitor);
+}
+
 Value ArrayObject::get(PropertyKey key) const
 {
   if (key.is_number()) {
