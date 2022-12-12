@@ -17,3 +17,12 @@
 #include "Runtime/PropertyKey.h"
 #include "Runtime/StringObject.h"
 #include "Runtime/Value.h"
+
+#define ORE_INIT_FUNC extern "C" void
+
+typedef Ore::Value (*OreFunctionDecl)(std::vector<Ore::Value>&);
+
+struct OreExportEntry {
+  char const* name;
+  OreFunctionDecl decl;
+};

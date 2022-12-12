@@ -21,6 +21,7 @@ set(LIB_SOURCES src/AST.cpp
             src/Runtime/GlobalObject.cpp
             src/Runtime/StringObject.cpp
             src/Runtime/ArrayObject.cpp
+            src/Runtime/FFIObject.cpp
             src/GC/Cell.cpp
             src/GC/Heap.cpp
             src/GC/HeapBlock.cpp)
@@ -31,3 +32,6 @@ target_compile_features(ore PRIVATE cxx_std_17)
 add_executable(ore_test tests/main.cpp)
 target_include_directories(ore_test PRIVATE src/)
 target_link_libraries(ore_test ore)
+
+add_library(ffi_test SHARED tests/FFI_tests/main.cpp)
+target_include_directories(ffi_test PRIVATE src/)

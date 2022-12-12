@@ -1,6 +1,8 @@
 #include "GlobalObject.h"
 #include "../Interpreter.h"
+#include "FFIObject.h"
 #include "NativeFunction.h"
+#include <filesystem>
 
 namespace Ore {
 GlobalObject::GlobalObject()
@@ -35,6 +37,22 @@ void GlobalObject::initalize()
   put_native_function(PropertyKey("$gc"), [&](std::vector<Value>) {
     GC::HeapBlock::from_cell(this)->heap().collect_garbage();
     return ore_nil();
+  });
+
+  put_native_function(PropertyKey("import"), [&](std::vector<Value> args) {
+    assert(args.size() == 1);
+
+    auto filename = args[0].as_string()->string();
+
+    // TODO: add the ability to import ore source files as well.
+    // TODO: have a global static path to look for installed libraries in.
+    // TODO: add support for other platforms (windows DLLs).
+    auto full_filename = filename + ".so";
+    if (!std::filesystem::exists(full_filename))
+      return ore_nil();
+
+    auto* ffi_object = GC::HeapBlock::from_cell(this)->heap().allocate<FFIObject>(full_filename);
+    return Value(ffi_object);
   });
 }
 

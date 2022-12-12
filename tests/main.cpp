@@ -9,29 +9,27 @@ int main(void)
   AST::Program program;
 
   /**
-   * function foo() {
-   *   global sloop = 69
-   * }
-   * foo()
-   * print(sloop)
+   * print(import("./libffi_test").greet_name("karudo"));
    */
 
-  auto body = make_unique<AST::BlockStatement>();
-  body->append<AST::GlobalStatement>(
-      make_unique<AST::AssignmentExpression>(
-          make_unique<AST::Identifier>("sloop"),
-          make_unique<AST::Literal>(69)));
+  std::vector<std::unique_ptr<AST::Expression>> import_args;
+  import_args.push_back(make_unique<AST::Literal>(ore_string(interpreter.heap(), "./libffi_test")));
 
-  program.append<AST::FunctionDeclaration>("foo", std::move(body));
-  program.append<AST::CallExpression>(
-      make_unique<AST::Identifier>("foo"));
+  std::vector<std::unique_ptr<AST::Expression>> greet_args;
+  greet_args.push_back(make_unique<AST::Literal>(ore_string(interpreter.heap(), "karudo")));
 
-  std::vector<std::unique_ptr<AST::Expression>> args;
-  args.push_back(make_unique<AST::Identifier>("sloop"));
+  std::vector<std::unique_ptr<AST::Expression>> print_args;
+  print_args.push_back(make_unique<AST::CallExpression>(
+      make_unique<AST::MemberExpression>(
+          make_unique<AST::CallExpression>(
+              make_unique<AST::Identifier>("import"),
+              std::move(import_args)),
+          make_unique<AST::Identifier>("greet_name")),
+      std::move(greet_args)));
 
   program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),
-      std::move(args));
+      std::move(print_args));
 
   program.dump();
   interpreter.run(program);
