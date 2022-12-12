@@ -363,7 +363,9 @@ void MemberExpression::dump_impl(int indent) const
 
 Value MemberExpression::execute(Interpreter& interpreter)
 {
-  auto obj = object().execute(interpreter).to_object(interpreter.heap());
+  auto value = object().execute(interpreter);
+  assert(value.is_object());
+  auto obj = value.to_object(interpreter.heap());
 
   PropertyKey key;
 
