@@ -180,6 +180,38 @@ Value IfStatement::execute(Interpreter& interpreter)
     return alternate().execute(interpreter);
 }
 
+void ForStatement::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+
+  if (m_init.has_value())
+    m_init.value()->dump_impl(indent + 1);
+  if (m_test.has_value())
+    m_test.value()->dump_impl(indent + 1);
+  if (m_update.has_value())
+    m_update.value()->dump_impl(indent + 1);
+
+  m_body->dump_impl(indent + 1);
+}
+
+Value ForStatement::execute(Interpreter& interpreter)
+{
+  Value return_value;
+
+  if (m_init.has_value())
+    m_init.value()->execute(interpreter);
+
+  while (!interpreter.is_returning() && (m_test.has_value() ? m_test.value()->execute(interpreter).to_boolean() : true)) {
+    return_value = m_body->execute(interpreter);
+
+    if (m_update.has_value())
+      m_update.value()->execute(interpreter);
+  }
+
+  return return_value;
+}
+
 void WhileStatement::dump_impl(int indent) const
 {
   print_indent(indent);

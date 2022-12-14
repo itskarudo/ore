@@ -174,6 +174,28 @@ class IfStatement : public Statement {
   std::unique_ptr<Statement> m_consequent, m_alternate;
 };
 
+class ForStatement : public Statement {
+  public:
+  ForStatement(std::optional<std::unique_ptr<Expression>> init,
+      std::optional<std::unique_ptr<Expression>> test,
+      std::optional<std::unique_ptr<Expression>> update,
+      std::unique_ptr<Statement> body)
+      : m_init(std::move(init))
+      , m_test(std::move(test))
+      , m_update(std::move(update))
+      , m_body(std::move(body))
+  {
+  }
+
+  virtual char const* class_name() const override { return "ForStatement"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::optional<std::unique_ptr<Expression>> m_init, m_test, m_update;
+  std::unique_ptr<Statement> m_body;
+};
+
 class WhileStatement : public Statement {
   public:
   WhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> body)
