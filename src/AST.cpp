@@ -193,7 +193,7 @@ Value WhileStatement::execute(Interpreter& interpreter)
 
   Value return_value;
 
-  while (test().execute(interpreter).to_boolean())
+  while (!interpreter.is_returning() && test().execute(interpreter).to_boolean())
     return_value = body().execute(interpreter);
 
   return return_value;

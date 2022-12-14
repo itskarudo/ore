@@ -32,6 +32,7 @@ class Interpreter {
 
   ScopeFrame& current_scope() { return m_scope_frames.back(); }
   void do_return() { m_do_return = true; }
+  bool is_returning() const { return m_do_return; }
 
   void enter_scope(AST::BlockStatement&, ScopeType, std::map<std::string, Value> const& arguments);
   void leave_scope();

@@ -9,23 +9,54 @@ int main(void)
   AST::Program program;
 
   /**
-   * print(import("./libffi_test").greet_name("karudo"));
+   * function test() {
+   *   i = 0;
+   *   while (i < 10)
+   *   {
+   *     if (i == 5) return i;
+   *     i++;
+   *   }
+   * }
+   * print(test());
    */
 
-  std::vector<std::unique_ptr<AST::Expression>> import_args;
-  import_args.push_back(make_unique<AST::Literal>(ore_string(interpreter.heap(), "./libffi_test")));
+  auto body = make_unique<AST::BlockStatement>();
+  body->append<AST::AssignmentExpression>(
+      make_unique<AST::Identifier>("i"),
+      make_unique<AST::Literal>(0));
 
-  std::vector<std::unique_ptr<AST::Expression>> greet_args;
-  greet_args.push_back(make_unique<AST::Literal>(ore_string(interpreter.heap(), "karudo")));
+  auto while_body = make_unique<AST::BlockStatement>();
+
+  while_body->append<AST::IfStatement>(
+      make_unique<AST::BinaryExpression>(
+          make_unique<AST::Identifier>("i"),
+          AST::BinaryExpression::Op::Equals,
+          make_unique<AST::Literal>(5)),
+      make_unique<AST::ReturnStatement>(
+          make_unique<AST::Identifier>("i")),
+      make_unique<AST::BlockStatement>());
+
+  while_body->append<AST::AssignmentExpression>(
+      make_unique<AST::Identifier>("i"),
+      make_unique<AST::BinaryExpression>(
+          make_unique<AST::Identifier>("i"),
+          AST::BinaryExpression::Op::Add,
+          make_unique<AST::Literal>(1)));
+
+  body->append<AST::WhileStatement>(
+      make_unique<AST::BinaryExpression>(
+          make_unique<AST::Identifier>("i"),
+          AST::BinaryExpression::Op::NotEquals,
+          make_unique<AST::Literal>(10)),
+      std::move(while_body));
+
+  program.append<AST::FunctionDeclaration>(
+      "test",
+      std::move(body));
 
   std::vector<std::unique_ptr<AST::Expression>> print_args;
   print_args.push_back(make_unique<AST::CallExpression>(
-      make_unique<AST::MemberExpression>(
-          make_unique<AST::CallExpression>(
-              make_unique<AST::Identifier>("import"),
-              std::move(import_args)),
-          make_unique<AST::Identifier>("greet_name")),
-      std::move(greet_args)));
+      make_unique<AST::Identifier>("test")));
 
   program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),
