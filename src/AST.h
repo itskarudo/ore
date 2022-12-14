@@ -18,6 +18,8 @@
   __ENUM_BI_OP(LessThan, "<")             \
   __ENUM_BI_OP(GreaterThanOrEquals, ">=") \
   __ENUM_BI_OP(LessThanOrEquals, "<=")    \
+  __ENUM_BI_OP(ShiftLeft, "<<")           \
+  __ENUM_BI_OP(ShiftRight, ">>")          \
   __ENUM_BI_OP(And, "and")                \
   __ENUM_BI_OP(Or, "or")                  \
   __ENUM_BI_OP(Xor, "xor")                \

@@ -119,6 +119,8 @@ class Value {
   Value operator<=(Value const&);
   Value operator>(Value const&);
   Value operator>=(Value const&);
+  Value operator>>(Value const&);
+  Value operator<<(Value const&);
   Value operator!(void);
 
   private:

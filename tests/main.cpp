@@ -8,25 +8,15 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  /**
-   * i = 0
-   * do
-   *   print(i)
-   * while (i < 10)
-   */
-
   std::vector<std::unique_ptr<AST::Expression>> args;
-  args.push_back(make_unique<AST::Literal>(
-      ore_string(interpreter.heap(), "this should get printed once")));
+  args.push_back(make_unique<AST::BinaryExpression>(
+      make_unique<AST::Literal>(1),
+      AST::BinaryExpression::Op::ShiftLeft,
+      make_unique<AST::Literal>(8)));
 
-  auto body = make_unique<AST::BlockStatement>();
-  body->append<AST::CallExpression>(
+  program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),
       std::move(args));
-
-  program.append<AST::DoWhileStatement>(
-      make_unique<AST::Literal>(false),
-      std::move(body));
 
   program.dump();
   interpreter.run(program);

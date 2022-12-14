@@ -392,6 +392,10 @@ Value BinaryExpression::execute(Interpreter& interpreter)
     return lhs_value >= rhs_value;
   case Op::LessThanOrEquals:
     return lhs_value <= rhs_value;
+  case Op::ShiftLeft:
+    return lhs_value << rhs_value;
+  case Op::ShiftRight:
+    return lhs_value >> rhs_value;
   case Op::StringConcat:
     return Value::string_concat(lhs_value, rhs_value, interpreter.heap());
   case Op::And:

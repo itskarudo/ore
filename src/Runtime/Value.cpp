@@ -169,6 +169,18 @@ Value Value::operator>=(Value const& other)
   return Value(as_number() >= other.as_number());
 }
 
+Value Value::operator<<(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(static_cast<double>((long long)as_number() << (long long)other.as_number()));
+}
+
+Value Value::operator>>(Value const& other)
+{
+  assert(is_number() && other.is_number());
+  return Value(static_cast<double>((long long)as_number() >> (long long)other.as_number()));
+}
+
 Value Value::operator!(void)
 {
   assert(is_boolean());
