@@ -9,30 +9,24 @@ int main(void)
   AST::Program program;
 
   /**
-   * for (i = 0; i < 10; i++)
+   * i = 0
+   * do
    *   print(i)
+   * while (i < 10)
    */
 
   std::vector<std::unique_ptr<AST::Expression>> args;
-  args.push_back(make_unique<AST::Identifier>("i"));
+  args.push_back(make_unique<AST::Literal>(
+      ore_string(interpreter.heap(), "this should get printed once")));
 
-  program.append<AST::ForStatement>(
-      make_unique<AST::AssignmentExpression>(
-          make_unique<AST::Identifier>("i"),
-          make_unique<AST::Literal>(1)),
-      make_unique<AST::BinaryExpression>(
-          make_unique<AST::Identifier>("i"),
-          AST::BinaryExpression::Op::LessThanOrEquals,
-          make_unique<AST::Literal>(10)),
-      make_unique<AST::AssignmentExpression>(
-          make_unique<AST::Identifier>("i"),
-          make_unique<AST::BinaryExpression>(
-              make_unique<AST::Identifier>("i"),
-              AST::BinaryExpression::Op::Add,
-              make_unique<AST::Literal>(1))),
-      make_unique<AST::CallExpression>(
-          make_unique<AST::Identifier>("print"),
-          std::move(args)));
+  auto body = make_unique<AST::BlockStatement>();
+  body->append<AST::CallExpression>(
+      make_unique<AST::Identifier>("print"),
+      std::move(args));
+
+  program.append<AST::DoWhileStatement>(
+      make_unique<AST::Literal>(false),
+      std::move(body));
 
   program.dump();
   interpreter.run(program);

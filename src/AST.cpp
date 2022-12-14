@@ -231,6 +231,26 @@ Value WhileStatement::execute(Interpreter& interpreter)
   return return_value;
 }
 
+void DoWhileStatement::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  test().dump_impl(indent + 1);
+  body().dump_impl(indent + 1);
+}
+
+Value DoWhileStatement::execute(Interpreter& interpreter)
+{
+
+  Value return_value;
+
+  do {
+    return_value = body().execute(interpreter);
+  } while (!interpreter.is_returning() && test().execute(interpreter).to_boolean());
+
+  return return_value;
+}
+
 void Identifier::dump_impl(int indent) const
 {
   print_indent(indent);

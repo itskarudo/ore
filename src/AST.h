@@ -216,6 +216,26 @@ class WhileStatement : public Statement {
   std::unique_ptr<Statement> m_body;
 };
 
+class DoWhileStatement : public Statement {
+  public:
+  DoWhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> body)
+      : m_test(std::move(test))
+      , m_body(std::move(body))
+  {
+  }
+
+  Expression& test() const { return *m_test; }
+  Statement& body() const { return *m_body; }
+
+  virtual char const* class_name() const override { return "DoWhileStatement"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::unique_ptr<Expression> m_test;
+  std::unique_ptr<Statement> m_body;
+};
+
 class Identifier : public Expression {
   public:
   Identifier(std::string const& name)
