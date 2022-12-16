@@ -259,8 +259,20 @@ class Identifier : public Expression {
 
 class AssignmentExpression : public Expression {
   public:
-  AssignmentExpression(std::unique_ptr<ASTNode> lhs, std::unique_ptr<Expression> rhs)
+  enum class Op {
+    Assignment,
+    AddAssignment,
+    SubAssignment,
+    MultAssignment,
+    DivAssignment,
+    ShiftLeftAssignment,
+    ShiftRightAssignment,
+    ConcatAssignment
+  };
+
+  AssignmentExpression(std::unique_ptr<ASTNode> lhs, Op op, std::unique_ptr<Expression> rhs)
       : m_lhs(std::move(lhs))
+      , m_op(op)
       , m_rhs(std::move(rhs))
   {
   }
@@ -275,6 +287,7 @@ class AssignmentExpression : public Expression {
   private:
   std::unique_ptr<ASTNode> m_lhs;
   std::unique_ptr<Expression> m_rhs;
+  Op m_op;
 };
 
 class GlobalStatement : public Statement {

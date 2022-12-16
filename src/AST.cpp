@@ -272,36 +272,79 @@ void AssignmentExpression::dump_impl(int indent) const
 
 Value AssignmentExpression::execute(Interpreter& interpreter)
 {
-  auto v = m_rhs->execute(interpreter);
+  auto value = m_rhs->execute(interpreter);
+  Value prev_value;
+  PropertyKey key;
+  Object* object;
 
   if (m_lhs->is_identifier()) {
     auto id = static_cast<Identifier&>(*m_lhs);
-    interpreter.set_variable(id.name(), v);
+    key = id.name();
+
+    if (m_op != Op::Assignment)
+      prev_value = id.execute(interpreter);
+
   } else if (m_lhs->is_member_expression()) {
     auto& member_expression = static_cast<MemberExpression&>(*m_lhs);
 
     auto object_value = member_expression.object().execute(interpreter);
-    auto* object = object_value.to_object(interpreter.heap());
+    object = object_value.to_object(interpreter.heap());
 
     if (member_expression.is_computed()) {
       auto computed_value = member_expression.property().execute(interpreter);
       if (computed_value.is_number())
-        object->put(computed_value.as_number(), v);
+        key = computed_value.as_number();
       else if (computed_value.is_string())
-        object->put(computed_value.as_string()->string(), v);
-      __builtin_unreachable();
+        key = computed_value.as_string()->string();
+      else
+        __builtin_unreachable();
     } else {
       assert(member_expression.property().is_identifier());
       auto& id = static_cast<Identifier&>(member_expression.property());
-
-      object->put(id.name(), v);
+      key = id.name();
     }
+
+    if (m_op != Op::Assignment)
+      prev_value = object->get(key);
 
   } else {
     __builtin_unreachable();
   }
 
-  return v;
+  switch (m_op) {
+  case Op::AddAssignment:
+    value = prev_value + value;
+    break;
+  case Op::SubAssignment:
+    value = prev_value - value;
+    break;
+  case Op::MultAssignment:
+    value = prev_value * value;
+    break;
+  case Op::DivAssignment:
+    value = prev_value / value;
+    break;
+  case Op::ShiftLeftAssignment:
+    value = prev_value << value;
+    break;
+  case Op::ShiftRightAssignment:
+    value = prev_value >> value;
+    break;
+  case Op::ConcatAssignment:
+    value = Value::string_concat(prev_value, value, interpreter.heap());
+    break;
+  default:
+    break;
+  }
+
+  if (m_lhs->is_identifier())
+    interpreter.set_variable(key.string(), value);
+  else if (m_lhs->is_member_expression())
+    object->put(key, value);
+  else
+    __builtin_unreachable();
+
+  return value;
 }
 
 void GlobalStatement::dump_impl(int indent) const
