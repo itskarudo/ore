@@ -22,6 +22,11 @@ FFIObject::FFIObject(std::string const& filename)
     });
 }
 
+FFIObject::~FFIObject()
+{
+  dlclose(m_handle);
+}
+
 void FFIObject::put(PropertyKey key, Value value)
 {
   __builtin_unreachable();

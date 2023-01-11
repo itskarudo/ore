@@ -6,10 +6,10 @@
 #include <map>
 
 namespace Ore {
-class FFIObject : public Object {
+class FFIObject final : public Object {
   public:
   FFIObject(std::string const& filename);
-  virtual ~FFIObject() { }
+  virtual ~FFIObject();
 
   virtual char const* class_name() const override { return "FFIObject"; }
 
