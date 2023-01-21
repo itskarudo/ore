@@ -411,42 +411,50 @@ void BinaryExpression::dump_impl(int indent) const
 
 Value BinaryExpression::execute(Interpreter& interpreter)
 {
-  auto lhs_value = m_lhs->execute(interpreter);
-  auto rhs_value = m_rhs->execute(interpreter);
 
   switch (m_op) {
   case Op::Add:
-    return lhs_value + rhs_value;
+    return m_lhs->execute(interpreter) + m_rhs->execute(interpreter);
   case Op::Sub:
-    return lhs_value - rhs_value;
+    return m_lhs->execute(interpreter) - m_rhs->execute(interpreter);
   case Op::Mult:
-    return lhs_value * rhs_value;
+    return m_lhs->execute(interpreter) * m_rhs->execute(interpreter);
   case Op::Div:
-    return lhs_value / rhs_value;
+    return m_lhs->execute(interpreter) / m_rhs->execute(interpreter);
   case Op::Equals:
-    return lhs_value == rhs_value;
+    return m_lhs->execute(interpreter) == m_rhs->execute(interpreter);
   case Op::NotEquals:
-    return lhs_value != rhs_value;
+    return m_lhs->execute(interpreter) != m_rhs->execute(interpreter);
   case Op::GreaterThan:
-    return lhs_value > rhs_value;
+    return m_lhs->execute(interpreter) > m_rhs->execute(interpreter);
   case Op::LessThan:
-    return lhs_value < rhs_value;
+    return m_lhs->execute(interpreter) < m_rhs->execute(interpreter);
   case Op::GreaterThanOrEquals:
-    return lhs_value >= rhs_value;
+    return m_lhs->execute(interpreter) >= m_rhs->execute(interpreter);
   case Op::LessThanOrEquals:
-    return lhs_value <= rhs_value;
+    return m_lhs->execute(interpreter) <= m_rhs->execute(interpreter);
   case Op::ShiftLeft:
-    return lhs_value << rhs_value;
+    return m_lhs->execute(interpreter) << m_rhs->execute(interpreter);
   case Op::ShiftRight:
-    return lhs_value >> rhs_value;
+    return m_lhs->execute(interpreter) >> m_rhs->execute(interpreter);
   case Op::StringConcat:
-    return Value::string_concat(lhs_value, rhs_value, interpreter.heap());
-  case Op::And:
-    return Value::logical_and(lhs_value, rhs_value);
-  case Op::Or:
-    return Value::logical_or(lhs_value, rhs_value);
+    return Value::string_concat(m_lhs->execute(interpreter), m_rhs->execute(interpreter), interpreter.heap());
   case Op::Xor:
-    return Value::logical_xor(lhs_value, rhs_value);
+    return Value::logical_xor(m_lhs->execute(interpreter), m_rhs->execute(interpreter));
+  case Op::And: {
+    auto lhs_value = m_lhs->execute(interpreter);
+    assert(lhs_value.is_boolean());
+    if (!lhs_value.as_boolean())
+      return Value(false);
+    return Value::logical_and(lhs_value, m_rhs->execute(interpreter));
+  }
+  case Op::Or: {
+    auto lhs_value = m_lhs->execute(interpreter);
+    assert(lhs_value.is_boolean());
+    if (lhs_value.as_boolean())
+      return Value(true);
+    return Value::logical_or(lhs_value, m_rhs->execute(interpreter));
+  }
   default:
     __builtin_unreachable();
   }
