@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Forward.h"
 #include <iostream>
 
 namespace Ore::GC {
@@ -12,6 +13,8 @@ class Cell {
 
   bool live() const { return m_live; }
   void set_live(bool l) { m_live = l; }
+
+  Heap& heap() const;
 
   class Visitor {
 public:
