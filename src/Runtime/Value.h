@@ -134,14 +134,29 @@ class Value {
   } m_value;
 };
 
-inline Value ore_nil()
+inline Value ore_number(double value)
 {
-  return Value(Value::Type::Nil);
+  return Value(value);
+}
+
+inline Value ore_boolean(bool value)
+{
+  return Value(value);
 }
 
 inline Value ore_string(GC::Heap& heap, std::string const& string)
 {
   return heap.allocate<PrimitiveString>(string);
+}
+
+inline Value ore_object(GC::Heap& heap)
+{
+  return heap.allocate<Object>();
+}
+
+inline Value ore_nil()
+{
+  return Value(Value::Type::Nil);
 }
 
 }
