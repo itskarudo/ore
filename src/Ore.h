@@ -20,7 +20,7 @@
 
 #define ORE_INIT_FUNC extern "C" void
 
-typedef Ore::Value (*OreFunctionDecl)(std::vector<Ore::Value>&);
+using OreFunctionDecl = Ore::Value (*)(Ore::GC::Heap&, std::vector<Ore::Value>&);
 
 struct OreExportEntry {
   char const* name;
