@@ -71,21 +71,60 @@ class Program : public BlockStatement {
 };
 
 class Literal : public Expression {
+};
+
+class NumberLiteral : public Literal {
   public:
-  Literal(Value value)
+  NumberLiteral(double value)
       : m_value(value)
   {
   }
 
-  Value value() { return m_value; }
-  const Value value() const { return m_value; }
-
-  virtual char const* class_name() const override { return "Literal"; }
+  virtual char const* class_name() const override { return "NumberLiteral"; }
   virtual void dump_impl(int indent) const override;
   virtual Value execute(Interpreter&) override;
 
   private:
-  Value m_value;
+  double m_value;
+};
+
+class BooleanLiteral : public Literal {
+  public:
+  BooleanLiteral(bool value)
+      : m_value(value)
+  {
+  }
+
+  virtual char const* class_name() const override { return "BooleanLiteral"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  bool m_value;
+};
+
+class StringLiteral : public Literal {
+  public:
+  StringLiteral(std::string const& value)
+      : m_value(std::move(value))
+  {
+  }
+
+  virtual char const* class_name() const override { return "StringLiteral"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::string const m_value;
+};
+
+class NilLiteral : public Literal {
+  public:
+  NilLiteral() { }
+
+  virtual char const* class_name() const override { return "NilLiteral"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
 };
 
 class FunctionDeclaration : public Expression {
@@ -136,7 +175,7 @@ class CallExpression : public Expression {
 class ReturnStatement : public Statement {
   public:
   ReturnStatement()
-      : m_argument(std::make_unique<Literal>(ore_nil()))
+      : m_argument(std::make_unique<AST::NilLiteral>())
   {
   }
 

@@ -9,10 +9,10 @@ int main(void)
   AST::Program program;
 
   std::vector<std::unique_ptr<AST::Expression>> args;
-  args.push_back(make_unique<AST::Literal>(ore_string(interpreter.heap(), "helloooo")));
+  args.push_back(make_unique<AST::StringLiteral>("hello"));
 
   program.append<AST::BinaryExpression>(
-      make_unique<AST::Literal>(true),
+      make_unique<AST::BooleanLiteral>(true),
       AST::BinaryExpression::Op::Or,
       make_unique<AST::CallExpression>(
           make_unique<AST::Identifier>("print"),

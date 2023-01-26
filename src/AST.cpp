@@ -11,15 +11,48 @@ static void print_indent(int indent)
 
 namespace Ore::AST {
 
-void Literal::dump_impl(int indent) const
+void NumberLiteral::dump_impl(int indent) const
 {
   print_indent(indent);
-  std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << value() << "\033[0m" << std::endl;
+  std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << m_value << "\033[0m" << std::endl;
 }
 
-Value Literal::execute(Interpreter& interpreter)
+Value NumberLiteral::execute(Interpreter& interpreter)
 {
-  return value();
+  return Value(m_value);
+}
+
+void BooleanLiteral::dump_impl(int indent) const
+{
+  print_indent(indent);
+  std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << (m_value ? "true" : "false") << "\033[0m" << std::endl;
+}
+
+Value BooleanLiteral::execute(Interpreter& interpreter)
+{
+  return Value(m_value);
+}
+
+void StringLiteral::dump_impl(int indent) const
+{
+  print_indent(indent);
+  std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << m_value << "\033[0m" << std::endl;
+}
+
+Value StringLiteral::execute(Interpreter& interpreter)
+{
+  return ore_string(interpreter.heap(), m_value);
+}
+
+void NilLiteral::dump_impl(int indent) const
+{
+  print_indent(indent);
+  std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[0m" << std::endl;
+}
+
+Value NilLiteral::execute(Interpreter& interpreter)
+{
+  return ore_nil();
 }
 
 void BlockStatement::dump_impl(int indent) const
