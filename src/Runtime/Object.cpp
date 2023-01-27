@@ -25,7 +25,7 @@ void Object::put(PropertyKey key, Value value)
 
 void Object::put_native_function(PropertyKey key, std::function<Value(std::vector<Value>)> func)
 {
-  put(key, GC::HeapBlock::from_cell(this)->heap().allocate<NativeFunction>(func));
+  put(key, heap().allocate<NativeFunction>(func));
 }
 
 bool Object::contains(PropertyKey key) const

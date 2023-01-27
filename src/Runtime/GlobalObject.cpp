@@ -31,11 +31,11 @@ void GlobalObject::initalize()
     std::string input;
     std::getline(std::cin, input);
 
-    return ore_string(GC::HeapBlock::from_cell(this)->heap(), input);
+    return ore_string(heap(), input);
   });
 
   put_native_function(PropertyKey("$gc"), [&](std::vector<Value>) {
-    GC::HeapBlock::from_cell(this)->heap().collect_garbage();
+    heap().collect_garbage();
     return ore_nil();
   });
 
@@ -51,7 +51,7 @@ void GlobalObject::initalize()
     if (!std::filesystem::exists(full_filename))
       return ore_nil();
 
-    auto* ffi_object = GC::HeapBlock::from_cell(this)->heap().allocate<FFIObject>(full_filename);
+    auto* ffi_object = heap().allocate<FFIObject>(full_filename);
     return Value(ffi_object);
   });
 }
