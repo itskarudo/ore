@@ -32,8 +32,6 @@ class Heap {
   private:
   Cell* allocate_cell(size_t);
 
-  void visit_reachable_cells(std::vector<Cell*>& roots, std::vector<Cell*>& live_cells);
-
   std::vector<HeapBlock*> m_blocks;
   Interpreter& m_interpreter;
 
