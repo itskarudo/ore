@@ -2,6 +2,7 @@
 
 #include "Cell.h"
 #include "Heap.h"
+#include <concepts>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -22,6 +23,7 @@ class HeapBlock {
   void deallocate(Cell*);
 
   template<typename Callback>
+    requires std::invocable<Callback, Cell*>
   void for_each_cell(Callback callback)
   {
     for (size_t i = 0; i < cell_count(); ++i)
