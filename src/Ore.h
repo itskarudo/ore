@@ -8,6 +8,7 @@
 #include "Interpreter.h"
 #include "Runtime/ArrayObject.h"
 #include "Runtime/BooleanObject.h"
+#include "Runtime/FFIObject.h"
 #include "Runtime/FunctionObject.h"
 #include "Runtime/GlobalObject.h"
 #include "Runtime/NativeFunction.h"
