@@ -476,15 +476,13 @@ Value BinaryExpression::execute(Interpreter& interpreter)
     return Value::logical_xor(m_lhs->execute(interpreter), m_rhs->execute(interpreter));
   case Op::And: {
     auto lhs_value = m_lhs->execute(interpreter);
-    assert(lhs_value.is_boolean());
-    if (!lhs_value.as_boolean())
+    if (!lhs_value.to_boolean())
       return Value(false);
     return Value::logical_and(lhs_value, m_rhs->execute(interpreter));
   }
   case Op::Or: {
     auto lhs_value = m_lhs->execute(interpreter);
-    assert(lhs_value.is_boolean());
-    if (lhs_value.as_boolean())
+    if (lhs_value.to_boolean())
       return Value(true);
     return Value::logical_or(lhs_value, m_rhs->execute(interpreter));
   }

@@ -69,20 +69,17 @@ Value Value::string_concat(Value const& str1, Value const& str2, GC::Heap& heap)
 
 Value Value::logical_and(Value const& v1, Value const& v2)
 {
-  assert(v1.is_boolean() && v2.is_boolean());
-  return Value(v1.as_boolean() && v2.as_boolean());
+  return Value(v1.to_boolean() && v2.to_boolean());
 }
 
 Value Value::logical_or(Value const& v1, Value const& v2)
 {
-  assert(v1.is_boolean() && v2.is_boolean());
-  return Value(v1.as_boolean() || v2.as_boolean());
+  return Value(v1.to_boolean() || v2.to_boolean());
 }
 
 Value Value::logical_xor(Value const& v1, Value const& v2)
 {
-  assert(v1.is_boolean() && v2.is_boolean());
-  return Value(v1.as_boolean() != v2.as_boolean());
+  return Value(v1.to_boolean() != v2.to_boolean());
 }
 
 Value Value::length(Value const& value)
@@ -183,8 +180,7 @@ Value Value::operator>>(Value const& other)
 
 Value Value::operator!(void)
 {
-  assert(is_boolean());
-  return Value(!as_boolean());
+  return Value(!to_boolean());
 }
 
 }

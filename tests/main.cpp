@@ -12,7 +12,7 @@ int main(void)
   args.push_back(make_unique<AST::StringLiteral>("hello"));
 
   program.append<AST::BinaryExpression>(
-      make_unique<AST::BooleanLiteral>(true),
+      make_unique<AST::StringLiteral>(""),
       AST::BinaryExpression::Op::Or,
       make_unique<AST::CallExpression>(
           make_unique<AST::Identifier>("print"),
