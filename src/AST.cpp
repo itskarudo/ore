@@ -19,7 +19,7 @@ void NumberLiteral::dump_impl(int indent) const
 
 Value NumberLiteral::execute(Interpreter& interpreter)
 {
-  return Value(m_value);
+  return ore_number(m_value);
 }
 
 void BooleanLiteral::dump_impl(int indent) const
@@ -30,7 +30,7 @@ void BooleanLiteral::dump_impl(int indent) const
 
 Value BooleanLiteral::execute(Interpreter& interpreter)
 {
-  return Value(m_value);
+  return ore_boolean(m_value);
 }
 
 void StringLiteral::dump_impl(int indent) const
@@ -477,13 +477,13 @@ Value BinaryExpression::execute(Interpreter& interpreter)
   case Op::And: {
     auto lhs_value = m_lhs->execute(interpreter);
     if (!lhs_value.to_boolean())
-      return Value(false);
+      return ore_boolean(false);
     return Value::logical_and(lhs_value, m_rhs->execute(interpreter));
   }
   case Op::Or: {
     auto lhs_value = m_lhs->execute(interpreter);
     if (lhs_value.to_boolean())
-      return Value(true);
+      return ore_boolean(true);
     return Value::logical_or(lhs_value, m_rhs->execute(interpreter));
   }
   default:

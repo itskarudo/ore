@@ -30,7 +30,7 @@ Value Interpreter::get_variable(std::string const& name) const
   if (global_object()->contains(name))
     return global_object()->get(name);
 
-  return Value();
+  return ore_nil();
 }
 
 void Interpreter::set_variable(std::string const& name, Value value)
