@@ -11,7 +11,7 @@ endif(CCACHE_FOUND)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -fsanitize=address")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(LIB_SOURCES src/AST.cpp
@@ -27,7 +27,7 @@ set(LIB_SOURCES src/AST.cpp
             src/GC/HeapBlock.cpp)
 
 add_library(ore SHARED ${LIB_SOURCES})
-target_compile_features(ore PRIVATE cxx_std_17)
+target_compile_features(ore PRIVATE cxx_std_20)
 
 add_executable(ore_test tests/main.cpp)
 target_include_directories(ore_test PRIVATE src/)
