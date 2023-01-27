@@ -16,7 +16,7 @@ bool Value::to_boolean() const
   case Value::Type::String:
     return !as_string()->string().empty();
   case Value::Type::Object:
-    return true;
+    return as_object()->to_boolean();
   default:
     return false;
   }

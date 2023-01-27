@@ -12,8 +12,8 @@ int main(void)
   args.push_back(make_unique<AST::StringLiteral>("hello"));
 
   program.append<AST::BinaryExpression>(
-      make_unique<AST::StringLiteral>(""),
-      AST::BinaryExpression::Op::Or,
+      make_unique<AST::ObjectExpression>(),
+      AST::BinaryExpression::Op::And,
       make_unique<AST::CallExpression>(
           make_unique<AST::Identifier>("print"),
           std::move(args)));

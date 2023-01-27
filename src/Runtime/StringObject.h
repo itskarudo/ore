@@ -13,6 +13,7 @@ class StringObject final : public Object {
 
   PrimitiveString* const& value() const { return m_value; }
   virtual char const* class_name() const override { return "StringObject"; }
+  virtual bool to_boolean() const override { return !m_value->string().empty(); }
 
   private:
   PrimitiveString* m_value;

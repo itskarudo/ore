@@ -17,6 +17,7 @@ class ArrayObject final : public Object {
   virtual Value get(PropertyKey key) const override;
   virtual void put(PropertyKey key, Value value) override;
   virtual bool contains(PropertyKey key) const override;
+  virtual bool to_boolean() const override { return !m_elements.empty(); }
 
   virtual void visit_graph(Visitor&) override;
 

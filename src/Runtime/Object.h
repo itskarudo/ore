@@ -20,6 +20,7 @@ class Object : public GC::Cell {
   virtual void put(PropertyKey key, Value value);
   virtual void put_native_function(PropertyKey key, std::function<Value(std::vector<Value>)>);
   virtual bool contains(PropertyKey key) const;
+  virtual bool to_boolean() const { return !m_properties.empty(); }
 
   virtual bool is_function() const { return false; }
   virtual bool is_native_function() const { return false; }

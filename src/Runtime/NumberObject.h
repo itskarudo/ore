@@ -20,6 +20,7 @@ class NumberObject final : public Object {
   double value() const { return m_value; }
 
   virtual char const* class_name() const override { return "NumberObject"; }
+  virtual bool to_boolean() const override { return m_value != 0; }
 
   private:
   double m_value;
