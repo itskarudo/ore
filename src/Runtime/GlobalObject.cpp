@@ -13,16 +13,8 @@ GlobalObject::GlobalObject()
 void GlobalObject::initalize()
 {
   put_native_function(PropertyKey("print"), [&](std::vector<Value> args) {
-    for (auto arg : args) {
-      if (arg.is_string())
-        printf("%s\n", arg.as_string()->string().c_str());
-      else if (arg.is_number())
-        printf("%s\n", std::to_string(arg.as_number()).c_str());
-      else if (arg.is_boolean())
-        printf("%s\n", arg.as_boolean() ? "true" : "false");
-      else
-        __builtin_unreachable();
-    }
+    for (auto arg : args)
+      std::cout << arg << std::endl;
 
     return ore_nil();
   });
