@@ -34,4 +34,14 @@ bool Object::contains(PropertyKey key) const
   return m_properties.count(key.string());
 }
 
+std::ostream& operator<<(std::ostream& os, Object const& object)
+{
+  os << "{";
+  for (auto& [key, value] : object.properties()) {
+    os << " \"" << key << "\": " << value << ",";
+  }
+  os << " }";
+  return os;
+}
+
 }

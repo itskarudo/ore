@@ -29,6 +29,8 @@ class Object : public GC::Cell {
   virtual void visit_graph(Visitor&) override;
   virtual char const* class_name() const override { return "Object"; }
 
+  friend std::ostream& operator<<(std::ostream& os, Object const&);
+
   protected:
   std::map<std::string, Value> m_properties;
 };
