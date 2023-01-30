@@ -1,4 +1,5 @@
 #include "ArrayObject.h"
+#include <sstream>
 
 namespace Ore {
 
@@ -39,6 +40,18 @@ bool ArrayObject::contains(PropertyKey key) const
     return Object::contains(key);
 
   __builtin_unreachable();
+}
+
+std::string const ArrayObject::to_string() const
+{
+  std::stringstream s;
+  s << "[";
+  for (auto& element : elements()) {
+    s << " " << element << ",";
+  }
+  s << " ]";
+
+  return s.str();
 }
 
 }

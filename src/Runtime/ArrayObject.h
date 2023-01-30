@@ -18,6 +18,7 @@ class ArrayObject final : public Object {
   virtual void put(PropertyKey key, Value value) override;
   virtual bool contains(PropertyKey key) const override;
   virtual bool to_boolean() const override { return !m_elements.empty(); }
+  virtual std::string const to_string() const override;
 
   virtual void visit_graph(Visitor&) override;
 
