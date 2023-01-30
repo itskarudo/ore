@@ -13,7 +13,7 @@ int main(void)
   elements.push_back(make_unique<AST::NumberLiteral>(5));
 
   std::vector<std::unique_ptr<AST::Expression>> args;
-  args.push_back(make_unique<AST::ArrayExpression>(std::move(elements)));
+  args.push_back(make_unique<AST::NumberLiteral>(5));
 
   program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),
