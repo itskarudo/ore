@@ -1,5 +1,6 @@
 #include "Object.h"
 #include "NativeFunction.h"
+#include <sstream>
 
 namespace Ore {
 void Object::visit_graph(Visitor& visitor)
@@ -34,14 +35,15 @@ bool Object::contains(PropertyKey key) const
   return m_properties.count(key.string());
 }
 
-std::ostream& operator<<(std::ostream& os, Object const& object)
+std::string const Object::to_string() const
 {
-  os << "{";
-  for (auto& [key, value] : object.properties()) {
-    os << " \"" << key << "\": " << value << ",";
+  std::stringstream s;
+  s << "{";
+  for (auto& [key, value] : properties()) {
+    s << " \"" << key << "\": " << value << ",";
   }
-  os << " }";
-  return os;
+  s << " }";
+  return s.str();
 }
 
 }

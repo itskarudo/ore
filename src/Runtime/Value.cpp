@@ -51,7 +51,7 @@ std::ostream& operator<<(std::ostream& os, Value const& value)
     os << "\"" << value.as_string()->string() << "\"";
     break;
   case Value::Type::Object:
-    os << *value.as_object();
+    os << value.as_object()->to_string();
     break;
   case Value::Type::Nil:
     os << "nil";

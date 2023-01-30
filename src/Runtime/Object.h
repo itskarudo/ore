@@ -21,6 +21,7 @@ class Object : public GC::Cell {
   virtual void put_native_function(PropertyKey key, std::function<Value(std::vector<Value>)>);
   virtual bool contains(PropertyKey key) const;
   virtual bool to_boolean() const { return !m_properties.empty(); }
+  virtual std::string const to_string() const;
 
   virtual bool is_function() const { return false; }
   virtual bool is_native_function() const { return false; }
@@ -28,8 +29,6 @@ class Object : public GC::Cell {
 
   virtual void visit_graph(Visitor&) override;
   virtual char const* class_name() const override { return "Object"; }
-
-  friend std::ostream& operator<<(std::ostream& os, Object const&);
 
   protected:
   std::map<std::string, Value> m_properties;
