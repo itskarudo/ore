@@ -659,6 +659,7 @@ void TryStatement::dump_impl(int indent) const
 {
   print_indent(indent);
   printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  m_block->dump_impl(indent + 1);
   m_handler->dump_impl(indent + 1);
 
   if (m_finalizer.has_value()) {
