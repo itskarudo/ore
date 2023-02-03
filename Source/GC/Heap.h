@@ -29,6 +29,8 @@ class Heap {
 
   void collect_garbage(CollectionType = CollectionType::Garbage);
 
+  Interpreter& interpreter() const { return m_interpreter; }
+
   private:
   Cell* allocate_cell(size_t);
 

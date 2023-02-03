@@ -15,6 +15,7 @@ class Cell {
   void set_live(bool l) { m_live = l; }
 
   Heap& heap() const;
+  Interpreter& interpreter() const;
 
   class Visitor {
 public:

@@ -11,4 +11,9 @@ Heap& Cell::heap() const
 {
   return HeapBlock::from_cell(this)->heap();
 }
+
+Interpreter& Cell::interpreter() const
+{
+  return heap().interpreter();
+}
 }
