@@ -645,7 +645,7 @@ Value ExportStatement::execute(Interpreter& interpreter)
 void CatchClause::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[34m%s\033[0m\n", class_name());
+  printf("\033[32m%s \033[33m@ {%p}\033[34m %s \033[0m\n", class_name(), this, m_param.c_str());
   m_body->dump_impl(indent + 1);
 }
 
