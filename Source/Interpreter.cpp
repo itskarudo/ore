@@ -8,6 +8,12 @@ namespace Ore {
 Interpreter::Interpreter()
     : m_heap(*this)
 {
+#define __ENUM_OBJECT_SHAPES(name, ObjectName) \
+  m_object_shapes.name = m_heap.allocate<ObjectName>();
+
+  ENUMERATE_OBJECT_SHAPES
+#undef __ENUM_OBJECT_SHAPES
+
   m_global_object = m_heap.allocate<GlobalObject>();
 }
 
@@ -24,7 +30,7 @@ void Interpreter::leave_scope()
 Value Interpreter::get_variable(std::string const& name)
 {
   for (auto frame = m_scope_frames.rbegin(); frame != m_scope_frames.rend(); ++frame)
-    if (frame->variables.count(name))
+    if (frame->variables.contains(name))
       return frame->variables.at(name);
 
   if (global_object()->contains(name))
@@ -36,7 +42,7 @@ Value Interpreter::get_variable(std::string const& name)
 void Interpreter::set_variable(std::string const& name, Value value)
 {
   for (auto frame = m_scope_frames.rbegin(); frame != m_scope_frames.rend(); ++frame)
-    if (frame->variables.count(name)) {
+    if (frame->variables.contains(name)) {
       frame->variables[name] = value;
       return;
     }

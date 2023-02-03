@@ -15,7 +15,14 @@ void Object::visit_graph(Visitor& visitor)
 Value Object::get(PropertyKey key) const
 {
   assert(key.is_string());
-  return m_properties.at(key.string());
+  Object const* object = this;
+  while (object) {
+    if (object->properties().contains(key.string()))
+      return object->m_properties.at(key.string());
+    object = object->shape();
+  }
+
+  return ore_nil();
 }
 
 void Object::put(PropertyKey key, Value value)
@@ -24,7 +31,7 @@ void Object::put(PropertyKey key, Value value)
   m_properties[key.string()] = value;
 }
 
-void Object::put_native_function(PropertyKey key, std::function<Value(std::vector<Value>)> func)
+void Object::put_native_function(PropertyKey key, std::function<Value(Interpreter&, std::vector<Value>&)> func)
 {
   put(key, heap().allocate<NativeFunction>(func));
 }
@@ -32,7 +39,13 @@ void Object::put_native_function(PropertyKey key, std::function<Value(std::vecto
 bool Object::contains(PropertyKey key) const
 {
   assert(key.is_string());
-  return m_properties.count(key.string());
+  Object const* object = this;
+  while (object) {
+    if (object->properties().contains(key.string()))
+      return true;
+    object = object->shape();
+  }
+  return false;
 }
 
 std::string const Object::to_string() const

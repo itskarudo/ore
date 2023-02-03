@@ -19,6 +19,7 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Runtime/Value.cpp
             Source/Runtime/Object.cpp
             Source/Runtime/GlobalObject.cpp
+            Source/Runtime/GlobalObjectShape.cpp
             Source/Runtime/StringObject.cpp
             Source/Runtime/ArrayObject.cpp
             Source/Runtime/FFIObject.cpp

@@ -3,6 +3,7 @@
 #include "GC/Heap.h"
 #include "Runtime/ExceptionObject.h"
 #include "Runtime/GlobalObject.h"
+#include "Runtime/GlobalObjectShape.h"
 #include "Runtime/Object.h"
 #include <vector>
 
@@ -51,10 +52,29 @@ class Interpreter {
 
   void collect_roots(std::vector<GC::Cell*>& roots);
 
+#define __ENUM_OBJECT_SHAPES(name, ObjectName) \
+  ObjectName* name() const                     \
+  {                                            \
+    return m_object_shapes.name;               \
+  }
+
+  ENUMERATE_OBJECT_SHAPES
+#undef __ENUM_OBJECT_SHAPES
+
   private:
   GC::Heap m_heap;
+
   GlobalObject* m_global_object;
   ExceptionObject* m_exception { nullptr };
+
+  struct {
+#define __ENUM_OBJECT_SHAPES(name, ObjectName) \
+  ObjectName* name;
+
+    ENUMERATE_OBJECT_SHAPES
+#undef __ENUM_OBJECT_SHAPES
+  } m_object_shapes;
+
   std::vector<ScopeFrame> m_scope_frames;
   ScopeType m_unwind_until { ScopeType::None };
 };

@@ -179,7 +179,7 @@ Value CallExpression::execute(Interpreter& interpreter)
       passed_arguments.push_back(value);
     }
 
-    return function.native_function()(passed_arguments);
+    return function.native_function()(interpreter, passed_arguments);
   }
 
   __builtin_unreachable();
