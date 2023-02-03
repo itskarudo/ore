@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& os, Value const& value)
     os << (value.as_boolean() ? "true" : "false");
     break;
   case Value::Type::String:
-    os << "\"" << value.as_string()->string() << "\"";
+    os << value.as_string()->string();
     break;
   case Value::Type::Object:
     os << value.as_object()->to_string();

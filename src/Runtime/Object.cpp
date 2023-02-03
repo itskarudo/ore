@@ -40,7 +40,11 @@ std::string const Object::to_string() const
   std::stringstream s;
   s << "{";
   for (auto& [key, value] : properties()) {
-    s << " \"" << key << "\": " << value << ",";
+    s << " \"" << key << "\": ";
+    if (value.is_string())
+      s << "\"" << value << "\",";
+    else
+      s << value << ",";
   }
   s << " }";
   return s.str();
