@@ -463,4 +463,43 @@ class ExportStatement : public Statement {
   std::unique_ptr<Expression> m_argument;
 };
 
+class CatchClause : public ASTNode {
+  public:
+  CatchClause(std::string param, std::unique_ptr<BlockStatement> body)
+      : m_param(std::move(param))
+      , m_body(std::move(body))
+  {
+  }
+
+  virtual char const* class_name() const override { return "CatchClause"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  std::string param() const { return m_param; }
+  BlockStatement& body() const { return *m_body; }
+
+  private:
+  std::string m_param;
+  std::unique_ptr<BlockStatement> m_body;
+};
+
+class TryStatement : public Statement {
+  public:
+  TryStatement(std::unique_ptr<BlockStatement> block, std::unique_ptr<CatchClause> handler, std::optional<std::unique_ptr<BlockStatement>> finalizer)
+      : m_block(std::move(block))
+      , m_handler(std::move(handler))
+      , m_finalizer(std::move(finalizer))
+  {
+  }
+
+  virtual char const* class_name() const override { return "TryStatement"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Value execute(Interpreter&) override;
+
+  private:
+  std::unique_ptr<BlockStatement> m_block;
+  std::unique_ptr<CatchClause> m_handler;
+  std::optional<std::unique_ptr<BlockStatement>> m_finalizer;
+};
+
 }

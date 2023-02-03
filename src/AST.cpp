@@ -106,6 +106,8 @@ Value FunctionDeclaration::execute(Interpreter& interpreter)
     if (parameter.default_value.has_value()) {
       did_find_optional = true;
       parameter_value.default_value = parameter.default_value.value()->execute(interpreter);
+      if (interpreter.has_exception())
+        return ore_nil();
     } else
       parameter_value.default_value = std::nullopt;
 
@@ -155,6 +157,8 @@ Value CallExpression::execute(Interpreter& interpreter)
     for (size_t i = 0; i < function.parameters().size(); ++i) {
       if (i < m_arguments.size()) {
         auto value = m_arguments[i]->execute(interpreter);
+        if (interpreter.has_exception())
+          return ore_nil();
         passed_arguments[function.parameters()[i].name] = value;
       } else {
         assert(function.parameters()[i].default_value.has_value());
@@ -168,8 +172,12 @@ Value CallExpression::execute(Interpreter& interpreter)
     auto& function = static_cast<NativeFunction&>(*callee);
 
     std::vector<Value> passed_arguments;
-    for (auto& argument : m_arguments)
-      passed_arguments.push_back(argument->execute(interpreter));
+    for (auto& argument : m_arguments) {
+      auto value = argument->execute(interpreter);
+      if (interpreter.has_exception())
+        return ore_nil();
+      passed_arguments.push_back(value);
+    }
 
     return function.native_function()(passed_arguments);
   }
@@ -187,7 +195,7 @@ void ReturnStatement::dump_impl(int indent) const
 Value ReturnStatement::execute(Interpreter& interpreter)
 {
   auto argument_value = argument().execute(interpreter);
-  interpreter.do_return();
+  interpreter.unwind_until(Interpreter::ScopeType::Function);
   return argument_value;
 }
 
@@ -232,14 +240,33 @@ Value ForStatement::execute(Interpreter& interpreter)
 {
   Value return_value;
 
-  if (m_init.has_value())
+  if (m_init.has_value()) {
     m_init.value()->execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
+  }
 
-  while (!interpreter.is_returning() && (m_test.has_value() ? m_test.value()->execute(interpreter).to_boolean() : true)) {
+  bool test_value = true;
+  if (m_test.has_value()) {
+    test_value = m_test.value()->execute(interpreter).to_boolean();
+    if (interpreter.has_exception())
+      return ore_nil();
+  }
+
+  while (!interpreter.is_unwinding() && test_value) {
     return_value = m_body->execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
 
-    if (m_update.has_value())
+    if (m_update.has_value()) {
       m_update.value()->execute(interpreter);
+      if (interpreter.has_exception())
+        return ore_nil();
+    }
+
+    test_value = m_test.value()->execute(interpreter).to_boolean();
+    if (interpreter.has_exception())
+      return ore_nil();
   }
 
   return return_value;
@@ -258,7 +285,7 @@ Value WhileStatement::execute(Interpreter& interpreter)
 
   Value return_value;
 
-  while (!interpreter.is_returning() && test().execute(interpreter).to_boolean())
+  while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean())
     return_value = body().execute(interpreter);
 
   return return_value;
@@ -279,7 +306,7 @@ Value DoWhileStatement::execute(Interpreter& interpreter)
 
   do {
     return_value = body().execute(interpreter);
-  } while (!interpreter.is_returning() && test().execute(interpreter).to_boolean());
+  } while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean());
 
   return return_value;
 }
@@ -306,6 +333,8 @@ void AssignmentExpression::dump_impl(int indent) const
 Value AssignmentExpression::execute(Interpreter& interpreter)
 {
   auto value = m_rhs->execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
   Value prev_value;
   PropertyKey key;
   Object* object;
@@ -415,6 +444,8 @@ void UnaryExpression::dump_impl(int indent) const
 Value UnaryExpression::execute(Interpreter& interpreter)
 {
   auto value = m_operand->execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
   switch (m_op) {
   case Op::Not:
     return !value;
@@ -445,49 +476,70 @@ void BinaryExpression::dump_impl(int indent) const
 Value BinaryExpression::execute(Interpreter& interpreter)
 {
 
+  auto lhs_value = m_lhs->execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
+
+  if (m_op == Op::And && !lhs_value.to_boolean())
+    return ore_boolean(false);
+  else if (m_op == Op::Or && lhs_value.to_boolean())
+    return ore_boolean(true);
+
+  auto rhs_value = m_rhs->execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
+
   switch (m_op) {
-  case Op::Add:
-    return m_lhs->execute(interpreter) + m_rhs->execute(interpreter);
-  case Op::Sub:
-    return m_lhs->execute(interpreter) - m_rhs->execute(interpreter);
-  case Op::Mult:
-    return m_lhs->execute(interpreter) * m_rhs->execute(interpreter);
-  case Op::Div:
-    return m_lhs->execute(interpreter) / m_rhs->execute(interpreter);
-  case Op::Equals:
-    return m_lhs->execute(interpreter) == m_rhs->execute(interpreter);
-  case Op::NotEquals:
-    return m_lhs->execute(interpreter) != m_rhs->execute(interpreter);
-  case Op::GreaterThan:
-    return m_lhs->execute(interpreter) > m_rhs->execute(interpreter);
-  case Op::LessThan:
-    return m_lhs->execute(interpreter) < m_rhs->execute(interpreter);
-  case Op::GreaterThanOrEquals:
-    return m_lhs->execute(interpreter) >= m_rhs->execute(interpreter);
-  case Op::LessThanOrEquals:
-    return m_lhs->execute(interpreter) <= m_rhs->execute(interpreter);
-  case Op::ShiftLeft:
-    return m_lhs->execute(interpreter) << m_rhs->execute(interpreter);
-  case Op::ShiftRight:
-    return m_lhs->execute(interpreter) >> m_rhs->execute(interpreter);
-  case Op::StringConcat:
-    return Value::string_concat(m_lhs->execute(interpreter), m_rhs->execute(interpreter), interpreter.heap());
-  case Op::Xor:
-    return Value::logical_xor(m_lhs->execute(interpreter), m_rhs->execute(interpreter));
+  case Op::Add: {
+    return lhs_value + rhs_value;
+  }
+  case Op::Sub: {
+    return lhs_value - rhs_value;
+  }
+  case Op::Mult: {
+    return lhs_value * rhs_value;
+  }
+  case Op::Div: {
+    return lhs_value / rhs_value;
+  }
+  case Op::Equals: {
+    return lhs_value == rhs_value;
+  }
+  case Op::NotEquals: {
+    return lhs_value != rhs_value;
+  }
+  case Op::GreaterThan: {
+    return lhs_value > rhs_value;
+  }
+  case Op::LessThan: {
+    return lhs_value < rhs_value;
+  }
+  case Op::GreaterThanOrEquals: {
+    return lhs_value >= rhs_value;
+  }
+  case Op::LessThanOrEquals: {
+    return lhs_value <= rhs_value;
+  }
+  case Op::ShiftLeft: {
+    return lhs_value << rhs_value;
+  }
+  case Op::ShiftRight: {
+    return lhs_value >> rhs_value;
+  }
+  case Op::StringConcat: {
+    return Value::string_concat(lhs_value, rhs_value, interpreter.heap());
+  }
+  case Op::Xor: {
+    return Value::logical_xor(lhs_value, rhs_value);
+  }
   case Op::And: {
-    auto lhs_value = m_lhs->execute(interpreter);
-    if (!lhs_value.to_boolean())
-      return ore_boolean(false);
-    return Value::logical_and(lhs_value, m_rhs->execute(interpreter));
+    return Value::logical_and(lhs_value, rhs_value);
   }
   case Op::Or: {
-    auto lhs_value = m_lhs->execute(interpreter);
-    if (lhs_value.to_boolean())
-      return ore_boolean(true);
-    return Value::logical_or(lhs_value, m_rhs->execute(interpreter));
+    return Value::logical_or(lhs_value, rhs_value);
   }
   default:
-    __builtin_unreachable();
+    return ore_nil();
   }
 }
 
@@ -544,8 +596,13 @@ Value ObjectExpression::execute(Interpreter& interpreter)
 
   auto* object = interpreter.heap().allocate<Object>();
 
-  for (auto& [key, value] : m_properties)
-    object->put(key, value->execute(interpreter));
+  for (auto& [key, value] : m_properties) {
+
+    auto v = value->execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
+    object->put(key, v);
+  }
 
   return Value(object);
 }
@@ -561,8 +618,12 @@ void ArrayExpression::dump_impl(int indent) const
 Value ArrayExpression::execute(Interpreter& interpreter)
 {
   std::vector<Value> values;
-  for (auto& element : m_elements)
-    values.push_back(element->execute(interpreter));
+  for (auto& element : m_elements) {
+    auto value = element->execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
+    values.push_back(value);
+  }
 
   return interpreter.heap().allocate<ArrayObject>(values);
 }
@@ -579,6 +640,50 @@ Value ExportStatement::execute(Interpreter& interpreter)
   // FIXME: Actually implement exports.
   m_argument->execute(interpreter);
   return ore_nil();
+}
+
+void CatchClause::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[34m%s\033[0m\n", class_name());
+  m_body->dump_impl(indent + 1);
+}
+
+Value CatchClause::execute(Interpreter& interpreter)
+{
+  // CatchClause execution is handled by TryStatement
+  assert(false);
+}
+
+void TryStatement::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  m_handler->dump_impl(indent + 1);
+
+  if (m_finalizer.has_value()) {
+    printf("\033[34m Finalizer\033[0m\n");
+    m_finalizer.value()->dump_impl(indent + 1);
+  }
+}
+
+Value TryStatement::execute(Interpreter& interpreter)
+{
+  auto return_value = ore_nil();
+
+  return_value = interpreter.run(*m_block, Interpreter::ScopeType::Try);
+  if (interpreter.has_exception()) {
+    ExceptionObject* exception = interpreter.exception();
+    interpreter.clear_exception();
+
+    std::map<std::string, Value> arguments;
+    arguments[m_handler->param()] = exception;
+    return_value = interpreter.run(m_handler->body(), Interpreter::ScopeType::Block, std::move(arguments));
+  }
+  if (m_finalizer.has_value())
+    return_value = m_finalizer.value()->execute(interpreter);
+
+  return return_value;
 }
 
 }

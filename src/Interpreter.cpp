@@ -21,7 +21,7 @@ void Interpreter::leave_scope()
   m_scope_frames.pop_back();
 }
 
-Value Interpreter::get_variable(std::string const& name) const
+Value Interpreter::get_variable(std::string const& name)
 {
   for (auto frame = m_scope_frames.rbegin(); frame != m_scope_frames.rend(); ++frame)
     if (frame->variables.count(name))
@@ -30,7 +30,7 @@ Value Interpreter::get_variable(std::string const& name) const
   if (global_object()->contains(name))
     return global_object()->get(name);
 
-  return ore_nil();
+  return throw_exception(heap().allocate<ExceptionObject>("Unknown Identifier"));
 }
 
 void Interpreter::set_variable(std::string const& name, Value value)
@@ -58,14 +58,16 @@ Value Interpreter::run(AST::BlockStatement& block, ScopeType type, std::map<std:
 
   for (auto& child : block.children()) {
     auto last_value = child->execute(*this);
-    if (m_do_return) {
+
+    if (m_unwind_until == ScopeType::Function)
       return_value = last_value;
+
+    if (is_unwinding())
       break;
-    }
   }
 
-  if (type == ScopeType::Function && m_do_return)
-    m_do_return = false;
+  if (type == m_unwind_until)
+    m_unwind_until = ScopeType::None;
 
   leave_scope();
 
@@ -80,6 +82,13 @@ void Interpreter::collect_roots(std::vector<GC::Cell*>& roots)
         roots.push_back(value.as_object());
     }
   }
+}
+
+Value Interpreter::throw_exception(ExceptionObject* exception)
+{
+  m_exception = exception;
+  unwind_until(ScopeType::Try);
+  return ore_nil();
 }
 
 }

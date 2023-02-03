@@ -51,8 +51,10 @@ void Heap::collect_garbage(CollectionType collection_type)
   std::vector<Cell*> roots;
 
   // mark all live cells
-  if (collection_type == CollectionType::Garbage)
+  if (collection_type == CollectionType::Garbage) {
     roots.push_back(m_interpreter.global_object());
+    roots.push_back(m_interpreter.exception());
+  }
 
   m_interpreter.collect_roots(roots);
 
