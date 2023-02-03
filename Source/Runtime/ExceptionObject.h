@@ -13,6 +13,8 @@ class ExceptionObject : public Object {
   virtual ~ExceptionObject() { }
 
   virtual char const* class_name() const override { return "ExceptionObject"; }
+  virtual bool is_exception() const override { return true; }
+
   std::string message() const { return m_message; }
 
   private:

@@ -7,11 +7,6 @@
 namespace Ore {
 GlobalObject::GlobalObject()
 {
-  initalize();
-}
-
-void GlobalObject::initalize()
-{
   put_native_function(PropertyKey("print"), [&](std::vector<Value> args) {
     for (auto arg : args)
       std::cout << arg << std::endl;

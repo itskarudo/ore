@@ -26,6 +26,7 @@ class Object : public GC::Cell {
   virtual bool is_function() const { return false; }
   virtual bool is_native_function() const { return false; }
   virtual bool is_array() const { return false; }
+  virtual bool is_exception() const { return false; }
 
   virtual void visit_graph(Visitor&) override;
   virtual char const* class_name() const override { return "Object"; }
