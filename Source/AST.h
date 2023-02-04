@@ -60,6 +60,11 @@ class BlockStatement : public Statement {
     m_children.push_back(std::move(child));
   }
 
+  void append(std::unique_ptr<ASTNode> child)
+  {
+    m_children.push_back(std::move(child));
+  }
+
   private:
   std::vector<std::unique_ptr<ASTNode>> m_children;
 };
@@ -67,7 +72,6 @@ class BlockStatement : public Statement {
 class Program : public BlockStatement {
   public:
   virtual char const* class_name() const override { return "Program"; };
-  virtual void dump_impl(int indent) const override;
 };
 
 class Literal : public Expression {

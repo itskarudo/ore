@@ -57,12 +57,6 @@ Value NilLiteral::execute(Interpreter& interpreter)
 
 void BlockStatement::dump_impl(int indent) const
 {
-  for (auto& child : children())
-    child->dump_impl(indent);
-}
-
-void Program::dump_impl(int indent) const
-{
   print_indent(indent);
   printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
   for (auto& child : children())
