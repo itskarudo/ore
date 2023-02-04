@@ -20,10 +20,13 @@ class PrimitiveString;
 }
 
 #define DECLARE_NATIVE_FUNCTION(name) \
-  static Value name(Interpreter&, std::vector<Value>&);
+  static Value name##_native_function(Interpreter&, std::vector<Value>&);
 
 #define DEFINE_NATIVE_FUNCTION(name) \
-  Value name(Interpreter& interpreter, std::vector<Value>& args)
+  Value name##_native_function(Interpreter& interpreter, std::vector<Value>& args)
+
+#define REGISTER_NATIVE_FUNCTION(name) \
+  put_native_function(PropertyKey(#name), name##_native_function);
 
 #define ENUMERATE_OBJECT_SHAPES \
   __ENUM_OBJECT_SHAPES(global_object_shape, GlobalObjectShape)

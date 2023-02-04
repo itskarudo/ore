@@ -12,5 +12,6 @@ class GlobalObjectShape : public Object {
   DECLARE_NATIVE_FUNCTION(input);
   DECLARE_NATIVE_FUNCTION(gc);
   DECLARE_NATIVE_FUNCTION(import);
+  DECLARE_NATIVE_FUNCTION(throw);
 };
 }

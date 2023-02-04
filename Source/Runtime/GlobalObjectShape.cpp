@@ -5,10 +5,11 @@
 namespace Ore {
 GlobalObjectShape::GlobalObjectShape()
 {
-  put_native_function(PropertyKey("print"), print);
-  put_native_function(PropertyKey("input"), input);
-  put_native_function(PropertyKey("gc"), gc);
-  put_native_function(PropertyKey("import"), import);
+  REGISTER_NATIVE_FUNCTION(print);
+  REGISTER_NATIVE_FUNCTION(input);
+  REGISTER_NATIVE_FUNCTION(gc);
+  REGISTER_NATIVE_FUNCTION(import);
+  REGISTER_NATIVE_FUNCTION(throw);
 }
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::print)
@@ -48,6 +49,15 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
 
   auto* ffi_object = interpreter.heap().allocate<FFIObject>(full_filename);
   return Value(ffi_object);
+}
+
+DEFINE_NATIVE_FUNCTION(GlobalObjectShape::throw)
+{
+  assert(args.size() == 1);
+  assert(args[0].is_string());
+
+  interpreter.throw_exception(interpreter.heap().allocate<ExceptionObject>(args[0].as_string()->string()));
+  return ore_nil();
 }
 
 }
