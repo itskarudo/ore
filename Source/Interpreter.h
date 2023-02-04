@@ -39,7 +39,7 @@ class Interpreter {
   void unwind_until(ScopeType scope_type) { m_unwind_until = scope_type; }
   bool is_unwinding() const { return m_unwind_until != ScopeType::None; }
 
-  Value throw_exception(ExceptionObject*);
+  Value throw_exception(std::string const& message);
   void clear_exception() { m_exception = nullptr; }
   bool has_exception() const { return m_exception != nullptr; }
   ExceptionObject* exception() { return m_exception; }

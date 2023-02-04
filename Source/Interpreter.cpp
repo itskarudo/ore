@@ -36,7 +36,7 @@ Value Interpreter::get_variable(std::string const& name)
   if (global_object()->contains(name))
     return global_object()->get(name);
 
-  return throw_exception(heap().allocate<ExceptionObject>("Unknown Identifier"));
+  return throw_exception("Unknown Identifier");
 }
 
 void Interpreter::set_variable(std::string const& name, Value value)
@@ -90,9 +90,9 @@ void Interpreter::collect_roots(std::vector<GC::Cell*>& roots)
   }
 }
 
-Value Interpreter::throw_exception(ExceptionObject* exception)
+Value Interpreter::throw_exception(std::string const& message)
 {
-  m_exception = exception;
+  m_exception = heap().allocate<ExceptionObject>(std::move(message));
   unwind_until(ScopeType::Try);
   return ore_nil();
 }
