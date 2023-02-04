@@ -23,6 +23,7 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Runtime/StringObject.cpp
             Source/Runtime/ArrayObject.cpp
             Source/Runtime/FFIObject.cpp
+            Source/Runtime/ExceptionObject.cpp
             Source/GC/Cell.cpp
             Source/GC/Heap.cpp
             Source/GC/HeapBlock.cpp)

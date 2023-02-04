@@ -8,16 +8,14 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  std::vector<std::unique_ptr<AST::Expression>> throw_args;
-  throw_args.push_back(make_unique<AST::StringLiteral>("this is the error message"));
-
   auto try_block = make_unique<AST::BlockStatement>();
-  try_block->append<AST::CallExpression>(
-      make_unique<AST::Identifier>("throw"),
-      std::move(throw_args));
+  try_block->append<AST::Identifier>("foo");
 
   std::vector<std::unique_ptr<AST::Expression>> args;
   args.push_back(make_unique<AST::StringLiteral>("GOT AN ERROR"));
+  args.push_back(make_unique<AST::MemberExpression>(
+      make_unique<AST::Identifier>("err"),
+      make_unique<AST::Identifier>("type")));
   args.push_back(make_unique<AST::MemberExpression>(
       make_unique<AST::Identifier>("err"),
       make_unique<AST::Identifier>("message")));
