@@ -2,18 +2,23 @@ cmake_minimum_required(VERSION 3.24)
 
 project(Ore)
 
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
-
-
 set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -fsanitize=address")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+option(ENABLE_CCACHE "Use ccache to improve recompilation speed" ON)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+if (ENABLE_CCACHE)
+  find_package(CCache)
+  if (CCache_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCache_EXECUTABLE}")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK    "${CCache_EXECUTABLE}")
+  endif()
+endif()
 
 add_subdirectory(ThirdParty)
 
