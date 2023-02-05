@@ -4,10 +4,11 @@
 
 namespace Ore {
 
-#define ENUMERATE_EXCEPTION_TYPES                                 \
-  __ENUM_EXCEPTION_TYPES(reference_exception, ReferenceException) \
-  __ENUM_EXCEPTION_TYPES(type_exception, TypeException)           \
-  __ENUM_EXCEPTION_TYPES(division_by_zero_exception, DivisionByZeroException)
+#define ENUMERATE_EXCEPTION_TYPES                                             \
+  __ENUM_EXCEPTION_TYPES(reference_exception, ReferenceException)             \
+  __ENUM_EXCEPTION_TYPES(type_exception, TypeException)                       \
+  __ENUM_EXCEPTION_TYPES(division_by_zero_exception, DivisionByZeroException) \
+  __ENUM_EXCEPTION_TYPES(file_not_found_exception, FileNotFoundException)
 
 class ExceptionObject : public Object {
   public:
