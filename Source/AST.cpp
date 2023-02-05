@@ -134,6 +134,8 @@ Value CallExpression::execute(Interpreter& interpreter)
     value = interpreter.get_variable(static_cast<Identifier&>(*m_callee).name());
   } else if (m_callee->is_member_expression()) {
     value = static_cast<MemberExpression&>(*m_callee).execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
   } else
     __builtin_unreachable();
 
@@ -189,6 +191,8 @@ void ReturnStatement::dump_impl(int indent) const
 Value ReturnStatement::execute(Interpreter& interpreter)
 {
   auto argument_value = argument().execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
   interpreter.unwind_until(Interpreter::ScopeType::Function);
   return argument_value;
 }
@@ -209,10 +213,19 @@ void IfStatement::dump_impl(int indent) const
 
 Value IfStatement::execute(Interpreter& interpreter)
 {
-  if (test().execute(interpreter).to_boolean())
-    return consequent().execute(interpreter);
+  auto return_value = ore_nil();
+  auto test_value = test().execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
+  if (test_value.to_boolean())
+    return_value = consequent().execute(interpreter);
   else
-    return alternate().execute(interpreter);
+    return_value = alternate().execute(interpreter);
+
+  if (interpreter.has_exception())
+    return ore_nil();
+
+  return return_value;
 }
 
 void ForStatement::dump_impl(int indent) const
@@ -279,8 +292,11 @@ Value WhileStatement::execute(Interpreter& interpreter)
 
   Value return_value;
 
-  while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean())
+  while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean() && !interpreter.has_exception()) {
     return_value = body().execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
+  }
 
   return return_value;
 }
@@ -300,7 +316,9 @@ Value DoWhileStatement::execute(Interpreter& interpreter)
 
   do {
     return_value = body().execute(interpreter);
-  } while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean());
+    if (interpreter.has_exception())
+      return ore_nil();
+  } while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean() && !interpreter.has_exception());
 
   return return_value;
 }
@@ -337,17 +355,24 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
     auto id = static_cast<Identifier&>(*m_lhs);
     key = id.name();
 
-    if (m_op != Op::Assignment)
+    if (m_op != Op::Assignment) {
       prev_value = id.execute(interpreter);
+      if (interpreter.has_exception())
+        return ore_nil();
+    }
 
   } else if (m_lhs->is_member_expression()) {
     auto& member_expression = static_cast<MemberExpression&>(*m_lhs);
 
     auto object_value = member_expression.object().execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
     object = object_value.to_object(interpreter.heap());
 
     if (member_expression.is_computed()) {
       auto computed_value = member_expression.property().execute(interpreter);
+      if (interpreter.has_exception())
+        return ore_nil();
       if (computed_value.is_number())
         key = computed_value.as_number();
       else if (computed_value.is_string())
@@ -415,6 +440,8 @@ Value GlobalStatement::execute(Interpreter& interpreter)
   assert(m_assignment->lhs().is_identifier());
   auto& id = static_cast<Identifier&>(m_assignment->lhs());
   auto value = m_assignment->rhs().execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
   interpreter.global_object()->put(PropertyKey(id.name()), value);
   return value;
 }
@@ -548,6 +575,8 @@ void MemberExpression::dump_impl(int indent) const
 Value MemberExpression::execute(Interpreter& interpreter)
 {
   auto value = object().execute(interpreter);
+  if (interpreter.has_exception())
+    return ore_nil();
   assert(value.is_object());
   auto obj = value.to_object(interpreter.heap());
 
@@ -555,6 +584,8 @@ Value MemberExpression::execute(Interpreter& interpreter)
 
   if (is_computed()) {
     auto computed_value = property().execute(interpreter);
+    if (interpreter.has_exception())
+      return ore_nil();
     if (computed_value.is_number())
       key = PropertyKey(computed_value.as_number());
     else if (computed_value.is_string())
