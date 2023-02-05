@@ -13,6 +13,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -fsanitize=address")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+add_subdirectory(ThirdParty)
 
 set(LIB_SOURCES Source/AST.cpp
             Source/Interpreter.cpp
@@ -30,6 +33,7 @@ set(LIB_SOURCES Source/AST.cpp
 
 add_library(ore SHARED ${LIB_SOURCES})
 target_compile_features(ore PRIVATE cxx_std_20)
+target_link_libraries(ore fmt)
 
 add_executable(ore_test Tests/main.cpp)
 target_include_directories(ore_test PRIVATE Source/)
