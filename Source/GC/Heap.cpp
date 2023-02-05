@@ -59,7 +59,8 @@ void Heap::collect_garbage(CollectionType collection_type)
   // mark all live cells
   if (collection_type == CollectionType::Garbage) {
     roots.push_back(m_interpreter.global_object());
-    roots.push_back(m_interpreter.exception());
+    if (m_interpreter.has_exception())
+      roots.push_back(m_interpreter.exception());
 
 #define __ENUM_OBJECT_SHAPES(name, ObjectName) \
   roots.push_back(m_interpreter.name());
