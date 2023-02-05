@@ -13,7 +13,6 @@ FFIObject::FFIObject(std::string const& filename)
   }
 
   auto* init_addr = dlsym(m_handle, "OreInitialize");
-  assert(init_addr != nullptr);
   if (init_addr == nullptr) {
     interpreter().throw_exception(ExceptionObject::reference_exception(), fmt::format("Cannot find \"OreInitialize\" function in {}", filename));
     return;

@@ -27,7 +27,13 @@ Cell* Heap::allocate_cell(size_t cell_size)
   }
 
   auto* block = (HeapBlock*)aligned_alloc(HeapBlock::block_size, HeapBlock::block_size);
-  assert(block != nullptr);
+
+  if (block == nullptr) {
+    interpreter().throw_exception(ExceptionObject::out_of_memory_exception(), "could not allocate heap block");
+    collect_garbage();
+    return nullptr;
+  }
+
   new (block) HeapBlock(*this, cell_size);
   m_blocks.push_back(block);
   return block->allocate();

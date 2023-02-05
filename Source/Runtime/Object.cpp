@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "../Interpreter.h"
 #include "NativeFunction.h"
 #include <sstream>
 
@@ -14,7 +15,9 @@ void Object::visit_graph(Visitor& visitor)
 
 Value Object::get(PropertyKey key) const
 {
-  assert(key.is_string());
+  if (!key.is_string())
+    return interpreter().throw_exception(ExceptionObject::type_exception(), "key must be a string");
+
   Object const* object = this;
   while (object) {
     if (object->properties().contains(key.string()))
@@ -27,7 +30,11 @@ Value Object::get(PropertyKey key) const
 
 void Object::put(PropertyKey key, Value value)
 {
-  assert(key.is_string());
+  if (!key.is_string()) {
+    interpreter().throw_exception(ExceptionObject::type_exception(), "key must be a string");
+    return;
+  }
+
   m_properties[key.string()] = value;
 }
 
@@ -38,7 +45,11 @@ void Object::put_native_function(PropertyKey key, std::function<Value(Interprete
 
 bool Object::contains(PropertyKey key) const
 {
-  assert(key.is_string());
+  if (!key.is_string()) {
+    interpreter().throw_exception(ExceptionObject::type_exception(), "key must be a string");
+    return false;
+  }
+
   Object const* object = this;
   while (object) {
     if (object->properties().contains(key.string()))

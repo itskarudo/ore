@@ -2,6 +2,7 @@
 #include "Runtime/ArrayObject.h"
 #include "Runtime/FunctionObject.h"
 #include "Runtime/NativeFunction.h"
+#include <fmt/core.h>
 
 static void print_indent(int indent)
 {
@@ -139,14 +140,16 @@ Value CallExpression::execute(Interpreter& interpreter)
   } else
     __builtin_unreachable();
 
-  assert(value.is_object());
+  if (!value.is_object())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot call non-function value");
 
   auto* callee = value.as_object();
 
   if (callee->is_function()) {
     auto& function = static_cast<FunctionObject&>(*callee);
 
-    assert(m_arguments.size() <= function.parameters().size());
+    if (m_arguments.size() > function.parameters().size())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), fmt::format("function only takes {} parameters", function.parameters().size()));
 
     std::map<std::string, Value> passed_arguments;
 
@@ -178,7 +181,7 @@ Value CallExpression::execute(Interpreter& interpreter)
     return function.native_function()(interpreter, passed_arguments);
   }
 
-  __builtin_unreachable();
+  return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot call non-function value");
 }
 
 void ReturnStatement::dump_impl(int indent) const
@@ -378,7 +381,7 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
       else if (computed_value.is_string())
         key = computed_value.as_string()->string();
       else
-        __builtin_unreachable();
+        return interpreter.throw_exception(ExceptionObject::type_exception(), "key must be a string or a number");
     } else {
       assert(member_expression.property().is_identifier());
       auto& id = static_cast<Identifier&>(member_expression.property());
@@ -512,15 +515,23 @@ Value BinaryExpression::execute(Interpreter& interpreter)
 
   switch (m_op) {
   case Op::Add: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only add number to number");
     return lhs_value + rhs_value;
   }
   case Op::Sub: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only subtract number from number");
     return lhs_value - rhs_value;
   }
   case Op::Mult: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only multiply number by number");
     return lhs_value * rhs_value;
   }
   case Op::Div: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only divide number by number");
     return lhs_value / rhs_value;
   }
   case Op::Equals: {
@@ -530,24 +541,38 @@ Value BinaryExpression::execute(Interpreter& interpreter)
     return lhs_value != rhs_value;
   }
   case Op::GreaterThan: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value > rhs_value;
   }
   case Op::LessThan: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value < rhs_value;
   }
   case Op::GreaterThanOrEquals: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value >= rhs_value;
   }
   case Op::LessThanOrEquals: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value <= rhs_value;
   }
   case Op::ShiftLeft: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only shift numbers by numbers");
     return lhs_value << rhs_value;
   }
   case Op::ShiftRight: {
+    if (lhs_value.is_number() && rhs_value.is_number())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only shift numbers by numbers");
     return lhs_value >> rhs_value;
   }
   case Op::StringConcat: {
+    if (lhs_value.is_string() && rhs_value.is_string())
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only concatenate strings");
     return Value::string_concat(lhs_value, rhs_value, interpreter.heap());
   }
   case Op::Xor: {
@@ -577,7 +602,7 @@ Value MemberExpression::execute(Interpreter& interpreter)
   auto value = object().execute(interpreter);
   if (interpreter.has_exception())
     return ore_nil();
-  assert(value.is_object());
+
   auto obj = value.to_object(interpreter.heap());
 
   PropertyKey key;
@@ -591,7 +616,7 @@ Value MemberExpression::execute(Interpreter& interpreter)
     else if (computed_value.is_string())
       key = PropertyKey(computed_value.as_string()->string());
     else
-      __builtin_unreachable();
+      return interpreter.throw_exception(ExceptionObject::type_exception(), "key must be a string or a number");
 
   } else {
     assert(property().is_identifier());
