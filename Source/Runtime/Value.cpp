@@ -92,32 +92,32 @@ Value Value::length(Value const& value)
   __builtin_unreachable();
 }
 
-Value Value::operator+(Value const& other)
+Value Value::operator+(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_number(as_number() + other.as_number());
 }
 
-Value Value::operator-(Value const& other)
+Value Value::operator-(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_number(as_number() - other.as_number());
 }
 
-Value Value::operator*(Value const& other)
+Value Value::operator*(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_number(as_number() * other.as_number());
 }
 
-Value Value::operator/(Value const& other)
+Value Value::operator/(Value const& other) const
 {
   assert(is_number() && other.is_number());
   assert(other.as_number() != 0);
   return ore_number(as_number() / other.as_number());
 }
 
-Value Value::operator==(Value const& other)
+Value Value::operator==(Value const& other) const
 {
   assert(type() == other.type());
 
@@ -137,48 +137,48 @@ Value Value::operator==(Value const& other)
   }
 }
 
-Value Value::operator!=(Value const& other)
+Value Value::operator!=(Value const& other) const
 {
   return ore_boolean(!(*this == other).as_boolean());
 }
 
-Value Value::operator<(Value const& other)
+Value Value::operator<(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_boolean(as_number() < other.as_number());
 }
 
-Value Value::operator<=(Value const& other)
+Value Value::operator<=(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_boolean(as_number() <= other.as_number());
 }
 
-Value Value::operator>(Value const& other)
+Value Value::operator>(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_boolean(as_number() > other.as_number());
 }
 
-Value Value::operator>=(Value const& other)
+Value Value::operator>=(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_boolean(as_number() >= other.as_number());
 }
 
-Value Value::operator<<(Value const& other)
+Value Value::operator<<(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_number(static_cast<double>((long long)as_number() << (long long)other.as_number()));
 }
 
-Value Value::operator>>(Value const& other)
+Value Value::operator>>(Value const& other) const
 {
   assert(is_number() && other.is_number());
   return ore_number(static_cast<double>((long long)as_number() >> (long long)other.as_number()));
 }
 
-Value Value::operator!(void)
+Value Value::operator!(void) const
 {
   return ore_boolean(!to_boolean());
 }

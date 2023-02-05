@@ -109,19 +109,19 @@ class Value {
   static Value logical_xor(Value const&, Value const&);
   static Value length(Value const&);
 
-  Value operator+(Value const&);
-  Value operator-(Value const&);
-  Value operator*(Value const&);
-  Value operator/(Value const&);
-  Value operator==(Value const&);
-  Value operator!=(Value const&);
-  Value operator<(Value const&);
-  Value operator<=(Value const&);
-  Value operator>(Value const&);
-  Value operator>=(Value const&);
-  Value operator>>(Value const&);
-  Value operator<<(Value const&);
-  Value operator!(void);
+  Value operator+(Value const&) const;
+  Value operator-(Value const&) const;
+  Value operator*(Value const&) const;
+  Value operator/(Value const&) const;
+  Value operator==(Value const&) const;
+  Value operator!=(Value const&) const;
+  Value operator<(Value const&) const;
+  Value operator<=(Value const&) const;
+  Value operator>(Value const&) const;
+  Value operator>=(Value const&) const;
+  Value operator>>(Value const&) const;
+  Value operator<<(Value const&) const;
+  Value operator!(void) const;
 
   private:
   Type m_type;
