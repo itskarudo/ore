@@ -1,15 +1,23 @@
 #include "FFIObject.h"
 #include "../Ore.h"
+#include "fmt/core.h"
 #include <dlfcn.h>
 
 namespace Ore {
 FFIObject::FFIObject(std::string const& filename)
 {
   m_handle = dlopen(filename.c_str(), RTLD_LAZY);
-  assert(m_handle != nullptr);
+  if (m_handle == nullptr) {
+    interpreter().throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("Not a valid shared object: {}", filename));
+    return;
+  }
 
   auto* init_addr = dlsym(m_handle, "OreInitialize");
   assert(init_addr != nullptr);
+  if (init_addr == nullptr) {
+    interpreter().throw_exception(ExceptionObject::reference_exception(), fmt::format("Cannot find \"OreInitialize\" function in {}", filename));
+    return;
+  }
 
   auto* init_func = reinterpret_cast<void (*)(std::vector<OreExportEntry>&)>(init_addr);
   std::vector<OreExportEntry> exports;
