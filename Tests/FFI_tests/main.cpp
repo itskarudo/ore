@@ -1,9 +1,9 @@
 #include <Ore.h>
 
-Ore::Value greet_name(Ore::GC::Heap& heap, std::vector<Ore::Value>& args)
+Ore::Value greet_name(OreFuncParams params)
 {
-  std::cout << "hello " << args[0].as_string()->string() << std::endl;
-  return Ore::ore_number(69);
+  std::cout << "hello " << params.args[0].as_string()->string() << std::endl;
+  return params.interpreter.throw_exception(Ore::ExceptionObject::type_exception(), "idk lol");
 }
 
 ORE_INIT_FUNC OreInitialize(std::vector<OreExportEntry>& exports)

@@ -8,18 +8,19 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  program.append<AST::AssignmentExpression>(
-      make_unique<AST::Identifier>("foo"),
-      AST::AssignmentExpression::Op::Assignment,
-      make_unique<AST::NumberLiteral>(1));
+  std::vector<std::unique_ptr<AST::Expression>> import_args;
+  import_args.push_back(make_unique<AST::StringLiteral>("./libffi_test"));
 
-  auto block = make_unique<AST::BlockStatement>();
-  block->append<AST::AssignmentExpression>(
-      make_unique<AST::Identifier>("bar"),
-      AST::AssignmentExpression::Op::Assignment,
-      make_unique<AST::NumberLiteral>(2));
+  std::vector<std::unique_ptr<AST::Expression>> greet_args;
+  greet_args.push_back(make_unique<AST::StringLiteral>("karu"));
 
-  program.append(std::move(block));
+  program.append<AST::CallExpression>(
+      make_unique<AST::MemberExpression>(
+          make_unique<AST::CallExpression>(
+              make_unique<AST::Identifier>("import"),
+              std::move(import_args)),
+          make_unique<AST::Identifier>("greet_name")),
+      std::move(greet_args));
 
   program.dump();
   interpreter.run(program);
