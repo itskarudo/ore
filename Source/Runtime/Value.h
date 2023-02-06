@@ -65,6 +65,7 @@ class Value {
   bool is_string() const { return type() == Type::String; }
   bool is_object() const { return type() == Type::Object; }
   bool is_boolean() const { return type() == Type::Boolean; }
+  bool is_nil() const { return type() == Type::Nil; }
 
   bool is_cell() const { return is_string() || is_object(); }
 

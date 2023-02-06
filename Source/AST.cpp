@@ -603,6 +603,9 @@ Value MemberExpression::execute(Interpreter& interpreter)
   if (interpreter.has_exception())
     return ore_nil();
 
+  if (value.is_nil())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot access properties of nil");
+
   auto obj = value.to_object(interpreter.heap());
 
   PropertyKey key;
