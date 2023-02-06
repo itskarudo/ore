@@ -34,7 +34,9 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Runtime/ExceptionObject.cpp
             Source/GC/Cell.cpp
             Source/GC/Heap.cpp
-            Source/GC/HeapBlock.cpp)
+            Source/GC/HeapBlock.cpp
+            Source/Parser/Token.cpp
+            Source/Parser/Lexer.cpp)
 
 add_library(ore SHARED ${LIB_SOURCES})
 target_compile_features(ore PRIVATE cxx_std_20)
