@@ -43,11 +43,16 @@ class LivenessVisitor : public Cell::Visitor {
   public:
   LivenessVisitor() { }
 
-  virtual void did_visit(Cell* cell) const override
+  virtual void visit(Cell* cell) override
   {
-    if (cell->marked())
+    if (cell->marked()) {
+      std::cout << "\033[35m# GC: Cyclic dependency -> " << cell << "\033[0m" << std::endl;
       return;
+    }
+
+    std::cout << "\033[33m? GC: Marked -> " << cell << "\033[0m" << std::endl;
     cell->set_marked(true);
+    cell->visit_graph(*this);
   }
 };
 
@@ -75,7 +80,7 @@ void Heap::collect_garbage(CollectionType collection_type)
     std::cout << "\033[32m! GC: Root -> " << root << "\033[0m" << std::endl;
 
   for (auto* root : roots) {
-    root->visit_graph(visitor);
+    visitor.visit(root);
   }
 
   // sweep dead cells and reset mark bit for alive cells

@@ -19,14 +19,10 @@ class Cell {
 
   class Visitor {
 public:
-    virtual void did_visit(Cell*) const = 0;
+    virtual void visit(Cell*) = 0;
   };
 
-  virtual void visit_graph(Visitor& visitor)
-  {
-    std::cout << "\033[33m? GC: Marked -> " << this << "\033[0m" << std::endl;
-    visitor.did_visit(this);
-  }
+  virtual void visit_graph(Visitor& visitor) { }
 
   virtual char const* class_name() const = 0;
 

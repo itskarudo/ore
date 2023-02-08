@@ -11,7 +11,7 @@ void ArrayObject::visit_graph(Visitor& visitor)
 
   for (auto& element : m_elements)
     if (element.is_cell())
-      element.as_cell()->visit_graph(visitor);
+      visitor.visit(element.as_cell());
 }
 
 Value ArrayObject::get(PropertyKey key) const
