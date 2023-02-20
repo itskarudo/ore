@@ -87,6 +87,7 @@ void Lexer::consume()
 {
   if (m_position >= m_source.length()) {
     m_current_char = '\0';
+    m_position++;
     m_eof = true;
     return;
   }
