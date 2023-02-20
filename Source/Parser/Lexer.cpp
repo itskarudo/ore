@@ -87,6 +87,7 @@ void Lexer::consume()
 {
   if (m_position >= m_source.length()) {
     m_current_char = '\0';
+    m_position++;
     m_eof = true;
     return;
   }
@@ -129,6 +130,46 @@ Token Lexer::next()
       m_token_type = s_keywords.at(identifier);
     else
       m_token_type = Token::TokenType::Identifier;
+
+  } else if (isdigit(m_current_char)) {
+    m_token_type = Token::TokenType::NumberLiteral;
+    if (m_current_char == '0') {
+      consume();
+      if (isdigit(m_current_char)) {
+        do {
+          consume();
+        } while (isdigit(m_current_char));
+
+        if (m_current_char == '.') {
+          do {
+            consume();
+          } while (isdigit(m_current_char));
+        }
+      } else if (m_current_char == 'x') {
+        do {
+          consume();
+        } while (isxdigit(m_current_char));
+      } else if (m_current_char == 'o') {
+        do {
+          consume();
+        } while (isoctal(m_current_char));
+      } else if (m_current_char == 'b') {
+        do {
+          consume();
+        } while (m_current_char == '0' || m_current_char == '1');
+      }
+    } else {
+      do {
+        consume();
+      } while (isdigit(m_current_char));
+
+      if (m_current_char == '.') {
+        do {
+          consume();
+        } while (isdigit(m_current_char));
+      }
+    }
+
   } else if (m_eof) {
     m_token_type = Token::TokenType::Eof;
 
@@ -218,6 +259,11 @@ inline bool Lexer::is_identifier_start()
 inline bool Lexer::is_identifier_middle()
 {
   return isalnum(m_current_char) || (m_current_char == '_');
+}
+
+inline bool Lexer::isoctal(char c)
+{
+  return c >= '0' && c <= '7';
 }
 
 bool Lexer::match(char a, char b) const

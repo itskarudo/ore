@@ -6,6 +6,8 @@
 #include "GC/Heap.h"
 #include "GC/HeapBlock.h"
 #include "Interpreter.h"
+#include "Parser/Lexer.h"
+#include "Parser/Token.h"
 #include "Runtime/ArrayObject.h"
 #include "Runtime/BooleanObject.h"
 #include "Runtime/FFIObject.h"
@@ -32,4 +34,3 @@ struct OreExportEntry {
   char const* name;
   OreFunctionDecl decl;
 };
-
