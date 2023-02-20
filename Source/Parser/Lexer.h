@@ -20,6 +20,7 @@ class Lexer {
   inline bool is_comment_start();
   inline bool is_identifier_start();
   inline bool is_identifier_middle();
+  inline bool isoctal(char c);
   bool match(char, char) const;
   bool match(char, char, char) const;
 
