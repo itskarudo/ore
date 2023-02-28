@@ -5,11 +5,30 @@ using std::make_unique;
 
 int main(void)
 {
-  Parser::Lexer l("1.2, 0x5FB, 0o245, 0b107110");
-  Parser::Token t;
+  Interpreter interpreter;
+  AST::Program program;
 
-  do {
-    t = l.next();
-    std::cout << "Token type: " << t.name() << ", value: " << t.value() << std::endl;
-  } while (t.type() != Parser::Token::TokenType::Eof);
+  program.append<AST::AssignmentExpression>(
+      make_unique<AST::Identifier>("x"),
+      AST::AssignmentExpression::Op::Assignment,
+      std::make_unique<AST::CallExpression>(
+          make_unique<AST::Identifier>("input")));
+
+  std::vector<std::unique_ptr<AST::Expression>> args;
+
+  args.push_back(make_unique<AST::BinaryExpression>(
+      make_unique<AST::StringLiteral>("you entered: "),
+      AST::BinaryExpression::Op::StringConcat,
+      make_unique<AST::Identifier>("x")));
+
+  program.append<AST::CallExpression>(
+      make_unique<AST::Identifier>("print"),
+      std::move(args));
+
+  program.dump();
+  interpreter.run(program);
+
+  if (interpreter.has_exception()) {
+    std::cout << "Uncaught Exception(" << interpreter.exception()->type() << "): " << interpreter.exception()->message() << std::endl;
+  }
 }

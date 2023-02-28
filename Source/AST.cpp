@@ -515,22 +515,22 @@ Value BinaryExpression::execute(Interpreter& interpreter)
 
   switch (m_op) {
   case Op::Add: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only add number to number");
     return lhs_value + rhs_value;
   }
   case Op::Sub: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only subtract number from number");
     return lhs_value - rhs_value;
   }
   case Op::Mult: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only multiply number by number");
     return lhs_value * rhs_value;
   }
   case Op::Div: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only divide number by number");
     return lhs_value / rhs_value;
   }
@@ -541,37 +541,37 @@ Value BinaryExpression::execute(Interpreter& interpreter)
     return lhs_value != rhs_value;
   }
   case Op::GreaterThan: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value > rhs_value;
   }
   case Op::LessThan: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value < rhs_value;
   }
   case Op::GreaterThanOrEquals: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value >= rhs_value;
   }
   case Op::LessThanOrEquals: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
     return lhs_value <= rhs_value;
   }
   case Op::ShiftLeft: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only shift numbers by numbers");
     return lhs_value << rhs_value;
   }
   case Op::ShiftRight: {
-    if (lhs_value.is_number() && rhs_value.is_number())
+    if (!lhs_value.is_number() || !rhs_value.is_number())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only shift numbers by numbers");
     return lhs_value >> rhs_value;
   }
   case Op::StringConcat: {
-    if (lhs_value.is_string() && rhs_value.is_string())
+    if (!lhs_value.is_string() || !rhs_value.is_string())
       return interpreter.throw_exception(ExceptionObject::type_exception(), "can only concatenate strings");
     return Value::string_concat(lhs_value, rhs_value, interpreter.heap());
   }
