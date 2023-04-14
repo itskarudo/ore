@@ -8,12 +8,6 @@ namespace Ore {
 Interpreter::Interpreter()
     : m_heap(*this)
 {
-#define __ENUM_OBJECT_SHAPES(name, ObjectName) \
-  m_object_shapes.name = m_heap.allocate<ObjectName>();
-
-  ENUMERATE_OBJECT_SHAPES
-#undef __ENUM_OBJECT_SHAPES
-
   m_global_object = m_heap.allocate<GlobalObject>();
 }
 

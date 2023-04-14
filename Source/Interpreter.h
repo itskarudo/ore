@@ -40,10 +40,12 @@ class Interpreter {
 
   void collect_roots(std::vector<GC::Cell*>& roots);
 
-#define __ENUM_OBJECT_SHAPES(name, ObjectName) \
-  ObjectName* name() const                     \
-  {                                            \
-    return m_object_shapes.name;               \
+#define __ENUM_OBJECT_SHAPES(name, ObjectName)              \
+  ObjectName* name()                                        \
+  {                                                         \
+    if (m_object_shapes.name == nullptr)                    \
+      m_object_shapes.name = m_heap.allocate<ObjectName>(); \
+    return m_object_shapes.name;                            \
   }
 
   ENUMERATE_OBJECT_SHAPES
@@ -60,9 +62,11 @@ class Interpreter {
 
     ENUMERATE_OBJECT_SHAPES
 #undef __ENUM_OBJECT_SHAPES
-  } m_object_shapes;
+  } m_object_shapes = { nullptr };
 
   std::vector<ScopeFrame> m_scope_frames;
+
+  friend void GC::Heap::collect_garbage(GC::Heap::CollectionType);
 };
 
 }
