@@ -57,8 +57,7 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::throw)
   assert(args[0].is_string());
   assert(args[1].is_string());
 
-  interpreter.throw_exception(args[0].as_string()->string(), args[1].as_string()->string());
-  return ore_nil();
+  return interpreter.throw_exception(args[0].as_string()->string(), args[1].as_string()->string());
 }
 
 }

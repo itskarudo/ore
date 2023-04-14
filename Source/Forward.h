@@ -20,10 +20,10 @@ class PrimitiveString;
 }
 
 #define DECLARE_NATIVE_FUNCTION(name) \
-  static Value name##_native_function(Interpreter&, std::vector<Value>&);
+  static Result name##_native_function(Interpreter&, std::vector<Value>&);
 
 #define DEFINE_NATIVE_FUNCTION(name) \
-  Value name##_native_function(Interpreter& interpreter, std::vector<Value>& args)
+  Result name##_native_function(Interpreter& interpreter, std::vector<Value>& args)
 
 #define REGISTER_NATIVE_FUNCTION(name) \
   put_native_function(PropertyKey(#name), name##_native_function);

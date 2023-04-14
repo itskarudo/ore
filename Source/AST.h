@@ -5,6 +5,7 @@
 
 #include "Interpreter.h"
 #include "Runtime/Object.h"
+#include "Runtime/Result.h"
 #include "Runtime/Value.h"
 
 #define ENUMERATE_BINARY_OPS              \
@@ -33,7 +34,7 @@ class ASTNode {
   void dump() const { dump_impl(0); }
   virtual char const* class_name() const = 0;
   virtual void dump_impl(int indent) const = 0;
-  virtual Value execute(Interpreter&) = 0;
+  virtual Result execute(Interpreter&) = 0;
 
   virtual bool is_identifier() const { return false; }
   virtual bool is_member_expression() const { return false; }
@@ -49,7 +50,7 @@ class BlockStatement : public Statement {
   public:
   virtual char const* class_name() const override { return "BlockStatement"; };
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   std::vector<std::unique_ptr<ASTNode>> const& children() const { return m_children; };
 
@@ -86,7 +87,7 @@ class NumberLiteral : public Literal {
 
   virtual char const* class_name() const override { return "NumberLiteral"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   double m_value;
@@ -101,7 +102,7 @@ class BooleanLiteral : public Literal {
 
   virtual char const* class_name() const override { return "BooleanLiteral"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   bool m_value;
@@ -116,7 +117,7 @@ class StringLiteral : public Literal {
 
   virtual char const* class_name() const override { return "StringLiteral"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::string const m_value;
@@ -128,7 +129,7 @@ class NilLiteral : public Literal {
 
   virtual char const* class_name() const override { return "NilLiteral"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 };
 
 class FunctionDeclaration : public Expression {
@@ -151,7 +152,7 @@ class FunctionDeclaration : public Expression {
 
   virtual char const* class_name() const override { return "FunctionDeclaration"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::optional<std::string> m_name;
@@ -169,7 +170,7 @@ class CallExpression : public Expression {
 
   virtual char const* class_name() const override { return "CallExpression"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<ASTNode> m_callee;
@@ -191,7 +192,7 @@ class ReturnStatement : public Statement {
   Expression& argument() const { return *m_argument; }
   virtual char const* class_name() const override { return "ReturnStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<Expression> m_argument;
@@ -212,7 +213,7 @@ class IfStatement : public Statement {
 
   virtual char const* class_name() const override { return "IfStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<Expression> m_test;
@@ -234,7 +235,7 @@ class ForStatement : public Statement {
 
   virtual char const* class_name() const override { return "ForStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::optional<std::unique_ptr<Expression>> m_init, m_test, m_update;
@@ -254,7 +255,7 @@ class WhileStatement : public Statement {
 
   virtual char const* class_name() const override { return "WhileStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<Expression> m_test;
@@ -274,7 +275,7 @@ class DoWhileStatement : public Statement {
 
   virtual char const* class_name() const override { return "DoWhileStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<Expression> m_test;
@@ -290,7 +291,7 @@ class Identifier : public Expression {
 
   virtual char const* class_name() const override { return "Identifier"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   virtual bool is_identifier() const override { return true; }
 
@@ -322,7 +323,7 @@ class AssignmentExpression : public Expression {
 
   virtual char const* class_name() const override { return "AssignmentExpression"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   ASTNode& lhs() { return *m_lhs; }
   Expression& rhs() { return *m_rhs; }
@@ -342,7 +343,7 @@ class GlobalStatement : public Statement {
 
   virtual char const* class_name() const override { return "GlobalStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<AssignmentExpression> m_assignment;
@@ -363,7 +364,7 @@ class UnaryExpression : public Expression {
 
   virtual char const* class_name() const override { return "UnaryExpression"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   Op m_op;
@@ -387,7 +388,7 @@ class BinaryExpression : public Expression {
 
   virtual char const* class_name() const override { return "BinaryExpression"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<Expression> m_lhs, m_rhs;
@@ -412,7 +413,7 @@ class MemberExpression : public Expression {
 
   virtual char const* class_name() const override { return "MemberExpression"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   virtual bool is_member_expression() const override { return true; }
 
@@ -431,7 +432,7 @@ class ObjectExpression : public Expression {
 
   virtual char const* class_name() const override { return "ObjectExpression"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::map<std::string, std::unique_ptr<Expression>> m_properties;
@@ -446,7 +447,7 @@ class ArrayExpression : public Expression {
 
   virtual char const* class_name() const override { return "ArrayExpression"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::vector<std::unique_ptr<Expression>> m_elements;
@@ -461,7 +462,7 @@ class ExportStatement : public Statement {
 
   virtual char const* class_name() const override { return "ExportStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<Expression> m_argument;
@@ -477,7 +478,7 @@ class CatchClause : public ASTNode {
 
   virtual char const* class_name() const override { return "CatchClause"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   std::string param() const { return m_param; }
   BlockStatement& body() const { return *m_body; }
@@ -498,7 +499,7 @@ class TryStatement : public Statement {
 
   virtual char const* class_name() const override { return "TryStatement"; }
   virtual void dump_impl(int indent) const override;
-  virtual Value execute(Interpreter&) override;
+  virtual Result execute(Interpreter&) override;
 
   private:
   std::unique_ptr<BlockStatement> m_block;

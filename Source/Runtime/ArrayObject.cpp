@@ -20,7 +20,7 @@ void ArrayObject::visit_graph(Visitor& visitor)
       visitor.visit(element.as_cell());
 }
 
-Value ArrayObject::get(PropertyKey key) const
+Result ArrayObject::get(PropertyKey key) const
 {
   if (key.is_number()) {
     if (key.number() >> m_elements.size())

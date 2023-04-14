@@ -17,9 +17,9 @@ Interpreter::Interpreter()
   m_global_object = m_heap.allocate<GlobalObject>();
 }
 
-void Interpreter::enter_scope(AST::BlockStatement& scope_frame, ScopeType type, std::map<std::string, Value> const& arguments)
+void Interpreter::enter_scope(AST::BlockStatement& scope_frame, std::map<std::string, Value> const& arguments)
 {
-  m_scope_frames.push_back({ scope_frame, arguments, type });
+  m_scope_frames.push_back({ scope_frame, arguments });
 }
 
 void Interpreter::leave_scope()
@@ -27,7 +27,7 @@ void Interpreter::leave_scope()
   m_scope_frames.pop_back();
 }
 
-Value Interpreter::get_variable(std::string const& name)
+Result Interpreter::get_variable(std::string const& name)
 {
   for (auto frame = m_scope_frames.rbegin(); frame != m_scope_frames.rend(); ++frame)
     if (frame->variables.contains(name))
@@ -55,25 +55,22 @@ void Interpreter::set_variable(std::string const& name, Value value)
   current_scope().variables[name] = value;
 }
 
-Value Interpreter::run(AST::BlockStatement& block, ScopeType type, std::map<std::string, Value> const& arguments)
+Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value> const& arguments)
 {
 
-  enter_scope(block, type, arguments);
+  enter_scope(block, arguments);
 
-  Value return_value = ore_nil();
+  Result return_value = ore_nil();
 
   for (auto& child : block.children()) {
     auto last_value = child->execute(*this);
 
-    if (m_unwind_until == ScopeType::Function)
+    if (last_value.type() == Result::Type::Return || last_value.is_exception())
       return_value = last_value;
 
-    if (is_unwinding())
+    if (last_value.type() != Result::Type::Normal)
       break;
   }
-
-  if (type == m_unwind_until)
-    m_unwind_until = ScopeType::None;
 
   leave_scope();
 
@@ -90,11 +87,12 @@ void Interpreter::collect_roots(std::vector<GC::Cell*>& roots)
   }
 }
 
-Value Interpreter::throw_exception(std::string const& type, std::string const& message)
+Result Interpreter::throw_exception(std::string const& type, std::string const& message)
 {
-  m_exception = heap().allocate<ExceptionObject>(std::move(type), std::move(message));
-  unwind_until(ScopeType::Try);
-  return ore_nil();
+  return {
+    Result::Type::Throw,
+    heap().allocate<ExceptionObject>(std::move(type), std::move(message))
+  };
 }
 
 }

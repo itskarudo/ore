@@ -12,7 +12,7 @@ class ArrayObject final : public Object {
   virtual char const* class_name() const override { return "ArrayObject"; }
   virtual bool is_array() const override { return true; }
 
-  virtual Value get(PropertyKey key) const override;
+  virtual Result get(PropertyKey key) const override;
   virtual void put(PropertyKey key, Value value) override;
   virtual bool contains(PropertyKey key) const override;
   virtual bool to_boolean() const override { return !m_elements.empty(); }

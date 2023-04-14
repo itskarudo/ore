@@ -2,6 +2,7 @@
 
 #include "../GC/Cell.h"
 #include "PropertyKey.h"
+#include "Result.h"
 #include "Value.h"
 #include <functional>
 #include <map>
@@ -16,9 +17,9 @@ class Object : public GC::Cell {
 
   std::map<std::string, Value> properties() const { return m_properties; }
 
-  virtual Value get(PropertyKey key) const;
+  virtual Result get(PropertyKey key) const;
   virtual void put(PropertyKey key, Value value);
-  virtual void put_native_function(PropertyKey key, std::function<Value(Interpreter&, std::vector<Value>&)>);
+  virtual void put_native_function(PropertyKey key, std::function<Result(Interpreter&, std::vector<Value>&)>);
   virtual bool contains(PropertyKey key) const;
   virtual bool to_boolean() const { return !m_properties.empty(); }
   virtual std::string const to_string() const;

@@ -18,7 +18,7 @@ void NumberLiteral::dump_impl(int indent) const
   std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << m_value << "\033[0m" << std::endl;
 }
 
-Value NumberLiteral::execute(Interpreter& interpreter)
+Result NumberLiteral::execute(Interpreter& interpreter)
 {
   return ore_number(m_value);
 }
@@ -29,7 +29,7 @@ void BooleanLiteral::dump_impl(int indent) const
   std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << (m_value ? "true" : "false") << "\033[0m" << std::endl;
 }
 
-Value BooleanLiteral::execute(Interpreter& interpreter)
+Result BooleanLiteral::execute(Interpreter& interpreter)
 {
   return ore_boolean(m_value);
 }
@@ -40,7 +40,7 @@ void StringLiteral::dump_impl(int indent) const
   std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[34m" << m_value << "\033[0m" << std::endl;
 }
 
-Value StringLiteral::execute(Interpreter& interpreter)
+Result StringLiteral::execute(Interpreter& interpreter)
 {
   return ore_string(interpreter.heap(), m_value);
 }
@@ -51,7 +51,7 @@ void NilLiteral::dump_impl(int indent) const
   std::cout << "\033[35m" << class_name() << " \033[33m@ {" << this << "} \033[0m" << std::endl;
 }
 
-Value NilLiteral::execute(Interpreter& interpreter)
+Result NilLiteral::execute(Interpreter& interpreter)
 {
   return ore_nil();
 }
@@ -64,7 +64,7 @@ void BlockStatement::dump_impl(int indent) const
     child->dump_impl(indent + 1);
 }
 
-Value BlockStatement::execute(Interpreter& interpreter)
+Result BlockStatement::execute(Interpreter& interpreter)
 {
   return interpreter.run(*this);
 }
@@ -84,7 +84,7 @@ void FunctionDeclaration::dump_impl(int indent) const
   body()->dump_impl(indent + 1);
 }
 
-Value FunctionDeclaration::execute(Interpreter& interpreter)
+Result FunctionDeclaration::execute(Interpreter& interpreter)
 {
   bool did_find_optional = false;
 
@@ -100,9 +100,9 @@ Value FunctionDeclaration::execute(Interpreter& interpreter)
 
     if (parameter.default_value.has_value()) {
       did_find_optional = true;
-      parameter_value.default_value = parameter.default_value.value()->execute(interpreter);
-      if (interpreter.has_exception())
-        return ore_nil();
+      auto default_value = TRY(parameter.default_value.value()->execute(interpreter));
+
+      parameter_value.default_value = default_value;
     } else
       parameter_value.default_value = std::nullopt;
 
@@ -128,15 +128,13 @@ void CallExpression::dump_impl(int indent) const
     argument->dump_impl(indent + 1);
 }
 
-Value CallExpression::execute(Interpreter& interpreter)
+Result CallExpression::execute(Interpreter& interpreter)
 {
   Value value;
   if (m_callee->is_identifier()) {
-    value = interpreter.get_variable(static_cast<Identifier&>(*m_callee).name());
+    value = TRY(interpreter.get_variable(static_cast<Identifier&>(*m_callee).name()));
   } else if (m_callee->is_member_expression()) {
-    value = static_cast<MemberExpression&>(*m_callee).execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+    value = TRY(static_cast<MemberExpression&>(*m_callee).execute(interpreter));
   } else
     __builtin_unreachable();
 
@@ -155,27 +153,23 @@ Value CallExpression::execute(Interpreter& interpreter)
 
     for (size_t i = 0; i < function.parameters().size(); ++i) {
       if (i < m_arguments.size()) {
-        auto value = m_arguments[i]->execute(interpreter);
-        if (interpreter.has_exception())
-          return ore_nil();
-        passed_arguments[function.parameters()[i].name] = value;
+        auto argument_value = TRY(m_arguments[i]->execute(interpreter));
+        passed_arguments[function.parameters()[i].name] = argument_value;
       } else {
         assert(function.parameters()[i].default_value.has_value());
         passed_arguments[function.parameters()[i].name] = function.parameters()[i].default_value.value();
       }
     }
 
-    return interpreter.run(*function.body(), Interpreter::ScopeType::Function, passed_arguments);
+    return interpreter.run(*function.body(), passed_arguments);
 
   } else if (callee->is_native_function()) {
     auto& function = static_cast<NativeFunction&>(*callee);
 
     std::vector<Value> passed_arguments;
     for (auto& argument : m_arguments) {
-      auto value = argument->execute(interpreter);
-      if (interpreter.has_exception())
-        return ore_nil();
-      passed_arguments.push_back(value);
+      auto argument_value = TRY(argument->execute(interpreter));
+      passed_arguments.push_back(argument_value);
     }
 
     return function.native_function()(interpreter, passed_arguments);
@@ -191,13 +185,10 @@ void ReturnStatement::dump_impl(int indent) const
   argument().dump_impl(indent + 1);
 }
 
-Value ReturnStatement::execute(Interpreter& interpreter)
+Result ReturnStatement::execute(Interpreter& interpreter)
 {
-  auto argument_value = argument().execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
-  interpreter.unwind_until(Interpreter::ScopeType::Function);
-  return argument_value;
+  auto argument_value = TRY(argument().execute(interpreter));
+  return { Result::Type::Return, argument_value };
 }
 
 void IfStatement::dump_impl(int indent) const
@@ -214,19 +205,14 @@ void IfStatement::dump_impl(int indent) const
   alternate().dump_impl(indent + 1);
 }
 
-Value IfStatement::execute(Interpreter& interpreter)
+Result IfStatement::execute(Interpreter& interpreter)
 {
-  auto return_value = ore_nil();
-  auto test_value = test().execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
+  Result return_value = ore_nil();
+  auto test_value = TRY(test().execute(interpreter));
   if (test_value.to_boolean())
     return_value = consequent().execute(interpreter);
   else
     return_value = alternate().execute(interpreter);
-
-  if (interpreter.has_exception())
-    return ore_nil();
 
   return return_value;
 }
@@ -246,37 +232,30 @@ void ForStatement::dump_impl(int indent) const
   m_body->dump_impl(indent + 1);
 }
 
-Value ForStatement::execute(Interpreter& interpreter)
+Result ForStatement::execute(Interpreter& interpreter)
 {
-  Value return_value;
+  Result return_value = ore_nil();
 
   if (m_init.has_value()) {
-    m_init.value()->execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+    TRY(m_init.value()->execute(interpreter));
   }
 
   bool test_value = true;
   if (m_test.has_value()) {
-    test_value = m_test.value()->execute(interpreter).to_boolean();
-    if (interpreter.has_exception())
-      return ore_nil();
+    test_value = TRY(m_test.value()->execute(interpreter)).to_boolean();
   }
 
-  while (!interpreter.is_unwinding() && test_value) {
-    return_value = m_body->execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+  while (test_value) {
+    return_value = TRY(m_body->execute(interpreter));
+
+    if (return_value.type() == Result::Type::Break)
+      break;
 
     if (m_update.has_value()) {
-      m_update.value()->execute(interpreter);
-      if (interpreter.has_exception())
-        return ore_nil();
+      TRY(m_update.value()->execute(interpreter));
     }
 
-    test_value = m_test.value()->execute(interpreter).to_boolean();
-    if (interpreter.has_exception())
-      return ore_nil();
+    test_value = TRY(m_test.value()->execute(interpreter)).to_boolean();
   }
 
   return return_value;
@@ -290,15 +269,16 @@ void WhileStatement::dump_impl(int indent) const
   body().dump_impl(indent + 1);
 }
 
-Value WhileStatement::execute(Interpreter& interpreter)
+Result WhileStatement::execute(Interpreter& interpreter)
 {
 
-  Value return_value;
+  Result return_value = ore_nil();
 
-  while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean() && !interpreter.has_exception()) {
-    return_value = body().execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+  while (TRY(test().execute(interpreter)).to_boolean()) {
+    return_value = TRY(body().execute(interpreter));
+
+    if (return_value.type() == Result::Type::Break)
+      break;
   }
 
   return return_value;
@@ -312,16 +292,17 @@ void DoWhileStatement::dump_impl(int indent) const
   body().dump_impl(indent + 1);
 }
 
-Value DoWhileStatement::execute(Interpreter& interpreter)
+Result DoWhileStatement::execute(Interpreter& interpreter)
 {
 
-  Value return_value;
+  Result return_value = ore_nil();
 
   do {
-    return_value = body().execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
-  } while (!interpreter.is_unwinding() && test().execute(interpreter).to_boolean() && !interpreter.has_exception());
+    return_value = TRY(body().execute(interpreter));
+
+    if (return_value.type() == Result::Type::Break)
+      break;
+  } while (TRY(test().execute(interpreter)).to_boolean());
 
   return return_value;
 }
@@ -332,7 +313,7 @@ void Identifier::dump_impl(int indent) const
   printf("\033[35m%s \033[33m@ {%p} \033[34m%s \033[0m\n", class_name(), this, name().c_str());
 }
 
-Value Identifier::execute(Interpreter& interpreter)
+Result Identifier::execute(Interpreter& interpreter)
 {
   return interpreter.get_variable(name());
 }
@@ -345,37 +326,29 @@ void AssignmentExpression::dump_impl(int indent) const
   m_rhs->dump_impl(indent + 1);
 }
 
-Value AssignmentExpression::execute(Interpreter& interpreter)
+Result AssignmentExpression::execute(Interpreter& interpreter)
 {
-  auto value = m_rhs->execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
+  auto value = TRY(m_rhs->execute(interpreter));
   Value prev_value;
   PropertyKey key;
-  Object* object;
+  Object* object = nullptr;
 
   if (m_lhs->is_identifier()) {
     auto id = static_cast<Identifier&>(*m_lhs);
     key = id.name();
 
     if (m_op != Op::Assignment) {
-      prev_value = id.execute(interpreter);
-      if (interpreter.has_exception())
-        return ore_nil();
+      prev_value = TRY(id.execute(interpreter));
     }
 
   } else if (m_lhs->is_member_expression()) {
     auto& member_expression = static_cast<MemberExpression&>(*m_lhs);
 
-    auto object_value = member_expression.object().execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+    auto object_value = TRY(member_expression.object().execute(interpreter));
     object = object_value.to_object(interpreter.heap());
 
     if (member_expression.is_computed()) {
-      auto computed_value = member_expression.property().execute(interpreter);
-      if (interpreter.has_exception())
-        return ore_nil();
+      auto computed_value = TRY(member_expression.property().execute(interpreter));
       if (computed_value.is_number())
         key = computed_value.as_number();
       else if (computed_value.is_string())
@@ -389,7 +362,7 @@ Value AssignmentExpression::execute(Interpreter& interpreter)
     }
 
     if (m_op != Op::Assignment)
-      prev_value = object->get(key);
+      prev_value = TRY(object->get(key));
 
   } else {
     __builtin_unreachable();
@@ -438,13 +411,11 @@ void GlobalStatement::dump_impl(int indent) const
   m_assignment->dump_impl(indent + 1);
 }
 
-Value GlobalStatement::execute(Interpreter& interpreter)
+Result GlobalStatement::execute(Interpreter& interpreter)
 {
   assert(m_assignment->lhs().is_identifier());
   auto& id = static_cast<Identifier&>(m_assignment->lhs());
-  auto value = m_assignment->rhs().execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
+  auto value = TRY(m_assignment->rhs().execute(interpreter));
   interpreter.global_object()->put(PropertyKey(id.name()), value);
   return value;
 }
@@ -465,11 +436,9 @@ void UnaryExpression::dump_impl(int indent) const
   m_operand->dump_impl(indent + 1);
 }
 
-Value UnaryExpression::execute(Interpreter& interpreter)
+Result UnaryExpression::execute(Interpreter& interpreter)
 {
-  auto value = m_operand->execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
+  auto value = TRY(m_operand->execute(interpreter));
   switch (m_op) {
   case Op::Not:
     return !value;
@@ -497,21 +466,17 @@ void BinaryExpression::dump_impl(int indent) const
   m_rhs->dump_impl(indent + 1);
 }
 
-Value BinaryExpression::execute(Interpreter& interpreter)
+Result BinaryExpression::execute(Interpreter& interpreter)
 {
 
-  auto lhs_value = m_lhs->execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
+  auto lhs_value = TRY(m_lhs->execute(interpreter));
 
   if (m_op == Op::And && !lhs_value.to_boolean())
     return ore_boolean(false);
   else if (m_op == Op::Or && lhs_value.to_boolean())
     return ore_boolean(true);
 
-  auto rhs_value = m_rhs->execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
+  auto rhs_value = TRY(m_rhs->execute(interpreter));
 
   switch (m_op) {
   case Op::Add: {
@@ -597,11 +562,9 @@ void MemberExpression::dump_impl(int indent) const
   property().dump_impl(indent + 1);
 }
 
-Value MemberExpression::execute(Interpreter& interpreter)
+Result MemberExpression::execute(Interpreter& interpreter)
 {
-  auto value = object().execute(interpreter);
-  if (interpreter.has_exception())
-    return ore_nil();
+  auto value = TRY(object().execute(interpreter));
 
   if (value.is_nil())
     return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot access properties of nil");
@@ -611,9 +574,7 @@ Value MemberExpression::execute(Interpreter& interpreter)
   PropertyKey key;
 
   if (is_computed()) {
-    auto computed_value = property().execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+    auto computed_value = TRY(property().execute(interpreter));
     if (computed_value.is_number())
       key = PropertyKey(computed_value.as_number());
     else if (computed_value.is_string())
@@ -644,16 +605,13 @@ void ObjectExpression::dump_impl(int indent) const
   }
 }
 
-Value ObjectExpression::execute(Interpreter& interpreter)
+Result ObjectExpression::execute(Interpreter& interpreter)
 {
 
   auto* object = interpreter.heap().allocate<Object>();
 
   for (auto& [key, value] : m_properties) {
-
-    auto v = value->execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+    auto v = TRY(value->execute(interpreter));
     object->put(key, v);
   }
 
@@ -668,17 +626,15 @@ void ArrayExpression::dump_impl(int indent) const
     element->dump_impl(indent + 1);
 }
 
-Value ArrayExpression::execute(Interpreter& interpreter)
+Result ArrayExpression::execute(Interpreter& interpreter)
 {
   std::vector<Value> values;
   for (auto& element : m_elements) {
-    auto value = element->execute(interpreter);
-    if (interpreter.has_exception())
-      return ore_nil();
+    auto value = TRY(element->execute(interpreter));
     values.push_back(value);
   }
 
-  return interpreter.heap().allocate<ArrayObject>(values);
+  return Value(interpreter.heap().allocate<ArrayObject>(values));
 }
 
 void ExportStatement::dump_impl(int indent) const
@@ -688,10 +644,10 @@ void ExportStatement::dump_impl(int indent) const
   m_argument->dump_impl(indent + 1);
 }
 
-Value ExportStatement::execute(Interpreter& interpreter)
+Result ExportStatement::execute(Interpreter& interpreter)
 {
   // FIXME: Actually implement exports.
-  m_argument->execute(interpreter);
+  TRY(m_argument->execute(interpreter));
   return ore_nil();
 }
 
@@ -702,7 +658,7 @@ void CatchClause::dump_impl(int indent) const
   m_body->dump_impl(indent + 1);
 }
 
-Value CatchClause::execute(Interpreter& interpreter)
+Result CatchClause::execute(Interpreter& interpreter)
 {
   // CatchClause execution is handled by TryStatement
   assert(false);
@@ -721,19 +677,19 @@ void TryStatement::dump_impl(int indent) const
   }
 }
 
-Value TryStatement::execute(Interpreter& interpreter)
+Result TryStatement::execute(Interpreter& interpreter)
 {
-  auto return_value = ore_nil();
+  Result return_value = ore_nil();
 
-  return_value = interpreter.run(*m_block, Interpreter::ScopeType::Try);
-  if (interpreter.has_exception()) {
-    ExceptionObject* exception = interpreter.exception();
-    interpreter.clear_exception();
+  return_value = interpreter.run(*m_block);
+
+  if (return_value.is_exception()) {
 
     std::map<std::string, Value> arguments;
-    arguments[m_handler->param()] = exception;
-    return_value = interpreter.run(m_handler->body(), Interpreter::ScopeType::Block, std::move(arguments));
+    arguments[m_handler->param()] = return_value.value();
+    return_value = TRY(interpreter.run(m_handler->body(), std::move(arguments)));
   }
+
   if (m_finalizer.has_value())
     return_value = m_finalizer.value()->execute(interpreter);
 
