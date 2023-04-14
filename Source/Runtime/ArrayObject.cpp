@@ -5,6 +5,12 @@
 
 namespace Ore {
 
+ArrayObject::ArrayObject(std::vector<Value> elements)
+    : m_elements(elements)
+{
+  set_shape(interpreter().array_object_shape());
+}
+
 void ArrayObject::visit_graph(Visitor& visitor)
 {
   Object::visit_graph(visitor);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GC/Heap.h"
+#include "Runtime/ArrayObjectShape.h"
 #include "Runtime/ExceptionObject.h"
 #include "Runtime/GlobalObject.h"
 #include "Runtime/GlobalObjectShape.h"

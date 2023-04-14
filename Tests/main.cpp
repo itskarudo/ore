@@ -11,15 +11,20 @@ int main(void)
   program.append<AST::AssignmentExpression>(
       make_unique<AST::Identifier>("x"),
       AST::AssignmentExpression::Op::Assignment,
-      std::make_unique<AST::CallExpression>(
-          make_unique<AST::Identifier>("input")));
+      make_unique<AST::ArrayExpression>());
+
+  std::vector<std::unique_ptr<AST::Expression>> ap_args;
+  ap_args.push_back(make_unique<AST::Identifier>("x"));
+  ap_args.push_back(make_unique<AST::NumberLiteral>(69));
+
+  program.append<AST::CallExpression>(
+      make_unique<AST::MemberExpression>(
+          make_unique<AST::Identifier>("x"),
+          make_unique<AST::Identifier>("append")),
+      std::move(ap_args));
 
   std::vector<std::unique_ptr<AST::Expression>> args;
-
-  args.push_back(make_unique<AST::BinaryExpression>(
-      make_unique<AST::StringLiteral>("you entered: "),
-      AST::BinaryExpression::Op::StringConcat,
-      make_unique<AST::Identifier>("x")));
+  args.push_back(make_unique<AST::Identifier>("x"));
 
   program.append<AST::CallExpression>(
       make_unique<AST::Identifier>("print"),

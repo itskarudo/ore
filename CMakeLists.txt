@@ -30,6 +30,7 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Runtime/GlobalObjectShape.cpp
             Source/Runtime/StringObject.cpp
             Source/Runtime/ArrayObject.cpp
+            Source/Runtime/ArrayObjectShape.cpp
             Source/Runtime/FFIObject.cpp
             Source/Runtime/ExceptionObject.cpp
             Source/GC/Cell.cpp

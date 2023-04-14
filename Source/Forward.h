@@ -28,5 +28,6 @@ class PrimitiveString;
 #define REGISTER_NATIVE_FUNCTION(name) \
   put_native_function(PropertyKey(#name), name##_native_function);
 
-#define ENUMERATE_OBJECT_SHAPES \
-  __ENUM_OBJECT_SHAPES(global_object_shape, GlobalObjectShape)
+#define ENUMERATE_OBJECT_SHAPES                                \
+  __ENUM_OBJECT_SHAPES(global_object_shape, GlobalObjectShape) \
+  __ENUM_OBJECT_SHAPES(array_object_shape, ArrayObjectShape)
