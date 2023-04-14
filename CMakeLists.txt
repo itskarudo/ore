@@ -10,6 +10,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(ENABLE_CCACHE "Use ccache to improve recompilation speed" ON)
 
+set(HEAP_DEBUG OFF)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if (ENABLE_CCACHE)
@@ -19,6 +21,8 @@ if (ENABLE_CCACHE)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK    "${CCache_EXECUTABLE}")
   endif()
 endif()
+
+configure_file(Source/Config.h.in Config.h @ONLY)
 
 add_subdirectory(ThirdParty)
 
@@ -42,6 +46,7 @@ set(LIB_SOURCES Source/AST.cpp
 add_library(ore SHARED ${LIB_SOURCES})
 target_compile_features(ore PRIVATE cxx_std_20)
 target_link_libraries(ore fmt)
+target_include_directories(ore PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_executable(ore_test Tests/main.cpp)
 target_include_directories(ore_test PRIVATE Source/)

@@ -1,6 +1,7 @@
 #include "Heap.h"
 #include "../Interpreter.h"
 #include "HeapBlock.h"
+#include <Config.h>
 
 namespace Ore::GC {
 
@@ -46,11 +47,13 @@ class LivenessVisitor : public Cell::Visitor {
   virtual void visit(Cell* cell) override
   {
     if (cell->marked()) {
-      std::cout << "\033[35m# GC: Cyclic dependency -> " << cell << "\033[0m" << std::endl;
+      if constexpr (HEAP_DEBUG)
+        std::cout << "\033[35m# GC: Cyclic dependency -> " << cell << "\033[0m" << std::endl;
       return;
     }
 
-    std::cout << "\033[33m? GC: Marked -> " << cell << "\033[0m" << std::endl;
+    if constexpr (HEAP_DEBUG)
+      std::cout << "\033[33m? GC: Marked -> " << cell << "\033[0m" << std::endl;
     cell->set_marked(true);
     cell->visit_graph(*this);
   }
@@ -74,8 +77,9 @@ void Heap::collect_garbage(CollectionType collection_type)
 
   m_interpreter.collect_roots(roots);
 
-  for (auto* root : roots)
-    std::cout << "\033[32m! GC: Root -> " << root << "\033[0m" << std::endl;
+  if constexpr (HEAP_DEBUG)
+    for (auto* root : roots)
+      std::cout << "\033[32m! GC: Root -> " << root << "\033[0m" << std::endl;
 
   for (auto* root : roots) {
     visitor.visit(root);
@@ -88,7 +92,8 @@ void Heap::collect_garbage(CollectionType collection_type)
         if (cell->marked())
           cell->set_marked(false);
         else {
-          std::cout << "\033[31m~ GC: Freeing -> " << cell << "\033[0m" << std::endl;
+          if constexpr (HEAP_DEBUG)
+            std::cout << "\033[31m~ GC: Freeing -> " << cell << "\033[0m" << std::endl;
           block->deallocate(cell);
         }
       }

@@ -1,0 +1,5 @@
+#pragma once
+
+#ifndef HEAP_DEBUG
+# cmakedefine01 HEAP_DEBUG
+#endif
