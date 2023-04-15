@@ -71,13 +71,23 @@ Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value>
   return return_value;
 }
 
-void Interpreter::collect_roots(std::vector<GC::Cell*>& roots)
+void Interpreter::collect_roots(std::vector<GC::Cell*>& roots, GC::Heap::CollectionType collection_type)
 {
   for (auto& frame : m_scope_frames) {
     for (auto& [name, value] : frame.variables) {
       if (value.is_object())
         roots.push_back(value.as_object());
     }
+  }
+
+  if (collection_type == GC::Heap::CollectionType::Garbage) {
+
+#define __ENUM_OBJECT_SHAPES(name, ObjectName) \
+  if (m_object_shapes.name != nullptr)         \
+    roots.push_back(m_object_shapes.name);
+
+    ENUMERATE_OBJECT_SHAPES
+#undef __ENUM_OBJECT_SHAPES
   }
 }
 

@@ -68,16 +68,9 @@ void Heap::collect_garbage(CollectionType collection_type)
   if (collection_type == CollectionType::Garbage) {
     if (m_interpreter.global_object() != nullptr)
       roots.push_back(m_interpreter.global_object());
-
-#define __ENUM_OBJECT_SHAPES(name, ObjectName)       \
-  if (m_interpreter.m_object_shapes.name != nullptr) \
-    roots.push_back(m_interpreter.name());
-
-    ENUMERATE_OBJECT_SHAPES
-#undef __ENUM_OBJECT_SHAPES
   }
 
-  m_interpreter.collect_roots(roots);
+  m_interpreter.collect_roots(roots, collection_type);
 
   if constexpr (HEAP_DEBUG)
     for (auto* root : roots)

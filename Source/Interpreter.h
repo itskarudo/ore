@@ -38,7 +38,7 @@ class Interpreter {
   Result get_variable(std::string const& name);
   void set_variable(std::string const& name, Value);
 
-  void collect_roots(std::vector<GC::Cell*>& roots);
+  void collect_roots(std::vector<GC::Cell*>& roots, GC::Heap::CollectionType);
 
 #define __ENUM_OBJECT_SHAPES(name, ObjectName)              \
   ObjectName* name()                                        \
@@ -65,8 +65,6 @@ class Interpreter {
   } m_object_shapes = { nullptr };
 
   std::vector<ScopeFrame> m_scope_frames;
-
-  friend void GC::Heap::collect_garbage(GC::Heap::CollectionType);
 };
 
 }
