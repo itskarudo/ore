@@ -22,6 +22,8 @@ class HeapBlock {
   Cell* allocate();
   void deallocate(Cell*);
 
+  Cell* cell_from_possible_pointer(uintptr_t);
+
   template<typename Callback>
     requires std::invocable<Callback, Cell*>
   void for_each_cell(Callback callback)

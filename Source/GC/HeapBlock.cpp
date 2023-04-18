@@ -35,4 +35,16 @@ void HeapBlock::deallocate(Cell* cell)
   m_freelist = entry;
 }
 
+Cell* HeapBlock::cell_from_possible_pointer(uintptr_t ptr)
+{
+  if (ptr < reinterpret_cast<uintptr_t>(m_storage))
+    return nullptr;
+
+  size_t index = (ptr - reinterpret_cast<uintptr_t>(m_storage)) / m_cell_size;
+  if (index >= cell_count())
+    return nullptr;
+
+  return cell(index);
+}
+
 }

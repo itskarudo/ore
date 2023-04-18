@@ -2,6 +2,9 @@
 #include "../Interpreter.h"
 #include "HeapBlock.h"
 #include <Config.h>
+#include <csetjmp>
+#include <pthread.h>
+#include <set>
 
 namespace Ore::GC {
 
@@ -70,6 +73,7 @@ void Heap::collect_garbage(CollectionType collection_type)
       roots.push_back(m_interpreter.global_object());
   }
 
+  collect_conservative_roots(roots);
   m_interpreter.collect_roots(roots, collection_type);
 
   if constexpr (HEAP_DEBUG)
@@ -94,6 +98,55 @@ void Heap::collect_garbage(CollectionType collection_type)
       }
     });
   }
+}
+
+void Heap::collect_conservative_roots(std::vector<Cell*>& roots)
+{
+  jmp_buf buf;
+  setjmp(buf);
+
+  std::set<uintptr_t> possible_pointers;
+
+  auto stack_bottom = get_stack_bottom();
+  auto stack_reference = std::bit_cast<uintptr_t>(&buf);
+
+  for (uintptr_t i = stack_reference; i < stack_bottom; i += sizeof(uintptr_t)) {
+    auto data = *reinterpret_cast<uintptr_t*>(i);
+    possible_pointers.insert(data);
+  }
+
+  std::set<HeapBlock*> heap_blocks;
+
+  for_each_heap_block([&](HeapBlock* block) {
+    heap_blocks.insert(block);
+  });
+
+  for (auto ptr : possible_pointers) {
+    if (!ptr)
+      continue;
+
+    auto* possible_block = HeapBlock::from_cell(reinterpret_cast<Cell*>(ptr));
+    if (heap_blocks.contains(possible_block)) {
+      if (auto* cell = possible_block->cell_from_possible_pointer(ptr))
+        roots.push_back(cell);
+    }
+  }
+}
+
+uintptr_t Heap::get_stack_bottom()
+{
+  uintptr_t base;
+  size_t size;
+
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  pthread_getattr_np(pthread_self(), &attr);
+
+  pthread_attr_getstack(&attr, (void**)&base, &size);
+
+  pthread_attr_destroy(&attr);
+
+  return base + size;
 }
 
 }

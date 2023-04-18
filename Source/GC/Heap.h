@@ -33,6 +33,16 @@ class Heap {
 
   private:
   Cell* allocate_cell(size_t);
+  void collect_conservative_roots(std::vector<Cell*>&);
+  uintptr_t get_stack_bottom();
+
+  template<typename Callback>
+    requires std::invocable<Callback, HeapBlock*>
+  void for_each_heap_block(Callback callback)
+  {
+    for (auto* block : m_blocks)
+      callback(block);
+  }
 
   std::vector<HeapBlock*> m_blocks;
   Interpreter& m_interpreter;
