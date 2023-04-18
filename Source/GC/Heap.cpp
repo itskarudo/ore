@@ -45,7 +45,13 @@ Cell* Heap::allocate_cell(size_t cell_size)
 
 class LivenessVisitor : public Cell::Visitor {
   public:
-  LivenessVisitor() { }
+  LivenessVisitor(std::vector<Cell*>& roots)
+  {
+    for (auto* root : roots) {
+      root->set_marked(true);
+      m_work_queue.push_back(root);
+    }
+  }
 
   virtual void visit(Cell* cell) override
   {
@@ -58,13 +64,24 @@ class LivenessVisitor : public Cell::Visitor {
     if constexpr (HEAP_DEBUG)
       std::cout << "\033[33m? GC: Marked -> " << cell << "\033[0m" << std::endl;
     cell->set_marked(true);
-    cell->visit_graph(*this);
+    m_work_queue.push_back(cell);
   }
+
+  void mark_live_cells()
+  {
+    while (!m_work_queue.empty()) {
+      auto* last_element = m_work_queue.back();
+      m_work_queue.pop_back();
+      last_element->visit_graph(*this);
+    }
+  }
+
+  private:
+  std::vector<Cell*> m_work_queue;
 };
 
 void Heap::collect_garbage(CollectionType collection_type)
 {
-  LivenessVisitor visitor;
   std::vector<Cell*> roots;
 
   // mark all live cells
@@ -80,9 +97,9 @@ void Heap::collect_garbage(CollectionType collection_type)
     for (auto* root : roots)
       std::cout << "\033[32m! GC: Root -> " << root << "\033[0m" << std::endl;
 
-  for (auto* root : roots) {
-    visitor.visit(root);
-  }
+  auto visitor = LivenessVisitor(roots);
+
+  visitor.mark_live_cells();
 
   // sweep dead cells and reset mark bit for alive cells
   for (auto& block : m_blocks) {
