@@ -191,6 +191,28 @@ Result ReturnStatement::execute(Interpreter& interpreter)
   return { Result::Type::Return, argument_value };
 }
 
+void BreakStatement::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+}
+
+Result BreakStatement::execute(Interpreter& interpreter)
+{
+  return { Result::Type::Break, {} };
+}
+
+void ContinueStatement::dump_impl(int indent) const
+{
+  print_indent(indent);
+  printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+}
+
+Result ContinueStatement::execute(Interpreter& interpreter)
+{
+  return { Result::Type::Continue, {} };
+}
+
 void IfStatement::dump_impl(int indent) const
 {
   print_indent(indent);
@@ -246,7 +268,10 @@ Result ForStatement::execute(Interpreter& interpreter)
   }
 
   while (test_value) {
-    return_value = TRY(m_body->execute(interpreter));
+    return_value = m_body->execute(interpreter);
+
+    if (return_value.is_exception())
+      return return_value;
 
     if (return_value.type() == Result::Type::Break)
       break;
@@ -275,7 +300,10 @@ Result WhileStatement::execute(Interpreter& interpreter)
   Result return_value = ore_nil();
 
   while (TRY(test().execute(interpreter)).to_boolean()) {
-    return_value = TRY(body().execute(interpreter));
+    return_value = body().execute(interpreter);
+
+    if (return_value.is_exception())
+      return return_value;
 
     if (return_value.type() == Result::Type::Break)
       break;
@@ -298,7 +326,10 @@ Result DoWhileStatement::execute(Interpreter& interpreter)
   Result return_value = ore_nil();
 
   do {
-    return_value = TRY(body().execute(interpreter));
+    return_value = body().execute(interpreter);
+
+    if (return_value.is_exception())
+      return return_value;
 
     if (return_value.type() == Result::Type::Break)
       break;

@@ -198,6 +198,24 @@ class ReturnStatement : public Statement {
   std::unique_ptr<Expression> m_argument;
 };
 
+class BreakStatement : public Statement {
+  public:
+  BreakStatement() { }
+
+  virtual char const* class_name() const override { return "BreakStatement"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Result execute(Interpreter&) override;
+};
+
+class ContinueStatement : public Statement {
+  public:
+  ContinueStatement() { }
+
+  virtual char const* class_name() const override { return "ContinueStatement"; }
+  virtual void dump_impl(int indent) const override;
+  virtual Result execute(Interpreter&) override;
+};
+
 class IfStatement : public Statement {
   public:
   IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> consequent, std::unique_ptr<Statement> alternate)
