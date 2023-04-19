@@ -35,10 +35,7 @@ int main(void)
           make_unique<AST::Identifier>("i"),
           AST::AssignmentExpression::Op::Assignment,
           make_unique<AST::NumberLiteral>(0)),
-      make_unique<AST::BinaryExpression>(
-          make_unique<AST::Identifier>("i"),
-          AST::BinaryExpression::Op::LessThan,
-          make_unique<AST::NumberLiteral>(10)),
+      std::nullopt,
       make_unique<AST::AssignmentExpression>(
           make_unique<AST::Identifier>("i"),
           AST::AssignmentExpression::Op::AddAssignment,

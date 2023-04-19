@@ -281,7 +281,8 @@ Result ForStatement::execute(Interpreter& interpreter)
       TRY(m_update.value()->execute(interpreter));
     }
 
-    test_value = TRY(m_test.value()->execute(interpreter)).to_boolean();
+    if (m_test.has_value())
+      test_value = TRY(m_test.value()->execute(interpreter)).to_boolean();
   }
 
   return return_value;
