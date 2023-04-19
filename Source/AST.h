@@ -218,7 +218,7 @@ class ContinueStatement : public Statement {
 
 class IfStatement : public Statement {
   public:
-  IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> consequent, std::unique_ptr<Statement> alternate)
+  IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> consequent, std::optional<std::unique_ptr<Statement>> alternate)
       : m_test(std::move(test))
       , m_consequent(std::move(consequent))
       , m_alternate(std::move(alternate))
@@ -227,7 +227,7 @@ class IfStatement : public Statement {
 
   Expression& test() const { return *m_test; }
   Statement& consequent() const { return *m_consequent; }
-  Statement& alternate() const { return *m_alternate; }
+  Statement& alternate() const { return *m_alternate.value(); }
 
   virtual char const* class_name() const override { return "IfStatement"; }
   virtual void dump_impl(int indent) const override;
@@ -235,7 +235,8 @@ class IfStatement : public Statement {
 
   private:
   std::unique_ptr<Expression> m_test;
-  std::unique_ptr<Statement> m_consequent, m_alternate;
+  std::unique_ptr<Statement> m_consequent;
+  std::optional<std::unique_ptr<Statement>> m_alternate;
 };
 
 class ForStatement : public Statement {

@@ -21,7 +21,7 @@ int main(void)
           AST::BinaryExpression::Op::Equals,
           make_unique<AST::NumberLiteral>(5)),
       make_unique<AST::BreakStatement>(),
-      make_unique<AST::BlockStatement>());
+      std::nullopt);
 
   std::vector<std::unique_ptr<AST::Expression>> print_args;
   print_args.push_back(make_unique<AST::Identifier>("i"));

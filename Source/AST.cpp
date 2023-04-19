@@ -221,10 +221,11 @@ void IfStatement::dump_impl(int indent) const
 
   consequent().dump_impl(indent + 1);
 
-  print_indent(indent);
-  printf("\033[32mElse\033[0m\n");
-
-  alternate().dump_impl(indent + 1);
+  if (m_alternate.has_value()) {
+    print_indent(indent);
+    printf("\033[32mElse\033[0m\n");
+    alternate().dump_impl(indent + 1);
+  }
 }
 
 Result IfStatement::execute(Interpreter& interpreter)
@@ -233,7 +234,7 @@ Result IfStatement::execute(Interpreter& interpreter)
   auto test_value = TRY(test().execute(interpreter));
   if (test_value.to_boolean())
     return_value = consequent().execute(interpreter);
-  else
+  else if (m_alternate.has_value())
     return_value = alternate().execute(interpreter);
 
   return return_value;
