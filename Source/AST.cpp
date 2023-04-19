@@ -172,7 +172,7 @@ Result CallExpression::execute(Interpreter& interpreter)
       passed_arguments.push_back(argument_value);
     }
 
-    return function.native_function()(interpreter, passed_arguments);
+    return TRY(function.native_function()(interpreter, passed_arguments));
   }
 
   return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot call non-function value");
@@ -315,7 +315,7 @@ void Identifier::dump_impl(int indent) const
 
 Result Identifier::execute(Interpreter& interpreter)
 {
-  return interpreter.get_variable(name());
+  return TRY(interpreter.get_variable(name()));
 }
 
 void AssignmentExpression::dump_impl(int indent) const
@@ -370,25 +370,25 @@ Result AssignmentExpression::execute(Interpreter& interpreter)
 
   switch (m_op) {
   case Op::AddAssignment:
-    value = prev_value + value;
+    value = TRY(Value::add(interpreter, prev_value, value));
     break;
   case Op::SubAssignment:
-    value = prev_value - value;
+    value = TRY(Value::subtract(interpreter, prev_value, value));
     break;
   case Op::MultAssignment:
-    value = prev_value * value;
+    value = TRY(Value::multiply(interpreter, prev_value, value));
     break;
   case Op::DivAssignment:
-    value = prev_value / value;
+    value = TRY(Value::divide(interpreter, prev_value, value));
     break;
   case Op::ShiftLeftAssignment:
-    value = prev_value << value;
+    value = TRY(Value::shift_left(interpreter, prev_value, value));
     break;
   case Op::ShiftRightAssignment:
-    value = prev_value >> value;
+    value = TRY(Value::shift_right(interpreter, prev_value, value));
     break;
   case Op::ConcatAssignment:
-    value = Value::string_concat(prev_value, value, interpreter.heap());
+    value = TRY(Value::string_concat(interpreter, prev_value, value));
     break;
   default:
     break;
@@ -441,9 +441,9 @@ Result UnaryExpression::execute(Interpreter& interpreter)
   auto value = TRY(m_operand->execute(interpreter));
   switch (m_op) {
   case Op::Not:
-    return !value;
+    return TRY(Value::logical_not(interpreter, value));
   case Op::Length:
-    return Value::length(value);
+    return TRY(Value::length(interpreter, value));
   default:
     __builtin_unreachable();
   }
@@ -480,74 +480,52 @@ Result BinaryExpression::execute(Interpreter& interpreter)
 
   switch (m_op) {
   case Op::Add: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only add number to number");
-    return lhs_value + rhs_value;
+    return TRY(Value::add(interpreter, lhs_value, rhs_value));
   }
   case Op::Sub: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only subtract number from number");
-    return lhs_value - rhs_value;
+    return TRY(Value::subtract(interpreter, lhs_value, rhs_value));
   }
   case Op::Mult: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only multiply number by number");
-    return lhs_value * rhs_value;
+    return TRY(Value::multiply(interpreter, lhs_value, rhs_value));
   }
   case Op::Div: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only divide number by number");
-    return lhs_value / rhs_value;
+    return TRY(Value::divide(interpreter, lhs_value, rhs_value));
   }
   case Op::Equals: {
-    return lhs_value == rhs_value;
+    return TRY(Value::equals(interpreter, lhs_value, rhs_value));
   }
   case Op::NotEquals: {
-    return lhs_value != rhs_value;
+    return TRY(Value::not_equals(interpreter, lhs_value, rhs_value));
   }
   case Op::GreaterThan: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
-    return lhs_value > rhs_value;
+    return TRY(Value::greater_than(interpreter, lhs_value, rhs_value));
   }
   case Op::LessThan: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
-    return lhs_value < rhs_value;
+    return TRY(Value::less_than(interpreter, lhs_value, rhs_value));
   }
   case Op::GreaterThanOrEquals: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
-    return lhs_value >= rhs_value;
+    return TRY(Value::greater_than_or_equals(interpreter, lhs_value, rhs_value));
   }
   case Op::LessThanOrEquals: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only compare numbers");
-    return lhs_value <= rhs_value;
+    return TRY(Value::less_than_or_equals(interpreter, lhs_value, rhs_value));
   }
   case Op::ShiftLeft: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only shift numbers by numbers");
-    return lhs_value << rhs_value;
+    return TRY(Value::shift_left(interpreter, lhs_value, rhs_value));
   }
   case Op::ShiftRight: {
-    if (!lhs_value.is_number() || !rhs_value.is_number())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only shift numbers by numbers");
-    return lhs_value >> rhs_value;
+    return TRY(Value::shift_right(interpreter, lhs_value, rhs_value));
   }
   case Op::StringConcat: {
-    if (!lhs_value.is_string() || !rhs_value.is_string())
-      return interpreter.throw_exception(ExceptionObject::type_exception(), "can only concatenate strings");
-    return Value::string_concat(lhs_value, rhs_value, interpreter.heap());
+    return TRY(Value::string_concat(interpreter, lhs_value, rhs_value));
   }
   case Op::Xor: {
-    return Value::logical_xor(lhs_value, rhs_value);
+    return TRY(Value::logical_xor(interpreter, lhs_value, rhs_value));
   }
   case Op::And: {
-    return Value::logical_and(lhs_value, rhs_value);
+    return TRY(Value::logical_and(interpreter, lhs_value, rhs_value));
   }
   case Op::Or: {
-    return Value::logical_or(lhs_value, rhs_value);
+    return TRY(Value::logical_or(interpreter, lhs_value, rhs_value));
   }
   default:
     return ore_nil();
@@ -589,7 +567,7 @@ Result MemberExpression::execute(Interpreter& interpreter)
   }
 
   if (obj->contains(key))
-    return obj->get(key);
+    return TRY(obj->get(key));
 
   return ore_nil();
 }

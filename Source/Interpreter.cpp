@@ -21,7 +21,7 @@ void Interpreter::leave_scope()
   m_scope_frames.pop_back();
 }
 
-Result Interpreter::get_variable(std::string const& name)
+ThrowResultOr<Value> Interpreter::get_variable(std::string const& name)
 {
   for (auto frame = m_scope_frames.rbegin(); frame != m_scope_frames.rend(); ++frame)
     if (frame->variables.contains(name))

@@ -35,7 +35,7 @@ class Interpreter {
   void enter_scope(AST::BlockStatement&, std::map<std::string, Value> const& arguments);
   void leave_scope();
 
-  Result get_variable(std::string const& name);
+  ThrowResultOr<Value> get_variable(std::string const& name);
   void set_variable(std::string const& name, Value);
 
   void collect_roots(std::vector<GC::Cell*>& roots, GC::Heap::CollectionType);

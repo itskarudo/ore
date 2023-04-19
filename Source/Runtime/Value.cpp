@@ -1,8 +1,11 @@
 #include "Value.h"
+#include "../Interpreter.h"
 #include "ArrayObject.h"
 #include "BooleanObject.h"
+#include "ExceptionObject.h"
 #include "NumberObject.h"
 #include "Object.h"
+#include "Result.h"
 #include "StringObject.h"
 
 namespace Ore {
@@ -61,126 +64,174 @@ std::ostream& operator<<(std::ostream& os, Value const& value)
   return os;
 }
 
-Value Value::string_concat(Value const& str1, Value const& str2, GC::Heap& heap)
+ThrowResultOr<Value> Value::string_concat(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(str1.is_string() && str2.is_string());
-  return ore_string(heap, str1.as_string()->string() + str2.as_string()->string());
+  if (!lhs.is_string())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a string");
+  if (!rhs.is_string())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a string");
+
+  return ore_string(interpreter.heap(), lhs.as_string()->string() + rhs.as_string()->string());
 }
 
-Value Value::logical_and(Value const& v1, Value const& v2)
+ThrowResultOr<Value> Value::logical_and(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  return ore_boolean(v1.to_boolean() && v2.to_boolean());
+  return ore_boolean(lhs.to_boolean() && rhs.to_boolean());
 }
 
-Value Value::logical_or(Value const& v1, Value const& v2)
+ThrowResultOr<Value> Value::logical_or(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  return ore_boolean(v1.to_boolean() || v2.to_boolean());
+  return ore_boolean(lhs.to_boolean() || rhs.to_boolean());
 }
 
-Value Value::logical_xor(Value const& v1, Value const& v2)
+ThrowResultOr<Value> Value::logical_xor(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  return ore_boolean(v1.to_boolean() != v2.to_boolean());
+  return ore_boolean(lhs.to_boolean() != rhs.to_boolean());
 }
 
-Value Value::length(Value const& value)
+ThrowResultOr<Value> Value::logical_not(Interpreter& interpreter, Value operand)
 {
-  if (value.is_string())
-    return ore_number(static_cast<int>(value.as_string()->string().length()));
-  else if (value.is_object() && value.as_object()->is_array()) {
-    return ore_number(static_cast<ArrayObject*>(value.as_object())->length());
+  return ore_boolean(!operand.to_boolean());
+}
+
+ThrowResultOr<Value> Value::length(Interpreter& interpreter, Value operand)
+{
+  if (operand.is_string())
+    return ore_number(static_cast<int>(operand.as_string()->string().length()));
+  else if (operand.is_object() && operand.as_object()->is_array()) {
+    return ore_number(static_cast<ArrayObject*>(operand.as_object())->length());
   }
-  __builtin_unreachable();
+
+  return interpreter.throw_exception(ExceptionObject::type_exception(), "Object has no length property");
 }
 
-Value Value::operator+(Value const& other) const
+ThrowResultOr<Value> Value::add(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_number(as_number() + other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_number(lhs.as_number() + rhs.as_number());
 }
 
-Value Value::operator-(Value const& other) const
+ThrowResultOr<Value> Value::subtract(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_number(as_number() - other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_number(lhs.as_number() - rhs.as_number());
 }
 
-Value Value::operator*(Value const& other) const
+ThrowResultOr<Value> Value::multiply(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_number(as_number() * other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_number(lhs.as_number() * rhs.as_number());
 }
 
-Value Value::operator/(Value const& other) const
+ThrowResultOr<Value> Value::divide(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  assert(other.as_number() != 0);
-  return ore_number(as_number() / other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  if (rhs.as_number() == 0)
+    return interpreter.throw_exception(ExceptionObject::division_by_zero_exception(), "Cannot divide by zero");
+
+  return ore_number(lhs.as_number() / rhs.as_number());
 }
 
-Value Value::operator==(Value const& other) const
+ThrowResultOr<Value> Value::equals(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(type() == other.type());
+  if (lhs.type() != rhs.type())
+    return ore_boolean(false);
 
-  switch (type()) {
+  switch (lhs.type()) {
   case Value::Type::Number:
-    return ore_boolean(as_number() == other.as_number());
+    return ore_boolean(lhs.as_number() == rhs.as_number());
   case Value::Type::Boolean:
-    return ore_boolean(as_boolean() == other.as_boolean());
+    return ore_boolean(lhs.as_boolean() == rhs.as_boolean());
   case Value::Type::Nil:
     return ore_boolean(true);
   case Value::Type::String:
-    return ore_boolean(as_string()->string() == other.as_string()->string());
+    return ore_boolean(lhs.as_string()->string() == rhs.as_string()->string());
   case Value::Type::Object:
-    return ore_boolean(as_object() == other.as_object());
+    return ore_boolean(lhs.as_object() == rhs.as_object());
   default:
     __builtin_unreachable();
   }
 }
 
-Value Value::operator!=(Value const& other) const
+ThrowResultOr<Value> Value::not_equals(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  return ore_boolean(!(*this == other).as_boolean());
+  return ore_boolean(!TRY(Value::equals(interpreter, lhs, rhs)).to_boolean());
 }
 
-Value Value::operator<(Value const& other) const
+ThrowResultOr<Value> Value::less_than(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_boolean(as_number() < other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_boolean(lhs.as_number() < rhs.as_number());
 }
 
-Value Value::operator<=(Value const& other) const
+ThrowResultOr<Value> Value::less_than_or_equals(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_boolean(as_number() <= other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_boolean(lhs.as_number() <= rhs.as_number());
 }
 
-Value Value::operator>(Value const& other) const
+ThrowResultOr<Value> Value::greater_than(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_boolean(as_number() > other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_boolean(lhs.as_number() > rhs.as_number());
 }
 
-Value Value::operator>=(Value const& other) const
+ThrowResultOr<Value> Value::greater_than_or_equals(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_boolean(as_number() >= other.as_number());
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_boolean(lhs.as_number() >= rhs.as_number());
 }
 
-Value Value::operator<<(Value const& other) const
+ThrowResultOr<Value> Value::shift_left(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_number(static_cast<double>((long long)as_number() << (long long)other.as_number()));
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_number(static_cast<double>((long long)lhs.as_number() << (long long)rhs.as_number()));
 }
 
-Value Value::operator>>(Value const& other) const
+ThrowResultOr<Value> Value::shift_right(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  assert(is_number() && other.is_number());
-  return ore_number(static_cast<double>((long long)as_number() >> (long long)other.as_number()));
-}
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
 
-Value Value::operator!(void) const
-{
-  return ore_boolean(!to_boolean());
+  return ore_number(static_cast<double>((long long)lhs.as_number() >> (long long)rhs.as_number()));
 }
 
 }

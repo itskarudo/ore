@@ -28,7 +28,7 @@ struct OreFuncParams {
   std::vector<Ore::Value>& args;
 };
 
-using OreFunctionDecl = Ore::Result (*)(OreFuncParams);
+using OreFunctionDecl = Ore::ThrowResultOr<Ore::Value> (*)(OreFuncParams);
 
 struct OreExportEntry {
   char const* name;

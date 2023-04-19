@@ -11,7 +11,7 @@ void Object::visit_graph(Visitor& visitor)
       visitor.visit(value.as_cell());
 }
 
-Result Object::get(PropertyKey key) const
+ThrowResultOr<Value> Object::get(PropertyKey key) const
 {
   if (!key.is_string())
     return interpreter().throw_exception(ExceptionObject::type_exception(), "key must be a string");
@@ -36,7 +36,7 @@ void Object::put(PropertyKey key, Value value)
   m_properties[key.string()] = value;
 }
 
-void Object::put_native_function(PropertyKey key, std::function<Result(Interpreter&, std::vector<Value>&)> func)
+void Object::put_native_function(PropertyKey key, std::function<ThrowResultOr<Value>(Interpreter&, std::vector<Value>&)> func)
 {
   put(key, heap().allocate<NativeFunction>(func));
 }

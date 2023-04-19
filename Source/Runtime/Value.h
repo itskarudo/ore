@@ -104,25 +104,24 @@ class Value {
 
   friend std::ostream& operator<<(std::ostream& os, Value const& value);
 
-  static Value string_concat(Value const&, Value const&, GC::Heap&);
-  static Value logical_and(Value const&, Value const&);
-  static Value logical_or(Value const&, Value const&);
-  static Value logical_xor(Value const&, Value const&);
-  static Value length(Value const&);
-
-  Value operator+(Value const&) const;
-  Value operator-(Value const&) const;
-  Value operator*(Value const&) const;
-  Value operator/(Value const&) const;
-  Value operator==(Value const&) const;
-  Value operator!=(Value const&) const;
-  Value operator<(Value const&) const;
-  Value operator<=(Value const&) const;
-  Value operator>(Value const&) const;
-  Value operator>=(Value const&) const;
-  Value operator>>(Value const&) const;
-  Value operator<<(Value const&) const;
-  Value operator!(void) const;
+  static ThrowResultOr<Value> string_concat(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> logical_and(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> logical_or(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> logical_xor(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> logical_not(Interpreter&, Value);
+  static ThrowResultOr<Value> length(Interpreter&, Value);
+  static ThrowResultOr<Value> add(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> subtract(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> multiply(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> divide(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> equals(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> not_equals(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> less_than(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> less_than_or_equals(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> greater_than(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> greater_than_or_equals(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> shift_right(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> shift_left(Interpreter&, Value, Value);
 
   private:
   Type m_type;
