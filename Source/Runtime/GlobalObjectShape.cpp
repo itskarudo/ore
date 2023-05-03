@@ -1,5 +1,7 @@
 #include "GlobalObjectShape.h"
+#include "ExceptionObject.h"
 #include "FFIObject.h"
+#include <Config.h>
 #include <filesystem>
 
 namespace Ore {
@@ -40,15 +42,28 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
 
   auto filename = args[0].as_string()->string();
 
-  // TODO: add the ability to import ore source files as well.
-  // TODO: have a global static path to look for installed libraries in.
-  // TODO: add support for other platforms (windows DLLs).
-  auto full_filename = filename + ".so";
-  if (!std::filesystem::exists(full_filename))
-    return ore_nil();
+  if (filename.starts_with('.') || filename.starts_with('/')) {
+    assert(std::filesystem::exists(filename));
 
-  auto* ffi_object = interpreter.heap().allocate<FFIObject>(full_filename);
-  return Value(ffi_object);
+    if (filename.ends_with(".so")) {
+      auto* ffi_object = interpreter.heap().allocate<FFIObject>(filename);
+      return Value(ffi_object);
+    } else {
+      // TODO: implement importing ore source file.
+      assert(false);
+    }
+  } else {
+    auto full_filename = ORE_MODULES_DIR + filename;
+    assert(std::filesystem::exists(full_filename));
+
+    if (filename.ends_with(".so")) {
+      auto* ffi_object = interpreter.heap().allocate<FFIObject>(full_filename);
+      return Value(ffi_object);
+    } else {
+      // TODO: implement importing ore source file.
+      assert(false);
+    }
+  }
 }
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::throw)

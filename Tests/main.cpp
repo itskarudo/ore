@@ -9,38 +9,12 @@ int main(void)
   Interpreter interpreter;
   AST::Program program;
 
-  // for (i = 0; i < 10; i += 1) {
-  //   if (i == 5) break
-  //   print(i)
-  // }
+  std::vector<std::unique_ptr<AST::Expression>> args;
+  args.push_back(make_unique<AST::StringLiteral>("./libffi_test.so"));
 
-  auto for_body = std::make_unique<AST::BlockStatement>();
-  for_body->append<AST::IfStatement>(
-      make_unique<AST::BinaryExpression>(
-          make_unique<AST::Identifier>("i"),
-          AST::BinaryExpression::Op::Equals,
-          make_unique<AST::NumberLiteral>(5)),
-      make_unique<AST::BreakStatement>(),
-      std::nullopt);
-
-  std::vector<std::unique_ptr<AST::Expression>> print_args;
-  print_args.push_back(make_unique<AST::Identifier>("i"));
-
-  for_body->append<AST::CallExpression>(
-      make_unique<AST::Identifier>("print"),
-      std::move(print_args));
-
-  program.append<AST::ForStatement>(
-      make_unique<AST::AssignmentExpression>(
-          make_unique<AST::Identifier>("i"),
-          AST::AssignmentExpression::Op::Assignment,
-          make_unique<AST::NumberLiteral>(0)),
-      std::nullopt,
-      make_unique<AST::AssignmentExpression>(
-          make_unique<AST::Identifier>("i"),
-          AST::AssignmentExpression::Op::AddAssignment,
-          make_unique<AST::NumberLiteral>(1)),
-      std::move(for_body));
+  program.append<AST::CallExpression>(
+      make_unique<AST::Identifier>("import"),
+      std::move(args));
 
   program.dump();
   auto retval = interpreter.run(program);

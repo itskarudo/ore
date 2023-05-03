@@ -1,5 +1,9 @@
 #pragma once
 
 #ifndef HEAP_DEBUG
-# cmakedefine01 HEAP_DEBUG
+#  cmakedefine01 HEAP_DEBUG
+#endif
+
+#ifndef ORE_MODULES_DIR
+#  cmakedefine ORE_MODULES_DIR "@ORE_MODULES_DIR@"
 #endif
