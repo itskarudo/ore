@@ -3,6 +3,7 @@
 #include "FFIObject.h"
 #include <Config.h>
 #include <filesystem>
+#include <fmt/core.h>
 
 namespace Ore {
 GlobalObjectShape::GlobalObjectShape()
@@ -43,7 +44,8 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
   auto filename = args[0].as_string()->string();
 
   if (filename.starts_with('.') || filename.starts_with('/')) {
-    assert(std::filesystem::exists(filename));
+    if (!std::filesystem::exists(filename))
+      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named %s", filename));
 
     if (filename.ends_with(".so")) {
       auto* ffi_object = interpreter.heap().allocate<FFIObject>(filename);
@@ -54,7 +56,8 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
     }
   } else {
     auto full_filename = ORE_MODULES_DIR + filename;
-    assert(std::filesystem::exists(full_filename));
+    if (!std::filesystem::exists(full_filename))
+      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named %s", full_filename));
 
     if (filename.ends_with(".so")) {
       auto* ffi_object = interpreter.heap().allocate<FFIObject>(full_filename);
