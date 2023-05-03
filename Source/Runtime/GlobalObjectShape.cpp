@@ -45,7 +45,7 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
 
   if (filename.starts_with('.') || filename.starts_with('/')) {
     if (!std::filesystem::exists(filename))
-      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named %s", filename));
+      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", filename));
 
     if (filename.ends_with(".so")) {
       auto* ffi_object = interpreter.heap().allocate<FFIObject>(filename);
@@ -57,7 +57,7 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
   } else {
     auto full_filename = ORE_MODULES_DIR + filename;
     if (!std::filesystem::exists(full_filename))
-      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named %s", full_filename));
+      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", full_filename));
 
     if (filename.ends_with(".so")) {
       auto* ffi_object = interpreter.heap().allocate<FFIObject>(full_filename);
