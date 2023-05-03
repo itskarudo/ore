@@ -34,3 +34,9 @@ struct OreExportEntry {
   char const* name;
   OreFunctionDecl decl;
 };
+
+#define ARGS_SIZE_GUARD(func_name, args_size)                                                                                           \
+  do {                                                                                                                                  \
+    if (params.args.size() != args_size)                                                                                                \
+      return params.interpreter.throw_exception(ExceptionObject::type_exception(), #func_name "() requires " #args_size " arguments."); \
+  } while (0);

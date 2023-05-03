@@ -5,8 +5,7 @@ namespace Ore {
 
 ThrowResultOr<Value> cos(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "cos() requires 1 argument.");
+  ARGS_SIZE_GUARD(cos, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -17,8 +16,7 @@ ThrowResultOr<Value> cos(OreFuncParams params)
 
 ThrowResultOr<Value> sin(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "sin() requires 1 argument.");
+  ARGS_SIZE_GUARD(sin, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -29,8 +27,7 @@ ThrowResultOr<Value> sin(OreFuncParams params)
 
 ThrowResultOr<Value> tan(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "tan() requires 1 argument.");
+  ARGS_SIZE_GUARD(tan, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -41,8 +38,7 @@ ThrowResultOr<Value> tan(OreFuncParams params)
 
 ThrowResultOr<Value> arccos(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "arccos() requires 1 argument.");
+  ARGS_SIZE_GUARD(arccos, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -53,8 +49,7 @@ ThrowResultOr<Value> arccos(OreFuncParams params)
 
 ThrowResultOr<Value> arcsin(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "arcsin() requires 1 argument.");
+  ARGS_SIZE_GUARD(arcsin, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -65,8 +60,7 @@ ThrowResultOr<Value> arcsin(OreFuncParams params)
 
 ThrowResultOr<Value> arctan(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "arctan() requires 1 argument.");
+  ARGS_SIZE_GUARD(arctan, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -77,8 +71,7 @@ ThrowResultOr<Value> arctan(OreFuncParams params)
 
 ThrowResultOr<Value> cosh(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "cosh() requires 1 argument.");
+  ARGS_SIZE_GUARD(cosh, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -89,8 +82,7 @@ ThrowResultOr<Value> cosh(OreFuncParams params)
 
 ThrowResultOr<Value> sinh(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "sinh() requires 1 argument.");
+  ARGS_SIZE_GUARD(sinh, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -101,8 +93,7 @@ ThrowResultOr<Value> sinh(OreFuncParams params)
 
 ThrowResultOr<Value> tanh(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "tanh() requires 1 argument.");
+  ARGS_SIZE_GUARD(tanh, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -113,8 +104,7 @@ ThrowResultOr<Value> tanh(OreFuncParams params)
 
 ThrowResultOr<Value> arccosh(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "arccosh() requires 1 argument.");
+  ARGS_SIZE_GUARD(arccosh, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -125,8 +115,7 @@ ThrowResultOr<Value> arccosh(OreFuncParams params)
 
 ThrowResultOr<Value> arcsinh(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "arcsinh() requires 1 argument.");
+  ARGS_SIZE_GUARD(arcsinh, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -137,8 +126,7 @@ ThrowResultOr<Value> arcsinh(OreFuncParams params)
 
 ThrowResultOr<Value> arctanh(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "arctanh() requires 1 argument.");
+  ARGS_SIZE_GUARD(arctanh, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -149,8 +137,7 @@ ThrowResultOr<Value> arctanh(OreFuncParams params)
 
 ThrowResultOr<Value> abs(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "abs() requires 1 argument.");
+  ARGS_SIZE_GUARD(abs, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -161,8 +148,7 @@ ThrowResultOr<Value> abs(OreFuncParams params)
 
 ThrowResultOr<Value> exp(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "exp() requires 1 argument.");
+  ARGS_SIZE_GUARD(exp, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -173,8 +159,7 @@ ThrowResultOr<Value> exp(OreFuncParams params)
 
 ThrowResultOr<Value> log(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "log() requires 1 argument.");
+  ARGS_SIZE_GUARD(log, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -185,8 +170,7 @@ ThrowResultOr<Value> log(OreFuncParams params)
 
 ThrowResultOr<Value> log2(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "log2() requires 1 argument.");
+  ARGS_SIZE_GUARD(log2, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -197,8 +181,7 @@ ThrowResultOr<Value> log2(OreFuncParams params)
 
 ThrowResultOr<Value> log10(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "log10() requires 1 argument.");
+  ARGS_SIZE_GUARD(log10, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -209,8 +192,7 @@ ThrowResultOr<Value> log10(OreFuncParams params)
 
 ThrowResultOr<Value> sqrt(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "sqrt() requires 1 argument.");
+  ARGS_SIZE_GUARD(sqrt, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
@@ -221,8 +203,7 @@ ThrowResultOr<Value> sqrt(OreFuncParams params)
 
 ThrowResultOr<Value> cbrt(OreFuncParams params)
 {
-  if (params.args.size() != 1)
-    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "cbrt() requires 1 argument.");
+  ARGS_SIZE_GUARD(cbrt, 1);
 
   if (!params.args[0].is_number())
     return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
