@@ -43,14 +43,24 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Parser/Token.cpp
             Source/Parser/Lexer.cpp)
 
+
+file(GLOB_RECURSE ORE_INCLUDE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/Source "Source/*.h")
+
+foreach(header ${ORE_INCLUDE_FILES})
+  get_filename_component(subdir ${header} DIRECTORY)
+  install(FILES Source/${header} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/ore/${subdir}" OPTIONAL)
+endforeach()
+
 add_library(ore SHARED ${LIB_SOURCES})
-target_compile_features(ore PRIVATE cxx_std_20)
-target_link_libraries(ore fmt)
 target_include_directories(ore PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_link_libraries(ore PRIVATE fmt)
+install(TARGETS ore LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 add_executable(ore_test Tests/main.cpp)
-target_include_directories(ore_test PRIVATE Source/)
-target_link_libraries(ore_test ore)
+target_include_directories(ore_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+target_link_libraries(ore_test PRIVATE ore)
 
-add_library(ffi_test SHARED Tests/FFI_tests/main.cpp)
-target_include_directories(ffi_test PRIVATE Source/)
+install(
+  TARGETS ore_test
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
