@@ -174,6 +174,33 @@ ThrowResultOr<Value> cbrt(OreFuncParams params)
   return ore_number(std::cbrt(n));
 }
 
+ThrowResultOr<Value> floor(OreFuncParams params)
+{
+  ARGS_SIZE_GUARD(floor, 1);
+  ARG_TYPE_NUMBER(0);
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::floor(n));
+}
+
+ThrowResultOr<Value> ceil(OreFuncParams params)
+{
+  ARGS_SIZE_GUARD(ceil, 1);
+  ARG_TYPE_NUMBER(0);
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::ceil(n));
+}
+
+ThrowResultOr<Value> round(OreFuncParams params)
+{
+  ARGS_SIZE_GUARD(round, 1);
+  ARG_TYPE_NUMBER(0);
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::round(n));
+}
+
 }
 
 ORE_INIT_FUNC OreInitialize(std::vector<OreExportEntry>& exports)
@@ -197,4 +224,7 @@ ORE_INIT_FUNC OreInitialize(std::vector<OreExportEntry>& exports)
   exports.push_back({ "log10", Ore::log10 });
   exports.push_back({ "sqrt", Ore::sqrt });
   exports.push_back({ "cbrt", Ore::cbrt });
+  exports.push_back({ "floor", Ore::floor });
+  exports.push_back({ "ceil", Ore::ceil });
+  exports.push_back({ "round", Ore::round });
 }
