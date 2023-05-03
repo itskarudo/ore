@@ -147,6 +147,90 @@ ThrowResultOr<Value> arctanh(OreFuncParams params)
   return ore_number(std::atanh(n));
 }
 
+ThrowResultOr<Value> abs(OreFuncParams params)
+{
+  if (params.args.size() != 1)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "abs() requires 1 argument.");
+
+  if (!params.args[0].is_number())
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
+
+  auto n = params.args[0].as_number();
+  return (n > 0) ? ore_number(n) : ore_number(-n);
+}
+
+ThrowResultOr<Value> exp(OreFuncParams params)
+{
+  if (params.args.size() != 1)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "exp() requires 1 argument.");
+
+  if (!params.args[0].is_number())
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::exp(n));
+}
+
+ThrowResultOr<Value> log(OreFuncParams params)
+{
+  if (params.args.size() != 1)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "log() requires 1 argument.");
+
+  if (!params.args[0].is_number())
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::log(n));
+}
+
+ThrowResultOr<Value> log2(OreFuncParams params)
+{
+  if (params.args.size() != 1)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "log2() requires 1 argument.");
+
+  if (!params.args[0].is_number())
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::log2(n));
+}
+
+ThrowResultOr<Value> log10(OreFuncParams params)
+{
+  if (params.args.size() != 1)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "log10() requires 1 argument.");
+
+  if (!params.args[0].is_number())
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::log10(n));
+}
+
+ThrowResultOr<Value> sqrt(OreFuncParams params)
+{
+  if (params.args.size() != 1)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "sqrt() requires 1 argument.");
+
+  if (!params.args[0].is_number())
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::sqrt(n));
+}
+
+ThrowResultOr<Value> cbrt(OreFuncParams params)
+{
+  if (params.args.size() != 1)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "cbrt() requires 1 argument.");
+
+  if (!params.args[0].is_number())
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "argument is not a number.");
+
+  auto n = params.args[0].as_number();
+  return ore_number(std::cbrt(n));
+}
+
 }
 
 ORE_INIT_FUNC OreInitialize(std::vector<OreExportEntry>& exports)
@@ -163,4 +247,11 @@ ORE_INIT_FUNC OreInitialize(std::vector<OreExportEntry>& exports)
   exports.push_back({ "arccosh", Ore::arccosh });
   exports.push_back({ "arcsinh", Ore::arcsinh });
   exports.push_back({ "arctanh", Ore::arctanh });
+  exports.push_back({ "abs", Ore::abs });
+  exports.push_back({ "exp", Ore::exp });
+  exports.push_back({ "log", Ore::log });
+  exports.push_back({ "log2", Ore::log2 });
+  exports.push_back({ "log10", Ore::log10 });
+  exports.push_back({ "sqrt", Ore::sqrt });
+  exports.push_back({ "cbrt", Ore::cbrt });
 }
