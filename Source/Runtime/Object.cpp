@@ -36,7 +36,7 @@ void Object::put(PropertyKey key, Value value)
   m_properties[key.string()] = value;
 }
 
-void Object::put_native_function(PropertyKey key, std::function<ThrowResultOr<Value>(Interpreter&, std::vector<Value>&)> func)
+void Object::put_native_function(PropertyKey key, std::function<ThrowResultOr<Value>(OreFuncParams)> func)
 {
   put(key, heap().allocate<NativeFunction>(func));
 }

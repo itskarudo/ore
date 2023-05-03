@@ -24,8 +24,8 @@ FFIObject::FFIObject(std::string const& filename)
 
   for (auto& entry : exports)
     // FIXME: why does put() and put_native_function() cause a stack overflow?
-    m_properties[entry.name] = heap().allocate<NativeFunction>([this, entry](Interpreter&, std::vector<Value> args) {
-      return entry.decl({ interpreter(), args });
+    m_properties[entry.name] = heap().allocate<NativeFunction>([this, entry](OreFuncParams params) {
+      return entry.decl(params);
     });
 }
 

@@ -17,7 +17,7 @@ GlobalObjectShape::GlobalObjectShape()
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::print)
 {
-  for (auto arg : args)
+  for (auto arg : params.args)
     std::cout << arg << std::endl;
 
   return ore_nil();
@@ -28,27 +28,27 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::input)
   std::string input;
   std::getline(std::cin, input);
 
-  return ore_string(interpreter.heap(), input);
+  return ore_string(params.interpreter.heap(), input);
 }
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::gc)
 {
-  interpreter.heap().collect_garbage();
+  params.interpreter.heap().collect_garbage();
   return ore_nil();
 }
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
 {
-  assert(args.size() == 1);
+  ARGS_SIZE_GUARD(import, 1);
 
-  auto filename = args[0].as_string()->string();
+  auto filename = params.args[0].as_string()->string();
 
   if (filename.starts_with('.') || filename.starts_with('/')) {
     if (!std::filesystem::exists(filename))
-      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", filename));
+      return params.interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", filename));
 
     if (filename.ends_with(".so")) {
-      auto* ffi_object = interpreter.heap().allocate<FFIObject>(filename);
+      auto* ffi_object = params.interpreter.heap().allocate<FFIObject>(filename);
       return Value(ffi_object);
     } else {
       // TODO: implement importing ore source file.
@@ -57,10 +57,10 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
   } else {
     auto full_filename = ORE_MODULES_DIR + filename;
     if (!std::filesystem::exists(full_filename))
-      return interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", full_filename));
+      return params.interpreter.throw_exception(ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", full_filename));
 
     if (filename.ends_with(".so")) {
-      auto* ffi_object = interpreter.heap().allocate<FFIObject>(full_filename);
+      auto* ffi_object = params.interpreter.heap().allocate<FFIObject>(full_filename);
       return Value(ffi_object);
     } else {
       // TODO: implement importing ore source file.
@@ -71,11 +71,11 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::throw)
 {
-  assert(args.size() == 2);
-  assert(args[0].is_string());
-  assert(args[1].is_string());
+  ARGS_SIZE_GUARD(throw, 2);
+  ARG_TYPE_STRING(0);
+  ARG_TYPE_STRING(1);
 
-  return interpreter.throw_exception(args[0].as_string()->string(), args[1].as_string()->string());
+  return params.interpreter.throw_exception(params.args[0].as_string()->string(), params.args[1].as_string()->string());
 }
 
 }

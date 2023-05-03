@@ -172,7 +172,7 @@ Result CallExpression::execute(Interpreter& interpreter)
       passed_arguments.push_back(argument_value);
     }
 
-    return TRY(function.native_function()(interpreter, passed_arguments));
+    return TRY(function.native_function()({ interpreter, passed_arguments }));
   }
 
   return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot call non-function value");
