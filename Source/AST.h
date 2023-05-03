@@ -13,6 +13,7 @@
   __ENUM_BI_OP(Sub, "-")                  \
   __ENUM_BI_OP(Mult, "*")                 \
   __ENUM_BI_OP(Div, "/")                  \
+  __ENUM_BI_OP(Pow, "**")                 \
   __ENUM_BI_OP(Equals, "==")              \
   __ENUM_BI_OP(NotEquals, "!=")           \
   __ENUM_BI_OP(GreaterThan, ">")          \

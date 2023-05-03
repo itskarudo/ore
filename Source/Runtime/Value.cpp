@@ -7,6 +7,7 @@
 #include "Object.h"
 #include "Result.h"
 #include "StringObject.h"
+#include <math.h>
 
 namespace Ore {
 bool Value::to_boolean() const
@@ -146,6 +147,16 @@ ThrowResultOr<Value> Value::divide(Interpreter& interpreter, Value lhs, Value rh
     return interpreter.throw_exception(ExceptionObject::division_by_zero_exception(), "Cannot divide by zero");
 
   return ore_number(lhs.as_number() / rhs.as_number());
+}
+
+ThrowResultOr<Value> Value::pow(Interpreter& interpreter, Value lhs, Value rhs)
+{
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_number(std::pow(lhs.as_number(), rhs.as_number()));
 }
 
 ThrowResultOr<Value> Value::equals(Interpreter& interpreter, Value lhs, Value rhs)

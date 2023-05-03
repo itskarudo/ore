@@ -114,6 +114,7 @@ class Value {
   static ThrowResultOr<Value> subtract(Interpreter&, Value, Value);
   static ThrowResultOr<Value> multiply(Interpreter&, Value, Value);
   static ThrowResultOr<Value> divide(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> pow(Interpreter&, Value, Value);
   static ThrowResultOr<Value> equals(Interpreter&, Value, Value);
   static ThrowResultOr<Value> not_equals(Interpreter&, Value, Value);
   static ThrowResultOr<Value> less_than(Interpreter&, Value, Value);

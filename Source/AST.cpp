@@ -524,6 +524,9 @@ Result BinaryExpression::execute(Interpreter& interpreter)
   case Op::Div: {
     return TRY(Value::divide(interpreter, lhs_value, rhs_value));
   }
+  case Op::Pow: {
+    return TRY(Value::pow(interpreter, lhs_value, rhs_value));
+  }
   case Op::Equals: {
     return TRY(Value::equals(interpreter, lhs_value, rhs_value));
   }
