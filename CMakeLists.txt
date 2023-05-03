@@ -66,7 +66,4 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   )
 
-add_library(ffi_test SHARED Tests/FFI_tests/main.cpp)
-target_include_directories(ffi_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
-
 add_subdirectory(Modules)
