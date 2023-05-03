@@ -5,5 +5,5 @@
 #endif
 
 #ifndef ORE_MODULES_DIR
-#  cmakedefine ORE_MODULES_DIR "@ORE_MODULES_DIR@"
+#  cmakedefine ORE_MODULES_DIR "@CMAKE_INSTALL_PREFIX@/@ORE_MODULES_DIR@"
 #endif
