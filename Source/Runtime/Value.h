@@ -110,6 +110,7 @@ class Value {
   static ThrowResultOr<Value> logical_xor(Interpreter&, Value, Value);
   static ThrowResultOr<Value> logical_not(Interpreter&, Value);
   static ThrowResultOr<Value> length(Interpreter&, Value);
+  static ThrowResultOr<Value> negate(Interpreter&, Value);
   static ThrowResultOr<Value> add(Interpreter&, Value, Value);
   static ThrowResultOr<Value> subtract(Interpreter&, Value, Value);
   static ThrowResultOr<Value> multiply(Interpreter&, Value, Value);

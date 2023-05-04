@@ -106,6 +106,14 @@ ThrowResultOr<Value> Value::length(Interpreter& interpreter, Value operand)
   return interpreter.throw_exception(ExceptionObject::type_exception(), "Object has no length property");
 }
 
+ThrowResultOr<Value> Value::negate(Interpreter& interpreter, Value operand)
+{
+  if (!operand.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "operand is not a number");
+
+  return ore_number(-operand.as_number());
+}
+
 ThrowResultOr<Value> Value::add(Interpreter& interpreter, Value lhs, Value rhs)
 {
   if (!lhs.is_number())

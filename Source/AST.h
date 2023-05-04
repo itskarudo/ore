@@ -373,7 +373,8 @@ class UnaryExpression : public Expression {
   public:
   enum class Op {
     Not,
-    Length
+    Negate,
+    Length,
   };
 
   UnaryExpression(Op op, std::unique_ptr<Expression> operand)

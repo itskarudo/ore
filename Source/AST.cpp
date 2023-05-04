@@ -461,6 +461,9 @@ void UnaryExpression::dump_impl(int indent) const
   case Op::Not:
     printf("not");
     break;
+  case Op::Negate:
+    putchar('-');
+    break;
   case Op::Length:
     putchar('#');
     break;
@@ -475,6 +478,8 @@ Result UnaryExpression::execute(Interpreter& interpreter)
   switch (m_op) {
   case Op::Not:
     return TRY(Value::logical_not(interpreter, value));
+  case Op::Negate:
+    return TRY(Value::negate(interpreter, value));
   case Op::Length:
     return TRY(Value::length(interpreter, value));
   default:
