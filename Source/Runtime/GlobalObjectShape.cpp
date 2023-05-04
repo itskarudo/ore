@@ -25,6 +25,8 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::print)
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::input)
 {
+  ARGS_SIZE_GUARD(print, 0);
+
   std::string input;
   std::getline(std::cin, input);
 
@@ -33,6 +35,8 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::input)
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::gc)
 {
+  ARGS_SIZE_GUARD(print, 0);
+
   params.interpreter.heap().collect_garbage();
   return ore_nil();
 }
@@ -40,6 +44,7 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::gc)
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::import)
 {
   ARGS_SIZE_GUARD(import, 1);
+  ARG_TYPE_STRING(0);
 
   auto filename = params.args[0].as_string()->string();
 
