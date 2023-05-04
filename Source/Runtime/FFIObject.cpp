@@ -18,13 +18,12 @@ FFIObject::FFIObject(std::string const& filename)
     return;
   }
 
-  auto* init_func = reinterpret_cast<void (*)(std::vector<OreExportEntry>&)>(init_addr);
-  std::vector<OreExportEntry> exports;
+  auto* init_func = reinterpret_cast<void (*)(std::map<char const*, OreFunctionDecl>&)>(init_addr);
+  std::map<char const*, OreFunctionDecl> exports;
   init_func(exports);
 
-  for (auto& entry : exports)
-    // FIXME: why does put() and put_native_function() cause a stack overflow?
-    m_properties[entry.name] = heap().allocate<NativeFunction>(entry.decl);
+  for (auto [name, decl] : exports)
+    put_native_function(PropertyKey(name), decl);
 }
 
 FFIObject::~FFIObject()

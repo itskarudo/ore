@@ -24,8 +24,3 @@
 #define ORE_INIT_FUNC extern "C" void
 
 using OreFunctionDecl = Ore::ThrowResultOr<Ore::Value> (*)(OreFuncParams);
-
-struct OreExportEntry {
-  char const* name;
-  OreFunctionDecl decl;
-};

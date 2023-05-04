@@ -203,28 +203,28 @@ ThrowResultOr<Value> round(OreFuncParams params)
 
 }
 
-ORE_INIT_FUNC OreInitialize(std::vector<OreExportEntry>& exports)
+ORE_INIT_FUNC OreInitialize(std::map<char const*, OreFunctionDecl>& exports)
 {
-  exports.push_back({ "cos", Ore::cos });
-  exports.push_back({ "sin", Ore::sin });
-  exports.push_back({ "tan", Ore::tan });
-  exports.push_back({ "arccos", Ore::arccos });
-  exports.push_back({ "arcsin", Ore::arcsin });
-  exports.push_back({ "arctan", Ore::arctan });
-  exports.push_back({ "cosh", Ore::cosh });
-  exports.push_back({ "sinh", Ore::sinh });
-  exports.push_back({ "tanh", Ore::tanh });
-  exports.push_back({ "arccosh", Ore::arccosh });
-  exports.push_back({ "arcsinh", Ore::arcsinh });
-  exports.push_back({ "arctanh", Ore::arctanh });
-  exports.push_back({ "abs", Ore::abs });
-  exports.push_back({ "exp", Ore::exp });
-  exports.push_back({ "log", Ore::log });
-  exports.push_back({ "log2", Ore::log2 });
-  exports.push_back({ "log10", Ore::log10 });
-  exports.push_back({ "sqrt", Ore::sqrt });
-  exports.push_back({ "cbrt", Ore::cbrt });
-  exports.push_back({ "floor", Ore::floor });
-  exports.push_back({ "ceil", Ore::ceil });
-  exports.push_back({ "round", Ore::round });
+  exports["cos"] = Ore::cos;
+  exports["sin"] = Ore::sin;
+  exports["tan"] = Ore::tan;
+  exports["arccos"] = Ore::arccos;
+  exports["arcsin"] = Ore::arcsin;
+  exports["arctan"] = Ore::arctan;
+  exports["cosh"] = Ore::cosh;
+  exports["sinh"] = Ore::sinh;
+  exports["tanh"] = Ore::tanh;
+  exports["arccosh"] = Ore::arccosh;
+  exports["arcsinh"] = Ore::arcsinh;
+  exports["arctanh"] = Ore::arctanh;
+  exports["abs"] = Ore::abs;
+  exports["exp"] = Ore::exp;
+  exports["log"] = Ore::log;
+  exports["log2"] = Ore::log2;
+  exports["log10"] = Ore::log10;
+  exports["sqrt"] = Ore::sqrt;
+  exports["cbrt"] = Ore::cbrt;
+  exports["floor"] = Ore::floor;
+  exports["ceil"] = Ore::ceil;
+  exports["round"] = Ore::round;
 }
