@@ -203,7 +203,7 @@ ThrowResultOr<Value> round(OreFuncParams params)
 
 }
 
-ORE_INIT_FUNC OreInitialize(std::map<char const*, OreFunctionDecl>& exports)
+ORE_INIT_FUNC(exports)
 {
   exports["cos"] = Ore::cos;
   exports["sin"] = Ore::sin;

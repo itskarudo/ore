@@ -21,6 +21,6 @@
 #include "Runtime/StringObject.h"
 #include "Runtime/Value.h"
 
-#define ORE_INIT_FUNC extern "C" void
-
 using OreFunctionDecl = Ore::ThrowResultOr<Ore::Value> (*)(OreFuncParams);
+
+#define ORE_INIT_FUNC(exports) extern "C" void OreInitialize(std::map<char const*, OreFunctionDecl>& exports)
