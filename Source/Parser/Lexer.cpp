@@ -78,6 +78,7 @@ Lexer::Lexer(std::string_view source)
     s_one_char_tokens[':'] = Token::TokenType::Colon;
     s_one_char_tokens['<'] = Token::TokenType::LessThan;
     s_one_char_tokens['>'] = Token::TokenType::LargerThan;
+    s_one_char_tokens[';'] = Token::TokenType::SemiColon;
   }
 
   consume();
