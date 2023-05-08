@@ -23,7 +23,8 @@ FFIObject::FFIObject(std::string const& filename)
   init_func(exports);
 
   for (auto [name, decl] : exports)
-    put_native_function(PropertyKey(name), decl);
+    // FIXME: why does put() and put_native_function() cause a stack overflow?
+    m_properties[name] = heap().allocate<NativeFunction>(decl);
 }
 
 FFIObject::~FFIObject()
