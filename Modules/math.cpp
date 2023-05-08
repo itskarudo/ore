@@ -1,7 +1,7 @@
 #include <Ore.h>
 #include <math.h>
 
-namespace Ore {
+namespace Ore::Math {
 
 ThrowResultOr<Value> cos(OreFuncParams params)
 {
@@ -205,26 +205,26 @@ ThrowResultOr<Value> round(OreFuncParams params)
 
 ORE_INIT_FUNC(exports)
 {
-  exports["cos"] = Ore::cos;
-  exports["sin"] = Ore::sin;
-  exports["tan"] = Ore::tan;
-  exports["arccos"] = Ore::arccos;
-  exports["arcsin"] = Ore::arcsin;
-  exports["arctan"] = Ore::arctan;
-  exports["cosh"] = Ore::cosh;
-  exports["sinh"] = Ore::sinh;
-  exports["tanh"] = Ore::tanh;
-  exports["arccosh"] = Ore::arccosh;
-  exports["arcsinh"] = Ore::arcsinh;
-  exports["arctanh"] = Ore::arctanh;
-  exports["abs"] = Ore::abs;
-  exports["exp"] = Ore::exp;
-  exports["log"] = Ore::log;
-  exports["log2"] = Ore::log2;
-  exports["log10"] = Ore::log10;
-  exports["sqrt"] = Ore::sqrt;
-  exports["cbrt"] = Ore::cbrt;
-  exports["floor"] = Ore::floor;
-  exports["ceil"] = Ore::ceil;
-  exports["round"] = Ore::round;
+  exports["cos"] = Ore::Math::cos;
+  exports["sin"] = Ore::Math::sin;
+  exports["tan"] = Ore::Math::tan;
+  exports["arccos"] = Ore::Math::arccos;
+  exports["arcsin"] = Ore::Math::arcsin;
+  exports["arctan"] = Ore::Math::arctan;
+  exports["cosh"] = Ore::Math::cosh;
+  exports["sinh"] = Ore::Math::sinh;
+  exports["tanh"] = Ore::Math::tanh;
+  exports["arccosh"] = Ore::Math::arccosh;
+  exports["arcsinh"] = Ore::Math::arcsinh;
+  exports["arctanh"] = Ore::Math::arctanh;
+  exports["abs"] = Ore::Math::abs;
+  exports["exp"] = Ore::Math::exp;
+  exports["log"] = Ore::Math::log;
+  exports["log2"] = Ore::Math::log2;
+  exports["log10"] = Ore::Math::log10;
+  exports["sqrt"] = Ore::Math::sqrt;
+  exports["cbrt"] = Ore::Math::cbrt;
+  exports["floor"] = Ore::Math::floor;
+  exports["ceil"] = Ore::Math::ceil;
+  exports["round"] = Ore::Math::round;
 }
