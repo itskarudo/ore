@@ -34,14 +34,15 @@ Lexer::Lexer(std::string_view source)
     s_keywords["true"] = Token::TokenType::BoolLiteral;
     s_keywords["false"] = Token::TokenType::BoolLiteral;
     s_keywords["nil"] = Token::TokenType::NilLiteral;
+    s_keywords["and"] = Token::TokenType::And;
+    s_keywords["xor"] = Token::TokenType::Xor;
+    s_keywords["or"] = Token::TokenType::Or;
   }
 
   if (s_three_char_tokens.empty()) {
     s_three_char_tokens["<<="] = Token::TokenType::ShiftLeftEquals;
     s_three_char_tokens[">>="] = Token::TokenType::ShiftRightEquals;
     s_three_char_tokens["..="] = Token::TokenType::DoubleDotEquals;
-    s_three_char_tokens["and"] = Token::TokenType::And;
-    s_three_char_tokens["xor"] = Token::TokenType::Xor;
     s_three_char_tokens["..."] = Token::TokenType::TripleDot;
   }
 
@@ -57,7 +58,6 @@ Lexer::Lexer(std::string_view source)
     s_two_char_tokens[".."] = Token::TokenType::DoubleDot;
     s_two_char_tokens["<<"] = Token::TokenType::ShiftLeft;
     s_two_char_tokens[">>"] = Token::TokenType::ShiftRight;
-    s_two_char_tokens["or"] = Token::TokenType::Or;
   }
 
   if (s_one_char_tokens.empty()) {
@@ -79,6 +79,7 @@ Lexer::Lexer(std::string_view source)
     s_one_char_tokens['<'] = Token::TokenType::LessThan;
     s_one_char_tokens['>'] = Token::TokenType::LargerThan;
     s_one_char_tokens[';'] = Token::TokenType::SemiColon;
+    s_one_char_tokens['!'] = Token::TokenType::ExclamationMark;
   }
 
   consume();
