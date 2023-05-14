@@ -8,6 +8,7 @@
 #include "Interpreter.h"
 #include "Parser/Lexer.h"
 #include "Parser/Token.h"
+#include "Parser/RDParser.h"
 #include "Runtime/ArrayObject.h"
 #include "Runtime/BooleanObject.h"
 #include "Runtime/FFIObject.h"

@@ -42,7 +42,8 @@ set(LIB_SOURCES Source/AST.cpp
             Source/GC/Heap.cpp
             Source/GC/HeapBlock.cpp
             Source/Parser/Token.cpp
-            Source/Parser/Lexer.cpp)
+            Source/Parser/Lexer.cpp
+            Source/Parser/RDParser.cpp)
 
 
 file(GLOB_RECURSE ORE_INCLUDE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/Source "Source/*.h")

@@ -63,6 +63,7 @@ namespace Ore::Parser {
   __ENUM_TOKEN_TYPES(Invalid, Invalid)                \
   __ENUM_TOKEN_TYPES(NumberLiteral, Number)           \
   __ENUM_TOKEN_TYPES(StringLiteral, String)           \
+  __ENUM_TOKEN_TYPES(SemiColon, Punctuation)           \
   __ENUM_TOKEN_TYPES(Identifier, Identifier)
 
 class Token {
