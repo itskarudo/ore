@@ -43,7 +43,7 @@ Args ::=  [IdentifierList]
 MemberCall ::= IDENTIFIER"["Expression"]" | IDENTIFIER"."IDENTIFIER
 */
 namespace Ore::Parser {
-RDParser::RDParser(Ore::Parser::Lexer Scanner)
+RDParser::RDParser(Ore::Parser::Lexer& Scanner)
     : Scanner(Scanner)
 {
   this->Current = this->Scanner.next();
@@ -71,7 +71,7 @@ Ore::Parser::Token RDParser::ConsumeToken(Ore::Parser::Token::TokenType type, st
   ErrorFound = true;
   return Ore::Parser::Token {};
 }
-std::unique_ptr<AST::Program> RDParser::Parse()
+std::unique_ptr<AST::Program> RDParser::parse()
 {
   auto Program = std::make_unique<AST::Program>();
   while (!isAtEnd()) {

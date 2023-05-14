@@ -9,11 +9,11 @@
 namespace Ore::Parser {
 class RDParser {
   public:
-  explicit RDParser(Ore::Parser::Lexer);
-  std::unique_ptr<AST::Program> Parse();
+  explicit RDParser(Ore::Parser::Lexer&);
+  std::unique_ptr<AST::Program> parse();
 
   private:
-  Ore::Parser::Lexer Scanner;
+  Ore::Parser::Lexer& Scanner;
   Ore::Parser::Token Current;
   Ore::Parser::Token Previous;
   bool ErrorFound = false;
