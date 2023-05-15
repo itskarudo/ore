@@ -58,16 +58,6 @@ target_include_directories(ore PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(ore PRIVATE fmt)
 install(TARGETS ore LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-add_executable(ore_test Tests/main.cpp)
-target_include_directories(ore_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
-target_link_libraries(ore_test PRIVATE ore)
-
-install(
-  TARGETS ore_test
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
-
-
 add_executable(orepl REPL/main.cpp)
 target_include_directories(orepl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 target_link_libraries(orepl PRIVATE ore cxxopts)
