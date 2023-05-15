@@ -12,6 +12,10 @@ namespace Ore {
   __ENUM_EXCEPTION_TYPES(out_of_bounds_index_exception, OutOfBoundsIndexException) \
   __ENUM_EXCEPTION_TYPES(out_of_memory_exception, OutOfMemoryException)
 
+struct BacktraceFrame {
+  std::string function_name;
+};
+
 class ExceptionObject : public Object {
   public:
   ExceptionObject(std::string const& type, std::string const& message);
@@ -22,6 +26,7 @@ class ExceptionObject : public Object {
 
   std::string type() const { return m_type; }
   std::string message() const { return m_message; }
+  std::vector<BacktraceFrame>& backtrace() { return m_backtrace; }
 
 #define __ENUM_EXCEPTION_TYPES(exception_type, ExceptionType) \
   static char const* exception_type()                         \
@@ -33,8 +38,11 @@ class ExceptionObject : public Object {
 #undef __ENUM_EXCEPTION_TYPES
 
   private:
+  void populate_backtrace();
+
   std::string m_type;
   std::string m_message;
+  std::vector<BacktraceFrame> m_backtrace;
 };
 
 }

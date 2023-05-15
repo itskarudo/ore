@@ -26,7 +26,17 @@ class Interpreter {
     return interpreter;
   }
 
+  enum class ScopeType {
+    Block,
+    Function
+  };
+
+  struct FunctionScope {
+    std::string name;
+  };
+
   struct ScopeFrame {
+    ScopeType type;
     AST::BlockStatement& block;
     std::map<std::string, Value> variables;
   };
@@ -37,14 +47,25 @@ class Interpreter {
   GlobalObject const* global_object() const { return m_global_object; }
   GlobalObject* global_object() { return m_global_object; }
 
-  Result run(AST::BlockStatement&, std::map<std::string, Value> const& arguments = {});
+  Result run(AST::BlockStatement&, std::map<std::string, Value> const& arguments = {}, ScopeType = ScopeType::Block, std::optional<std::string> function_name = {});
 
   ScopeFrame& current_scope() { return m_scope_frames.back(); }
 
   Result throw_exception(std::string const& type, std::string const& message);
 
-  void enter_scope(AST::BlockStatement&, std::map<std::string, Value> const& arguments);
+  void enter_scope(AST::BlockStatement&, std::map<std::string, Value> const& arguments, ScopeType);
   void leave_scope();
+
+  std::vector<FunctionScope>& function_scopes() { return m_function_scopes; }
+
+  void push_function_scope(FunctionScope scope)
+  {
+    m_function_scopes.push_back(scope);
+  }
+  void pop_function_scope()
+  {
+    m_function_scopes.pop_back();
+  }
 
   ThrowResultOr<Value> get_variable(std::string const& name);
   void set_variable(std::string const& name, Value);
@@ -85,5 +106,6 @@ class Interpreter {
   } m_object_shapes = { nullptr };
 
   std::vector<ScopeFrame> m_scope_frames;
+  std::vector<FunctionScope> m_function_scopes;
 };
 }

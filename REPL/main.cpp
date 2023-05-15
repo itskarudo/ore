@@ -5,6 +5,19 @@
 
 static void log_exception(Ore::ExceptionObject& exception)
 {
+  std::cout << "\033[1m\033[31mBacktrace\033[0m (most recent calls first):" << std::endl;
+
+  std::cout << "\033[34m";
+  for (auto frame : exception.backtrace()) {
+    std::cout << "  " << frame.function_name << std::endl;
+  }
+  std::cout << "\033[1m\033[31m";
+
+  for (int i = 0; i < 30; ++i)
+    std::cout << '-';
+
+  std::cout << "\033[0m\n";
+
   std::cout << "\033[1m\033[31m" << exception.type() << "\033[0m: " << exception.message() << std::endl;
 }
 

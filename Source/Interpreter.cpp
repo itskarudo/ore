@@ -5,14 +5,17 @@
 
 namespace Ore {
 
-void Interpreter::enter_scope(AST::BlockStatement& scope_frame, std::map<std::string, Value> const& arguments)
+void Interpreter::enter_scope(AST::BlockStatement& scope_frame, std::map<std::string, Value> const& arguments, ScopeType type)
 {
-  m_scope_frames.push_back({ scope_frame, arguments });
+  m_scope_frames.push_back({ type, scope_frame, arguments });
 }
 
 void Interpreter::leave_scope()
 {
+  auto top_scope = m_scope_frames.back();
   m_scope_frames.pop_back();
+  if (top_scope.type == ScopeType::Function)
+    m_function_scopes.pop_back();
 }
 
 ThrowResultOr<Value> Interpreter::get_variable(std::string const& name)
@@ -43,10 +46,14 @@ void Interpreter::set_variable(std::string const& name, Value value)
   current_scope().variables[name] = value;
 }
 
-Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value> const& arguments)
+Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value> const& arguments, ScopeType type, std::optional<std::string> function_name)
 {
 
-  enter_scope(block, arguments);
+  enter_scope(block, arguments, type);
+  if (type == ScopeType::Function) {
+    assert(function_name.has_value());
+    push_function_scope({ function_name.value() });
+  }
 
   Result return_value = ore_nil();
 
