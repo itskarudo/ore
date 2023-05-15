@@ -62,10 +62,16 @@ int main(int argc, char** argv)
     std::vector<std::string> args = { script };
 
     if (result.count("passed_args")) {
-      // TODO: actually use the arguments
       auto& passed_args = result["passed_args"].as<std::vector<std::string>>();
       args.insert(args.end(), passed_args.begin(), passed_args.end());
     }
+
+    auto* args_array = interpreter->heap().allocate<Ore::ArrayObject>();
+
+    for (auto& arg : args)
+      args_array->elements().push_back(interpreter->heap().allocate<Ore::PrimitiveString>(arg));
+
+    interpreter->global_object()->put(Ore::PropertyKey("args"), args_array);
 
     std::ifstream file(script);
     if (!file) {
