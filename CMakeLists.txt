@@ -67,4 +67,14 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   )
 
+
+add_executable(orepl REPL/main.cpp)
+target_include_directories(orepl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+target_link_libraries(orepl PRIVATE ore cxxopts)
+
+install(
+  TARGETS orepl
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+
 add_subdirectory(Modules)
