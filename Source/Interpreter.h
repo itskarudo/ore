@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 #include "GC/Heap.h"
 #include "Runtime/ArrayObjectShape.h"
 #include "Runtime/ExceptionObject.h"
@@ -15,6 +17,7 @@ class Interpreter {
 
   public:
   template<typename GlobalObjectType>
+    requires(std::is_base_of_v<GlobalObjectShape, GlobalObjectType>)
   static std::unique_ptr<Interpreter> create()
   {
     auto interpreter = std::unique_ptr<Ore::Interpreter>(new Interpreter());
