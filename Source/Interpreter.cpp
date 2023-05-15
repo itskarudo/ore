@@ -5,12 +5,6 @@
 
 namespace Ore {
 
-Interpreter::Interpreter()
-    : m_heap(*this)
-{
-  m_global_object = m_heap.allocate<GlobalObject>();
-}
-
 void Interpreter::enter_scope(AST::BlockStatement& scope_frame, std::map<std::string, Value> const& arguments)
 {
   m_scope_frames.push_back({ scope_frame, arguments });

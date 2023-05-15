@@ -10,10 +10,21 @@
 #include <vector>
 
 namespace Ore {
+
 class Interpreter {
 
   public:
-  Interpreter();
+  template<typename GlobalObjectType>
+  static std::unique_ptr<Interpreter> create()
+  {
+    auto interpreter = std::unique_ptr<Ore::Interpreter>(new Interpreter());
+
+    interpreter->set_global_object_shape(interpreter->heap().allocate<GlobalObjectType>());
+
+    interpreter->m_global_object = interpreter->m_heap.allocate<GlobalObject>();
+
+    return interpreter;
+  }
 
   struct ScopeFrame {
     AST::BlockStatement& block;
@@ -46,15 +57,24 @@ class Interpreter {
     if (m_object_shapes.name == nullptr)                    \
       m_object_shapes.name = m_heap.allocate<ObjectName>(); \
     return m_object_shapes.name;                            \
+  }                                                         \
+  void set_##name(ObjectName* object)                       \
+  {                                                         \
+    m_object_shapes.name = object;                          \
   }
 
   ENUMERATE_OBJECT_SHAPES
 #undef __ENUM_OBJECT_SHAPES
 
   private:
+  Interpreter()
+      : m_heap(*this)
+  {
+  }
+
   GC::Heap m_heap;
 
-  GlobalObject* m_global_object;
+  GlobalObject* m_global_object { nullptr };
 
   struct {
 #define __ENUM_OBJECT_SHAPES(name, ObjectName) \
@@ -66,5 +86,4 @@ class Interpreter {
 
   std::vector<ScopeFrame> m_scope_frames;
 };
-
 }
