@@ -1,4 +1,4 @@
-#include "ScriptGlobalObjectShape.h"
+#include "REPLGlobalObjectShape.h"
 #include <Ore.h>
 #include <cxxopts.hpp>
 #include <fstream>
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  auto interpreter = Ore::Interpreter::create<ScriptGlobalObjectShape>();
+  auto interpreter = Ore::Interpreter::create<REPLGlobalObjectShape>();
 
   if (repl_mode) {
     // TODO: REPL loop

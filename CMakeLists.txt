@@ -59,7 +59,7 @@ target_link_libraries(ore PRIVATE fmt)
 install(TARGETS ore LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 add_executable(orepl REPL/main.cpp
-                      REPL/ScriptGlobalObjectShape.cpp)
+              REPL/REPLGlobalObjectShape.cpp)
 target_include_directories(orepl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 target_include_directories(orepl PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(orepl PRIVATE ore cxxopts fmt)

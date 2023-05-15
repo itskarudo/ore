@@ -1,9 +1,9 @@
-#include "ScriptGlobalObjectShape.h"
+#include "REPLGlobalObjectShape.h"
 #include <Config.h>
 #include <filesystem>
 #include <fmt/core.h>
 
-ScriptGlobalObjectShape::ScriptGlobalObjectShape()
+REPLGlobalObjectShape::REPLGlobalObjectShape()
     : Ore::GlobalObjectShape()
 {
   REGISTER_NATIVE_FUNCTION(print);
@@ -11,7 +11,7 @@ ScriptGlobalObjectShape::ScriptGlobalObjectShape()
   REGISTER_NATIVE_FUNCTION(import);
 }
 
-DEFINE_NATIVE_FUNCTION(ScriptGlobalObjectShape::print)
+DEFINE_NATIVE_FUNCTION(REPLGlobalObjectShape::print)
 {
   for (auto arg : params.args)
     std::cout << arg << std::endl;
@@ -19,7 +19,7 @@ DEFINE_NATIVE_FUNCTION(ScriptGlobalObjectShape::print)
   return Ore::ore_nil();
 }
 
-DEFINE_NATIVE_FUNCTION(ScriptGlobalObjectShape::input)
+DEFINE_NATIVE_FUNCTION(REPLGlobalObjectShape::input)
 {
   ARGS_SIZE_GUARD(print, 0);
 
@@ -29,7 +29,7 @@ DEFINE_NATIVE_FUNCTION(ScriptGlobalObjectShape::input)
   return Ore::ore_string(params.interpreter.heap(), input);
 }
 
-DEFINE_NATIVE_FUNCTION(ScriptGlobalObjectShape::import)
+DEFINE_NATIVE_FUNCTION(REPLGlobalObjectShape::import)
 {
   ARGS_SIZE_GUARD(import, 1);
   ARG_TYPE_STRING(0);
