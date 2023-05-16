@@ -1,7 +1,29 @@
 #include "REPLGlobalObjectShape.h"
 #include <Ore.h>
+#include <algorithm>
 #include <cxxopts.hpp>
+#include <fmt/core.h>
 #include <fstream>
+#include <readline/readline.h>
+
+static bool s_fail_repl = false;
+static bool s_dump_ast = false;
+static int s_line_number = 1;
+static int s_repl_line_level = 0;
+
+static std::string get_prompt()
+{
+  std::stringstream prompt_builder;
+  if (s_repl_line_level == 0) {
+    prompt_builder << fmt::format("\033[32m[{}]:\033[0m ", s_line_number);
+  } else {
+    prompt_builder << "\033[32m...:\033[0m ";
+    for (auto i = 0; i < s_repl_line_level; ++i)
+      prompt_builder << "  ";
+  }
+
+  return prompt_builder.str();
+}
 
 static void log_exception(Ore::ExceptionObject& exception)
 {
@@ -21,14 +43,21 @@ static void log_exception(Ore::ExceptionObject& exception)
   std::cout << "\033[1m\033[31m" << exception.type() << "\033[0m: " << exception.message() << std::endl;
 }
 
-static void parse_and_run(Ore::Interpreter& interpreter, std::string_view source, bool dump_ast)
+static bool is_whitespace(std::string const& str)
+{
+  return std::all_of(str.begin(), str.end(), [](char c) {
+    return std::isspace(c);
+  });
+}
+
+static void parse_and_run(Ore::Interpreter& interpreter, std::string source)
 {
   Ore::Parser::Lexer lexer(source);
   Ore::Parser::RDParser parser(lexer);
 
   auto program = parser.parse();
 
-  if (dump_ast)
+  if (s_dump_ast)
     program->dump();
 
   auto return_value = interpreter.run(*program);
@@ -37,6 +66,72 @@ static void parse_and_run(Ore::Interpreter& interpreter, std::string_view source
     auto* exception = reinterpret_cast<Ore::ExceptionObject*>(return_value.value().as_object());
     log_exception(*exception);
   }
+}
+
+std::optional<std::string> read_next_piece()
+{
+  std::stringstream piece;
+
+  size_t open_parens = 0;
+  size_t open_brackets = 0;
+  size_t open_curlies = 0;
+
+  do {
+
+    assert(open_parens >= 0);
+    assert(open_brackets >= 0);
+    assert(open_curlies >= 0);
+
+    auto* c_line = readline(get_prompt().c_str());
+    if (!c_line) {
+      s_fail_repl = true;
+      return {};
+    }
+
+    std::string line(c_line);
+    piece << line << '\n';
+
+    Ore::Parser::Lexer lexer(line);
+
+    using Ore::Parser::Token;
+
+    for (auto token = lexer.next();
+         token.type() != Token::TokenType::Eof;
+         token = lexer.next()) {
+
+      switch (token.type()) {
+      case Token::TokenType::ParenOpen:
+        open_parens++;
+        s_repl_line_level++;
+        break;
+      case Token::TokenType::ParenClose:
+        open_parens--;
+        s_repl_line_level--;
+        break;
+      case Token::TokenType::BracketOpen:
+        open_brackets++;
+        s_repl_line_level++;
+        break;
+      case Token::TokenType::BracketClose:
+        open_brackets--;
+        s_repl_line_level--;
+        break;
+      case Token::TokenType::CurlyOpen:
+        open_curlies++;
+        s_repl_line_level++;
+        break;
+      case Token::TokenType::CurlyClose:
+        open_curlies--;
+        s_repl_line_level--;
+        break;
+      default:
+        break;
+      }
+    }
+
+  } while (open_parens + open_brackets + open_curlies > 0);
+
+  return piece.str();
 }
 
 int main(int argc, char** argv)
@@ -57,7 +152,8 @@ int main(int argc, char** argv)
 
   auto result = options.parse(argc, argv);
   bool repl_mode = !result.count("script");
-  bool dump_ast = result.count("dump");
+
+  s_dump_ast = result.count("dump");
 
   if (result.count("help")) {
     std::cout << options.help() << std::endl;
@@ -67,8 +163,19 @@ int main(int argc, char** argv)
   auto interpreter = Ore::Interpreter::create<REPLGlobalObjectShape>();
 
   if (repl_mode) {
-    // TODO: REPL loop
-    assert(false);
+
+    while (!s_fail_repl) {
+      auto piece = read_next_piece();
+      putchar('\n');
+
+      if (!piece.has_value() || is_whitespace(piece.value()))
+        continue;
+
+      s_line_number++;
+
+      parse_and_run(*interpreter, piece.value());
+    }
+
   } else {
     auto& script = result["script"].as<std::string>();
 
@@ -94,6 +201,6 @@ int main(int argc, char** argv)
 
     std::string string_source((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
 
-    parse_and_run(*interpreter, std::move(string_source), dump_ast);
+    parse_and_run(*interpreter, std::move(string_source));
   }
 }
