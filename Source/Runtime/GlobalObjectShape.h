@@ -9,6 +9,7 @@ class GlobalObjectShape : public Object {
 
   private:
   DECLARE_NATIVE_FUNCTION(gc);
+  DECLARE_NATIVE_FUNCTION(assert);
   DECLARE_NATIVE_FUNCTION(throw);
   DECLARE_NATIVE_FUNCTION(all);
   DECLARE_NATIVE_FUNCTION(any);

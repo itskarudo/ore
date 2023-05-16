@@ -6,6 +6,7 @@ namespace Ore {
 GlobalObjectShape::GlobalObjectShape()
 {
   REGISTER_NATIVE_FUNCTION(gc);
+  REGISTER_NATIVE_FUNCTION(assert);
   REGISTER_NATIVE_FUNCTION(throw);
   REGISTER_NATIVE_FUNCTION(all);
   REGISTER_NATIVE_FUNCTION(any);
@@ -16,6 +17,16 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::gc)
   ARGS_SIZE_GUARD(print, 0);
 
   params.interpreter.heap().collect_garbage();
+  return ore_nil();
+}
+
+DEFINE_NATIVE_FUNCTION(GlobalObjectShape::assert)
+{
+  ARGS_SIZE_GUARD(assert, 0);
+
+  if (params.args[0].to_boolean())
+    return params.interpreter.throw_exception(ExceptionObject::assertion_exception(), "assertion failed");
+
   return ore_nil();
 }
 
