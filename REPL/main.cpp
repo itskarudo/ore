@@ -13,16 +13,11 @@ static int s_repl_line_level = 0;
 
 static std::string get_prompt()
 {
-  std::stringstream prompt_builder;
   if (s_repl_line_level == 0) {
-    prompt_builder << fmt::format("\033[32m[{}]:\033[0m ", s_line_number);
+    return fmt::format("\033[32m[{}]:\033[0m ", s_line_number);
   } else {
-    prompt_builder << "\033[32m...:\033[0m ";
-    for (auto i = 0; i < s_repl_line_level; ++i)
-      prompt_builder << "  ";
+    return "\033[32m...:\033[0m ";
   }
-
-  return prompt_builder.str();
 }
 
 static void log_exception(Ore::ExceptionObject& exception)
@@ -163,6 +158,17 @@ int main(int argc, char** argv)
   auto interpreter = Ore::Interpreter::create<REPLGlobalObjectShape>();
 
   if (repl_mode) {
+
+    rl_startup_hook = []() -> int {
+      std::stringstream indents;
+
+      for (int i = 0; i < s_repl_line_level; i++)
+        indents << "  ";
+
+      rl_insert_text(indents.str().c_str());
+
+      return 0;
+    };
 
     while (!s_fail_repl) {
       auto piece = read_next_piece();
