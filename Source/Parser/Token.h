@@ -63,7 +63,7 @@ namespace Ore::Parser {
   __ENUM_TOKEN_TYPES(Invalid, Invalid)                \
   __ENUM_TOKEN_TYPES(NumberLiteral, Number)           \
   __ENUM_TOKEN_TYPES(StringLiteral, String)           \
-  __ENUM_TOKEN_TYPES(SemiColon, Punctuation)           \
+  __ENUM_TOKEN_TYPES(SemiColon, Punctuation)          \
   __ENUM_TOKEN_TYPES(Identifier, Identifier)
 
 class Token {
@@ -76,21 +76,27 @@ class Token {
 
   Token() = default;
 
-  Token(TokenType type, std::string_view value)
+  Token(TokenType type, std::string_view value, size_t line_number, size_t line_column)
       : m_type(type)
       , m_value(value)
+      , m_line_number(line_number)
+      , m_line_column(line_column)
   {
   }
 
   TokenType type() const { return m_type; }
   char const* name() const;
   std::string value() const { return m_value; }
+  size_t line_number() const { return m_line_number; }
+  size_t line_column() const { return m_line_column; }
 
   void set_value(std::string const& value) { m_value = value; }
 
   private:
   TokenType m_type { TokenType::Invalid };
   std::string m_value;
+  size_t m_line_number { 0 };
+  size_t m_line_column { 0 };
 };
 
 }

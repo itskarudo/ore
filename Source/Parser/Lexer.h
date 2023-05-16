@@ -12,6 +12,8 @@ class Lexer {
   explicit Lexer(std::string_view source);
   Token next();
 
+  std::string_view& source() { return m_source; }
+
   private:
   void consume();
 
@@ -24,6 +26,8 @@ class Lexer {
   bool match(char, char) const;
   bool match(char, char, char) const;
 
+  size_t m_line_number { 1 };
+  size_t m_line_column { 0 };
   std::string_view m_source;
   size_t m_position { 0 };
   char m_current_char;

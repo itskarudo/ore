@@ -95,6 +95,7 @@ void Lexer::consume()
   }
 
   m_current_char = m_source[m_position++];
+  m_line_column++;
 }
 
 Token Lexer::next()
@@ -103,6 +104,8 @@ Token Lexer::next()
     if (is_line_terminator()) {
       do {
         consume();
+        m_line_number++;
+        m_line_column = 1;
       } while (!m_eof && is_line_terminator());
     } else if (is_whitespace()) {
       do {
@@ -118,6 +121,7 @@ Token Lexer::next()
 
   std::string identifier;
   size_t value_start = m_position;
+  size_t saved_column = m_line_column;
 
   if (is_identifier_start()) {
     std::stringstream s;
@@ -232,7 +236,7 @@ Token Lexer::next()
     }
   }
 
-  m_current_token = Token(m_token_type, m_source.substr(value_start - 1, m_position - value_start));
+  m_current_token = Token(m_token_type, m_source.substr(value_start - 1, m_position - value_start), m_line_number, saved_column);
   if (!identifier.empty())
     m_current_token.set_value(identifier);
   return m_current_token;
