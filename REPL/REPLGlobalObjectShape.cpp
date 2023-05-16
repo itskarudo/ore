@@ -45,7 +45,7 @@ DEFINE_NATIVE_FUNCTION(REPLGlobalObjectShape::import)
       return Ore::Value(ffi_object);
     } else {
       // TODO: implement importing ore source file.
-      assert(false);
+      ASSERT_NOT_REACHED();
     }
   } else {
     auto full_filename = ORE_MODULES_DIR + filename;
@@ -57,7 +57,7 @@ DEFINE_NATIVE_FUNCTION(REPLGlobalObjectShape::import)
       return Ore::Value(ffi_object);
     } else {
       // TODO: implement importing ore source file.
-      assert(false);
+      ASSERT_NOT_REACHED();
     }
   }
 }

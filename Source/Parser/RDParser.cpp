@@ -579,6 +579,6 @@ std::vector<std::unique_ptr<AST::Expression>> RDParser::ConsumeElements()
 }
 std::unique_ptr<AST::Expression> RDParser::Call()
 {
-  assert(false);
+  ASSERT_NOT_REACHED();
 }
 }

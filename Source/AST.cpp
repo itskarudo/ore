@@ -682,7 +682,7 @@ void CatchClause::dump_impl(int indent) const
 Result CatchClause::execute(Interpreter& interpreter)
 {
   // CatchClause execution is handled by TryStatement
-  assert(false);
+  ASSERT_NOT_REACHED();
 }
 
 void TryStatement::dump_impl(int indent) const
