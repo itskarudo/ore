@@ -136,7 +136,7 @@ Result CallExpression::execute(Interpreter& interpreter)
   } else if (m_callee->is_member_expression()) {
     value = TRY(static_cast<MemberExpression&>(*m_callee).execute(interpreter));
   } else
-    __builtin_unreachable();
+    ASSERT_NOT_REACHED();
 
   if (!value.is_object())
     return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot call non-function value");
@@ -400,7 +400,7 @@ Result AssignmentExpression::execute(Interpreter& interpreter)
       prev_value = TRY(object->get(key));
 
   } else {
-    __builtin_unreachable();
+    ASSERT_NOT_REACHED();
   }
 
   switch (m_op) {
@@ -434,7 +434,7 @@ Result AssignmentExpression::execute(Interpreter& interpreter)
   else if (m_lhs->is_member_expression())
     object->put(key, value);
   else
-    __builtin_unreachable();
+    ASSERT_NOT_REACHED();
 
   return value;
 }
@@ -485,7 +485,7 @@ Result UnaryExpression::execute(Interpreter& interpreter)
   case Op::Length:
     return TRY(Value::length(interpreter, value));
   default:
-    __builtin_unreachable();
+    ASSERT_NOT_REACHED();
   }
 }
 

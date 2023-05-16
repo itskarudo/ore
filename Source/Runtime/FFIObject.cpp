@@ -34,6 +34,6 @@ FFIObject::~FFIObject()
 
 void FFIObject::put(PropertyKey key, Value value)
 {
-  __builtin_unreachable();
+  ASSERT_NOT_REACHED();
 }
 }

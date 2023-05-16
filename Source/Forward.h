@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <vector>
 
 namespace Ore {
@@ -28,6 +29,8 @@ struct OreFuncParams {
   Ore::Interpreter& interpreter;
   std::vector<Ore::Value>& args;
 };
+
+#define ASSERT_NOT_REACHED() assert(false);
 
 #define DECLARE_NATIVE_FUNCTION(name) \
   static Ore::ThrowResultOr<Ore::Value> name##_native_function(OreFuncParams);

@@ -30,7 +30,7 @@ ThrowResultOr<Value> ArrayObject::get(PropertyKey key) const
   if (key.is_string())
     return Object::get(key);
 
-  __builtin_unreachable();
+  ASSERT_NOT_REACHED();
 }
 
 void ArrayObject::put(PropertyKey key, Value value)
@@ -48,7 +48,7 @@ bool ArrayObject::contains(PropertyKey key) const
   else if (key.is_string())
     return Object::contains(key);
 
-  __builtin_unreachable();
+  ASSERT_NOT_REACHED();
 }
 
 std::string const ArrayObject::to_string() const

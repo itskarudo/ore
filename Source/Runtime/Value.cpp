@@ -38,7 +38,7 @@ Object* Value::to_object(GC::Heap& heap) const
   case Value::Type::Object:
     return as_object();
   default:
-    __builtin_unreachable();
+    ASSERT_NOT_REACHED();
   }
 }
 
@@ -184,7 +184,7 @@ ThrowResultOr<Value> Value::equals(Interpreter& interpreter, Value lhs, Value rh
   case Value::Type::Object:
     return ore_boolean(lhs.as_object() == rhs.as_object());
   default:
-    __builtin_unreachable();
+    ASSERT_NOT_REACHED();
   }
 }
 
