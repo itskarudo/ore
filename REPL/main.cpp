@@ -4,12 +4,14 @@
 #include <cxxopts.hpp>
 #include <fmt/core.h>
 #include <fstream>
+#include <readline/history.h>
 #include <readline/readline.h>
 
 static bool s_fail_repl = false;
 static bool s_dump_ast = false;
 static int s_line_number = 1;
 static int s_repl_line_level = 0;
+static std::string s_history_path = {};
 
 static std::string get_prompt()
 {
@@ -83,8 +85,10 @@ std::optional<std::string> read_next_piece()
       return {};
     }
 
+    add_history(c_line);
+
     std::string line(c_line);
-    piece << line << '\n';
+    piece << line;
 
     Ore::Parser::Lexer lexer(line);
 
@@ -148,6 +152,7 @@ int main(int argc, char** argv)
   auto result = options.parse(argc, argv);
   bool repl_mode = !result.count("script");
 
+  s_history_path = fmt::format("{}/.ore_history", std::getenv("HOME"));
   s_dump_ast = result.count("dump");
 
   if (result.count("help")) {
@@ -158,6 +163,9 @@ int main(int argc, char** argv)
   auto interpreter = Ore::Interpreter::create<REPLGlobalObjectShape>();
 
   if (repl_mode) {
+
+    using_history();
+    read_history(s_history_path.c_str());
 
     rl_startup_hook = []() -> int {
       std::stringstream indents;
@@ -181,6 +189,8 @@ int main(int argc, char** argv)
 
       parse_and_run(*interpreter, piece.value());
     }
+
+    write_history(s_history_path.c_str());
 
   } else {
     auto& script = result["script"].as<std::string>();
