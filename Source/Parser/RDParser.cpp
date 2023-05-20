@@ -384,7 +384,7 @@ std::unique_ptr<AST::Expression> RDParser::ParseExpression()
       std::cout << "Error : invalid assignment" << std::endl;
       ErrorFound = true;
     }
-    auto Right = OrExpression();
+    auto Right = ParseExpression();
     Left = std::make_unique<AST::AssignmentExpression>(std::move(Left), Operator, std::move(Right));
   }
   return Left;
@@ -552,9 +552,9 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
     ErrorFound = true;
     std::cout << "Error : expected [ before ] taken " << std::endl;
     return std::make_unique<AST::NilLiteral>();
-  } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::NumberLiteral>()){
+  } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::NumberLiteral>()) {
     return std::make_unique<AST::NumberLiteral>(convertToDouble(Previous.value()));
-  } else  {
+  } else {
     return Call();
   }
 }
@@ -578,43 +578,43 @@ std::vector<std::unique_ptr<AST::Expression>> RDParser::ConsumeElements()
   }
   return Vector;
 }
-double RDParser::convertToDouble(const std::string& str) {
-    if (str.size() < 2)
-        return std::stod(str);  // If the string is less than 2 characters, assume it's a double in base ten
+double RDParser::convertToDouble(std::string const& str)
+{
+  if (str.size() < 2)
+    return std::stod(str); // If the string is less than 2 characters, assume it's a double in base ten
 
-    if (str.substr(0, 2) == "0b") {
-        // Binary format
-        long long int decimal = std::stoll(str.substr(2), nullptr, 2);
-        return static_cast<double>(decimal);
-    } else if (str.substr(0, 2) == "0x") {
-        // Hexadecimal format
-        long long int decimal = std::stoll(str.substr(2), nullptr, 16);
-        return static_cast<double>(decimal);
-    } else if (str.substr(0, 2) == "0o") {
-        // Octal format
-        long long int decimal = std::stoll(str.substr(2), nullptr, 8);
-        return static_cast<double>(decimal);
-    } else {
-        // Base ten format
-        return std::stod(str);
-    }
+  if (str.substr(0, 2) == "0b") {
+    // Binary format
+    long long int decimal = std::stoll(str.substr(2), nullptr, 2);
+    return static_cast<double>(decimal);
+  } else if (str.substr(0, 2) == "0x") {
+    // Hexadecimal format
+    long long int decimal = std::stoll(str.substr(2), nullptr, 16);
+    return static_cast<double>(decimal);
+  } else if (str.substr(0, 2) == "0o") {
+    // Octal format
+    long long int decimal = std::stoll(str.substr(2), nullptr, 8);
+    return static_cast<double>(decimal);
+  } else {
+    // Base ten format
+    return std::stod(str);
+  }
 }
 
 std::unique_ptr<AST::Expression> RDParser::Call()
 {
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Identifier>()) {
-  	auto Aux = std::make_unique<AST::Identifier>(Previous.value());
-  	if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
-  		auto args = ConsumeArguments();
-  		return std::make_unique<AST::CallExpression>(std::move(Aux),std::move(args));
-  	}
-  	return Aux;
+    auto Aux = std::make_unique<AST::Identifier>(Previous.value());
+    if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
+      auto args = ConsumeArguments();
+      return std::make_unique<AST::CallExpression>(std::move(Aux), std::move(args));
+    }
+    return Aux;
   } else {
-  	Advance();
-  	std::cout << "Error : syntax error, unhandled token" << std::endl;
-  	ErrorFound = true;
-  	return std::make_unique<AST::BooleanLiteral>(false);
-
+    Advance();
+    std::cout << "Error : syntax error, unhandled token" << std::endl;
+    ErrorFound = true;
+    return std::make_unique<AST::BooleanLiteral>(false);
   }
 }
 }
@@ -623,4 +623,3 @@ Arrays
 Maps
 Member expression
 */
-
