@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 {
   cxxopts::Options options("orepl", "The ore language repl.");
 
-  options.positional_help("[file] [ARGS...]");
+  options.positional_help("[file [ARGS...]]");
 
   // clang-format off
   options.add_options()
