@@ -75,6 +75,16 @@ ThrowResultOr<Value> Value::string_concat(Interpreter& interpreter, Value lhs, V
   return ore_string(interpreter.heap(), lhs.as_string()->string() + rhs.as_string()->string());
 }
 
+ThrowResultOr<Value> Value::modulo(Interpreter& interpreter, Value lhs, Value rhs)
+{
+  if (!lhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "lhs is not a number");
+  if (!rhs.is_number())
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "rhs is not a number");
+
+  return ore_number(lhs.as_number() - rhs.as_number() * static_cast<int>(lhs.as_number() / rhs.as_number()));
+}
+
 ThrowResultOr<Value> Value::logical_and(Interpreter& interpreter, Value lhs, Value rhs)
 {
   return ore_boolean(lhs.to_boolean() && rhs.to_boolean());

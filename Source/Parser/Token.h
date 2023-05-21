@@ -38,6 +38,7 @@ namespace Ore::Parser {
   __ENUM_TOKEN_TYPES(ShiftRightEquals, Operator)      \
   __ENUM_TOKEN_TYPES(DoubleDotEquals, Operator)       \
   __ENUM_TOKEN_TYPES(ExclamationMark, Operator)       \
+  __ENUM_TOKEN_TYPES(Percent, Operator)               \
   __ENUM_TOKEN_TYPES(Hash, Operator)                  \
   __ENUM_TOKEN_TYPES(Plus, Operator)                  \
   __ENUM_TOKEN_TYPES(Minus, Operator)                 \

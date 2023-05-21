@@ -561,6 +561,9 @@ Result BinaryExpression::execute(Interpreter& interpreter)
   case Op::StringConcat: {
     return TRY(Value::string_concat(interpreter, lhs_value, rhs_value));
   }
+  case Op::Modulo: {
+    return TRY(Value::modulo(interpreter, lhs_value, rhs_value));
+  }
   case Op::Xor: {
     return TRY(Value::logical_xor(interpreter, lhs_value, rhs_value));
   }

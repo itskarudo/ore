@@ -105,6 +105,7 @@ class Value {
   friend std::ostream& operator<<(std::ostream& os, Value const& value);
 
   static ThrowResultOr<Value> string_concat(Interpreter&, Value, Value);
+  static ThrowResultOr<Value> modulo(Interpreter&, Value, Value);
   static ThrowResultOr<Value> logical_and(Interpreter&, Value, Value);
   static ThrowResultOr<Value> logical_or(Interpreter&, Value, Value);
   static ThrowResultOr<Value> logical_xor(Interpreter&, Value, Value);

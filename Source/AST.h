@@ -25,7 +25,8 @@
   __ENUM_BI_OP(And, "and")                \
   __ENUM_BI_OP(Or, "or")                  \
   __ENUM_BI_OP(Xor, "xor")                \
-  __ENUM_BI_OP(StringConcat, "..")
+  __ENUM_BI_OP(StringConcat, "..")        \
+  __ENUM_BI_OP(Modulo, "%%")
 
 namespace Ore::AST {
 

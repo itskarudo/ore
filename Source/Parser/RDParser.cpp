@@ -500,7 +500,7 @@ std::unique_ptr<AST::Expression> RDParser::AddExpression()
 std::unique_ptr<AST::Expression> RDParser::MulExpression()
 {
   auto Left = Unary();
-  while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Asterisk, Ore::Parser::Token::TokenType::Slash>()) {
+  while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Asterisk, Ore::Parser::Token::TokenType::Slash, Ore::Parser::Token::TokenType::Percent>()) {
     AST::BinaryExpression::Op Operator;
     switch (Previous.type()) {
     case Ore::Parser::Token::TokenType::Asterisk:
@@ -508,6 +508,9 @@ std::unique_ptr<AST::Expression> RDParser::MulExpression()
       break;
     case Ore::Parser::Token::TokenType::Slash:
       Operator = AST::BinaryExpression::Op::Div;
+      break;
+    case Ore::Parser::Token::TokenType::Percent:
+      Operator = AST::BinaryExpression::Op::Modulo;
       break;
     }
     auto Right = Unary();
