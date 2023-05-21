@@ -180,7 +180,6 @@ int main(int argc, char** argv)
 
     while (!s_fail_repl) {
       auto piece = read_next_piece();
-      putchar('\n');
 
       if (!piece.has_value() || is_whitespace(piece.value()))
         continue;
@@ -188,6 +187,9 @@ int main(int argc, char** argv)
       s_line_number++;
 
       parse_and_run(*interpreter, piece.value());
+
+      std::cout << "\033[1m" << interpreter->block_result() << std::endl;
+      interpreter->set_block_result(Ore::ore_nil());
     }
 
     write_history(s_history_path.c_str());

@@ -75,6 +75,9 @@ class Interpreter {
 
   void collect_roots(std::vector<GC::Cell*>& roots, GC::Heap::CollectionType);
 
+  Value block_result() { return m_block_result; }
+  void set_block_result(Value block_result) { m_block_result = block_result; }
+
 #define __ENUM_OBJECT_SHAPES(name, ObjectName)              \
   ObjectName* name()                                        \
   {                                                         \
@@ -110,5 +113,6 @@ class Interpreter {
 
   std::vector<ScopeFrame> m_scope_frames;
   std::vector<FunctionScope> m_function_scopes;
+  Value m_block_result;
 };
 }

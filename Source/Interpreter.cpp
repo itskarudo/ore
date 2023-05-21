@@ -63,6 +63,8 @@ Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value>
     if (last_value.type() != Result::Type::Normal) {
       return_value = last_value;
       break;
+    } else {
+      set_block_result(last_value.value());
     }
   }
 
