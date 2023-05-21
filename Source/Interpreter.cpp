@@ -38,18 +38,18 @@ void Interpreter::set_variable(std::string const& name, Value value)
       return;
     }
 
-  if (global_object()->contains(name)) {
+  if (m_scope_frames.size() == 0)
     global_object()->put(name, value);
-    return;
-  }
-
-  current_scope().variables[name] = value;
+  else
+    current_scope().variables[name] = value;
 }
 
 Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value> const& arguments, ScopeType type, std::optional<std::string> function_name)
 {
 
-  enter_scope(block, arguments, type);
+  if (!block.is_program())
+    enter_scope(block, arguments, type);
+
   if (type == ScopeType::Function) {
     assert(function_name.has_value());
     push_function_scope({ function_name.value() });
@@ -66,7 +66,8 @@ Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value>
     }
   }
 
-  leave_scope();
+  if (!block.is_program())
+    leave_scope();
 
   return return_value;
 }

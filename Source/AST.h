@@ -41,6 +41,7 @@ class ASTNode {
   virtual bool is_identifier() const { return false; }
   virtual bool is_member_expression() const { return false; }
   virtual bool is_function_declaration() const { return false; }
+  virtual bool is_program() const { return false; }
 };
 
 class Statement : public ASTNode {
@@ -76,6 +77,7 @@ class BlockStatement : public Statement {
 class Program : public BlockStatement {
   public:
   virtual char const* class_name() const override { return "Program"; };
+  virtual bool is_program() const override { return true; }
 };
 
 class Literal : public Expression {
