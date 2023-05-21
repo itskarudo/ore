@@ -1,7 +1,6 @@
 #include "Heap.h"
 #include "../Interpreter.h"
 #include "HeapBlock.h"
-#include <Config.h>
 #include <csetjmp>
 #include <pthread.h>
 #include <set>
@@ -17,11 +16,15 @@ Heap::~Heap()
 
 Cell* Heap::allocate_cell(size_t cell_size)
 {
-  if (m_allocations_since_last_gc > m_max_allocations_between_gcs) {
-    m_allocations_since_last_gc = 0;
+  if (m_gc_on_every_allocation)
     collect_garbage();
-  } else
-    m_allocations_since_last_gc++;
+  else {
+    if (m_allocations_since_last_gc > m_max_allocations_between_gcs) {
+      m_allocations_since_last_gc = 0;
+      collect_garbage();
+    } else
+      m_allocations_since_last_gc++;
+  }
 
   for (auto& block : m_blocks) {
     if (cell_size > block->cell_size())
@@ -56,12 +59,12 @@ class LivenessVisitor : public Cell::Visitor {
   virtual void visit(Cell* cell) override
   {
     if (cell->marked()) {
-      if constexpr (HEAP_DEBUG)
+      if (cell->heap().m_debug_heap)
         std::cout << "\033[35m# GC: Cyclic dependency -> " << cell << "\033[0m" << std::endl;
       return;
     }
 
-    if constexpr (HEAP_DEBUG)
+    if (cell->heap().m_debug_heap)
       std::cout << "\033[33m? GC: Marked -> " << cell << "\033[0m" << std::endl;
     cell->set_marked(true);
     m_work_queue.push_back(cell);
@@ -93,7 +96,7 @@ void Heap::collect_garbage(CollectionType collection_type)
   collect_conservative_roots(roots);
   m_interpreter.collect_roots(roots, collection_type);
 
-  if constexpr (HEAP_DEBUG)
+  if (m_debug_heap)
     for (auto* root : roots)
       std::cout << "\033[32m! GC: Root -> " << root << "\033[0m" << std::endl;
 
@@ -108,7 +111,7 @@ void Heap::collect_garbage(CollectionType collection_type)
         if (cell->marked())
           cell->set_marked(false);
         else {
-          if constexpr (HEAP_DEBUG)
+          if (m_debug_heap)
             std::cout << "\033[31m~ GC: Freeing -> " << cell << "\033[0m" << std::endl;
           block->deallocate(cell);
         }

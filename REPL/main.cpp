@@ -142,6 +142,8 @@ int main(int argc, char** argv)
   // clang-format off
   options.add_options()
     ("d,dump", "Dump the script AST")
+    ("g,gc-on-every-allocation", "GC on every allocation")
+    ("p,debug-heap", "Debug the heap")
     ("c,evaluate", "Evaluate argument as script", cxxopts::value<std::string>())
     ("h,help", "Print help")
     ("script", "Ore script to execute", cxxopts::value<std::string>())
@@ -151,7 +153,10 @@ int main(int argc, char** argv)
   options.parse_positional({ "script", "passed_args" });
 
   auto result = options.parse(argc, argv);
+
   bool repl_mode = !result.count("script") && !result.count("evaluate");
+  bool gc_on_every_allocation = result.count("gc-on-every-allocation");
+  bool debug_heap = result.count("debug-heap");
 
   s_history_path = fmt::format("{}/.ore_history", std::getenv("HOME"));
   s_dump_ast = result.count("dump");
@@ -162,6 +167,8 @@ int main(int argc, char** argv)
   }
 
   auto interpreter = Ore::Interpreter::create<REPLGlobalObjectShape>();
+  interpreter->heap().set_debug_heap(debug_heap);
+  interpreter->heap().set_gc_on_every_allocation(gc_on_every_allocation);
 
   if (repl_mode) {
 
