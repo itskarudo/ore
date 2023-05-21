@@ -22,9 +22,9 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::gc)
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::assert)
 {
-  ARGS_SIZE_GUARD(assert, 0);
+  ARGS_SIZE_GUARD(assert, 1);
 
-  if (params.args[0].to_boolean())
+  if (!params.args[0].to_boolean())
     return params.interpreter.throw_exception(ExceptionObject::assertion_exception(), "assertion failed");
 
   return ore_nil();
