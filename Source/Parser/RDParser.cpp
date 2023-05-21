@@ -533,7 +533,7 @@ std::unique_ptr<AST::Expression> RDParser::Unary()
       Operator = AST::UnaryExpression::Op::Negate;
       break;
     }
-    return std::make_unique<AST::UnaryExpression>(Operator, Primitive());
+    return std::make_unique<AST::UnaryExpression>(Operator, Unary());
   }
   return Primitive();
 }
