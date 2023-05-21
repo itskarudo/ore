@@ -520,7 +520,7 @@ std::unique_ptr<AST::Expression> RDParser::MulExpression()
 }
 std::unique_ptr<AST::Expression> RDParser::Unary()
 {
-  if (AdvanceIfMatchAny<Token::TokenType::Hash, Token::TokenType::ExclamationMark>()) {
+  if (AdvanceIfMatchAny<Token::TokenType::Hash, Token::TokenType::ExclamationMark, Token::TokenType::Minus>()) {
     AST::UnaryExpression::Op Operator;
     switch (Previous.type()) {
     case Ore::Parser::Token::TokenType::Hash:
@@ -528,6 +528,9 @@ std::unique_ptr<AST::Expression> RDParser::Unary()
       break;
     case Ore::Parser::Token::TokenType::ExclamationMark:
       Operator = AST::UnaryExpression::Op::Not;
+      break;
+    case Ore::Parser::Token::TokenType::Minus:
+      Operator = AST::UnaryExpression::Op::Negate;
       break;
     }
     return std::make_unique<AST::UnaryExpression>(Operator, Primitive());
