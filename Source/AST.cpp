@@ -135,8 +135,11 @@ Result CallExpression::execute(Interpreter& interpreter)
     value = TRY(interpreter.get_variable(static_cast<Identifier&>(*m_callee).name()));
   } else if (m_callee->is_member_expression()) {
     value = TRY(static_cast<MemberExpression&>(*m_callee).execute(interpreter));
-  } else
+  } else if (m_callee->is_function_declaration()) {
+    value = TRY(static_cast<FunctionDeclaration&>(*m_callee).execute(interpreter));
+  } else {
     ASSERT_NOT_REACHED();
+  }
 
   if (!value.is_object())
     return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot call non-function value");

@@ -40,6 +40,7 @@ class ASTNode {
 
   virtual bool is_identifier() const { return false; }
   virtual bool is_member_expression() const { return false; }
+  virtual bool is_function_declaration() const { return false; }
 };
 
 class Statement : public ASTNode {
@@ -155,6 +156,8 @@ class FunctionDeclaration : public Expression {
   virtual char const* class_name() const override { return "FunctionDeclaration"; }
   virtual void dump_impl(int indent) const override;
   virtual Result execute(Interpreter&) override;
+
+  virtual bool is_function_declaration() const override { return true; }
 
   private:
   std::optional<std::string> m_name;
