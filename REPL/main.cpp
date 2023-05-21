@@ -142,15 +142,16 @@ int main(int argc, char** argv)
   // clang-format off
   options.add_options()
     ("d,dump", "Dump the script AST")
+    ("c,evaluate", "Evaluate argument as script", cxxopts::value<std::string>())
+    ("h,help", "Print help")
     ("script", "Ore script to execute", cxxopts::value<std::string>())
-    ("passed_args", "Script arguments", cxxopts::value<std::vector<std::string>>())
-    ("h,help", "Print help");
+    ("passed_args", "Script arguments", cxxopts::value<std::vector<std::string>>());
 
   // clang-format on
   options.parse_positional({ "script", "passed_args" });
 
   auto result = options.parse(argc, argv);
-  bool repl_mode = !result.count("script");
+  bool repl_mode = !result.count("script") && !result.count("evaluate");
 
   s_history_path = fmt::format("{}/.ore_history", std::getenv("HOME"));
   s_dump_ast = result.count("dump");
@@ -194,7 +195,7 @@ int main(int argc, char** argv)
 
     write_history(s_history_path.c_str());
 
-  } else {
+  } else if (result.count("script")) {
     auto& script = result["script"].as<std::string>();
 
     std::vector<std::string> args = { script };
@@ -220,5 +221,8 @@ int main(int argc, char** argv)
     std::string string_source((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
 
     parse_and_run(*interpreter, std::move(string_source));
+  } else {
+    auto eval = result["evaluate"].as<std::string>();
+    parse_and_run(*interpreter, std::move(eval));
   }
 }
