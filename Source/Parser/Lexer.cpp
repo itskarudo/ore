@@ -37,6 +37,7 @@ Lexer::Lexer(std::string_view source)
     s_keywords["and"] = Token::TokenType::And;
     s_keywords["xor"] = Token::TokenType::Xor;
     s_keywords["or"] = Token::TokenType::Or;
+    s_keywords["not"] = Token::TokenType::Not;
   }
 
   if (s_three_char_tokens.empty()) {
@@ -79,7 +80,6 @@ Lexer::Lexer(std::string_view source)
     s_one_char_tokens['<'] = Token::TokenType::LessThan;
     s_one_char_tokens['>'] = Token::TokenType::LargerThan;
     s_one_char_tokens[';'] = Token::TokenType::SemiColon;
-    s_one_char_tokens['!'] = Token::TokenType::ExclamationMark;
     s_one_char_tokens['%'] = Token::TokenType::Percent;
   }
 
