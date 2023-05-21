@@ -19,6 +19,7 @@ class NativeFunction final : public Object {
 
   virtual bool is_native_function() const override { return true; }
   virtual char const* class_name() const override { return "NativeFunction"; }
+  virtual std::string const to_string() const override;
 
   private:
   std::function<ThrowResultOr<Value>(OreFuncParams)> m_native_function;
