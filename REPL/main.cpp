@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     ("d,dump", "Dump the script AST")
     ("g,gc-on-every-allocation", "GC on every allocation")
     ("p,debug-heap", "Debug the heap")
-    ("c,evaluate", "Evaluate argument as script", cxxopts::value<std::string>())
+    ("e,evaluate", "Evaluate argument as script", cxxopts::value<std::string>())
     ("h,help", "Print help")
     ("script", "Ore script to execute", cxxopts::value<std::string>())
     ("passed_args", "Script arguments", cxxopts::value<std::vector<std::string>>());
