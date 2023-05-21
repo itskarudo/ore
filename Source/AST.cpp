@@ -515,9 +515,9 @@ Result BinaryExpression::execute(Interpreter& interpreter)
   auto lhs_value = TRY(m_lhs->execute(interpreter));
 
   if (m_op == Op::And && !lhs_value.to_boolean())
-    return ore_boolean(false);
+    return lhs_value;
   else if (m_op == Op::Or && lhs_value.to_boolean())
-    return ore_boolean(true);
+    return lhs_value;
 
   auto rhs_value = TRY(m_rhs->execute(interpreter));
 

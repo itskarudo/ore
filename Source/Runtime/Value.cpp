@@ -87,12 +87,18 @@ ThrowResultOr<Value> Value::modulo(Interpreter& interpreter, Value lhs, Value rh
 
 ThrowResultOr<Value> Value::logical_and(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  return ore_boolean(lhs.to_boolean() && rhs.to_boolean());
+  if (!lhs.to_boolean())
+    return lhs;
+  else
+    return rhs;
 }
 
 ThrowResultOr<Value> Value::logical_or(Interpreter& interpreter, Value lhs, Value rhs)
 {
-  return ore_boolean(lhs.to_boolean() || rhs.to_boolean());
+  if (lhs.to_boolean())
+    return lhs;
+  else
+    return rhs;
 }
 
 ThrowResultOr<Value> Value::logical_xor(Interpreter& interpreter, Value lhs, Value rhs)
