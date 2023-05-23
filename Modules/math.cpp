@@ -201,6 +201,22 @@ ThrowResultOr<Value> round(OreFuncParams params)
   return ore_number(std::round(n));
 }
 
+ThrowResultOr<Value> srand(OreFuncParams params)
+{
+  ARGS_SIZE_GUARD(srand, 1);
+  ARG_TYPE_NUMBER(0);
+
+  std::srand(params.args[0].as_number());
+
+  return ore_nil();
+}
+
+ThrowResultOr<Value> random(OreFuncParams params)
+{
+  ARGS_SIZE_GUARD(random, 0);
+  return ore_number(std::rand());
+}
+
 }
 
 ORE_INIT_FUNC(exports)
@@ -227,4 +243,6 @@ ORE_INIT_FUNC(exports)
   exports["floor"] = Ore::Math::floor;
   exports["ceil"] = Ore::Math::ceil;
   exports["round"] = Ore::Math::round;
+  exports["srand"] = Ore::Math::srand;
+  exports["random"] = Ore::Math::random;
 }
