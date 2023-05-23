@@ -145,13 +145,14 @@ class FunctionDeclaration : public Expression {
   };
 
   FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<BlockStatement> body, std::vector<Parameter> parameters = {})
-      : m_name(name)
+      : m_name(std::move(name))
       , m_body(body)
       , m_parameters(std::move(parameters))
   {
   }
 
-  std::optional<std::string> name() const { return m_name; }
+  std::optional<std::string>& name() { return m_name; }
+  std::optional<std::string> const& name() const { return m_name; }
   std::shared_ptr<BlockStatement> body() const { return m_body; }
   std::vector<Parameter> const& parameters() const { return m_parameters; }
 
@@ -311,7 +312,7 @@ class DoWhileStatement : public Statement {
 class Identifier : public Expression {
   public:
   Identifier(std::string const& name)
-      : m_name(name)
+      : m_name(std::move(name))
   {
   }
 
@@ -321,7 +322,7 @@ class Identifier : public Expression {
 
   virtual bool is_identifier() const override { return true; }
 
-  std::string name() const { return m_name; }
+  std::string const& name() const { return m_name; }
 
   private:
   std::string m_name;
@@ -507,7 +508,7 @@ class CatchClause : public ASTNode {
   virtual void dump_impl(int indent) const override;
   virtual Result execute(Interpreter&) override;
 
-  std::string param() const { return m_param; }
+  std::string const& param() const { return m_param; }
   BlockStatement& body() const { return *m_body; }
 
   private:
