@@ -571,13 +571,13 @@ Result BinaryExpression::execute(Interpreter& interpreter)
     return TRY(Value::logical_xor(interpreter, lhs_value, rhs_value));
   }
   case Op::And: {
-    return TRY(Value::logical_and(interpreter, lhs_value, rhs_value));
+    return rhs_value;
   }
   case Op::Or: {
-    return TRY(Value::logical_or(interpreter, lhs_value, rhs_value));
+    return rhs_value;
   }
   default:
-    return ore_nil();
+    ASSERT_NOT_REACHED();
   }
 }
 
