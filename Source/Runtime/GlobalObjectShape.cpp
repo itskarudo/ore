@@ -42,14 +42,11 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::throw)
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::all)
 {
   ARGS_SIZE_GUARD(all, 1);
-  ARG_TYPE_OBJECT(0);
+  ARG_TYPE_ARRAY(0);
 
-  auto* self_object = params.args[0].as_object();
-  assert(self_object->is_array());
+  auto* array = static_cast<ArrayObject*>(params.args[0].as_object());
 
-  auto* self = static_cast<ArrayObject*>(self_object);
-
-  for (auto element : self->elements())
+  for (auto element : array->elements())
     if (!element.to_boolean())
       return ore_boolean(false);
 
@@ -59,14 +56,11 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::all)
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::any)
 {
   ARGS_SIZE_GUARD(any, 1);
-  ARG_TYPE_OBJECT(0);
+  ARG_TYPE_ARRAY(0);
 
-  auto* self_object = params.args[0].as_object();
-  assert(self_object->is_array());
+  auto* array = static_cast<ArrayObject*>(params.args[0].as_object());
 
-  auto* self = static_cast<ArrayObject*>(self_object);
-
-  for (auto element : self->elements())
+  for (auto element : array->elements())
     if (element.to_boolean())
       return ore_boolean(true);
 

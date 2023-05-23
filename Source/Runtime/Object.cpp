@@ -1,7 +1,7 @@
 #include "Object.h"
 #include "../Interpreter.h"
 #include "NativeFunction.h"
-#include <sstream>
+#include <fmt/core.h>
 
 namespace Ore {
 void Object::visit_graph(Visitor& visitor)
@@ -59,17 +59,7 @@ bool Object::contains(PropertyKey key) const
 
 std::string const Object::to_string() const
 {
-  std::stringstream s;
-  s << "{";
-  for (auto& [key, value] : properties()) {
-    s << " \"" << key << "\": ";
-    if (value.is_string())
-      s << "\"" << value << "\",";
-    else
-      s << value << ",";
-  }
-  s << " }";
-  return s.str();
+  return fmt::format("<{}@{}>", class_name(), (void*)this);
 }
 
 }

@@ -27,7 +27,6 @@ class FunctionObject final : public Object {
 
   virtual bool is_function() const override { return true; }
   virtual char const* class_name() const override { return "Function"; }
-  virtual std::string const to_string() const override;
 
   std::vector<Parameter>& parameters() { return m_parameters; }
 

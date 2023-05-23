@@ -31,8 +31,6 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Interpreter.cpp
             Source/Runtime/Value.cpp
             Source/Runtime/Object.cpp
-            Source/Runtime/FunctionObject.cpp
-            Source/Runtime/NativeFunction.cpp
             Source/Runtime/GlobalObject.cpp
             Source/Runtime/GlobalObjectShape.cpp
             Source/Runtime/StringObject.cpp

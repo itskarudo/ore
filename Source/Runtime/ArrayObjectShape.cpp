@@ -12,12 +12,9 @@ ArrayObjectShape::ArrayObjectShape()
 DEFINE_NATIVE_FUNCTION(ArrayObjectShape::append)
 {
   ARGS_SIZE_GUARD(append, 2);
-  ARG_TYPE_OBJECT(0);
+  ARG_TYPE_ARRAY(0);
 
-  auto* self_object = params.args[0].as_object();
-
-  assert(self_object->is_array());
-  auto* self = static_cast<ArrayObject*>(self_object);
+  auto* self = static_cast<ArrayObject*>(params.args[0].as_object());
 
   self->elements().push_back(params.args[1]);
 
