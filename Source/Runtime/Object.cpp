@@ -18,12 +18,16 @@ ThrowResultOr<Value> Object::get(PropertyKey key) const
 
   Object const* object = this;
   while (object) {
-    if (object->properties().contains(key.string()))
-      return object->m_properties.at(key.string());
+
+    auto it = object->m_properties.find(key.string());
+
+    if (it != object->m_properties.end())
+      return it->second;
+
     object = object->shape();
   }
 
-  return ore_nil();
+  return interpreter().throw_exception(ExceptionObject::reference_exception(), "Unknown Identifier");
 }
 
 void Object::put(PropertyKey key, Value value)
@@ -39,22 +43,6 @@ void Object::put(PropertyKey key, Value value)
 void Object::put_native_function(PropertyKey key, std::function<ThrowResultOr<Value>(OreFuncParams)> func)
 {
   put(key, heap().allocate<NativeFunction>(func));
-}
-
-bool Object::contains(PropertyKey key) const
-{
-  if (!key.is_string()) {
-    interpreter().throw_exception(ExceptionObject::type_exception(), "key must be a string");
-    return false;
-  }
-
-  Object const* object = this;
-  while (object) {
-    if (object->properties().contains(key.string()))
-      return true;
-    object = object->shape();
-  }
-  return false;
 }
 
 std::string const Object::to_string() const

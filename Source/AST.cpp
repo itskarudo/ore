@@ -615,10 +615,7 @@ Result MemberExpression::execute(Interpreter& interpreter)
     key = PropertyKey(id.name());
   }
 
-  if (obj->contains(key))
-    return TRY(obj->get(key));
-
-  return ore_nil();
+  return TRY(obj->get(key));
 }
 
 void ObjectExpression::dump_impl(int indent) const

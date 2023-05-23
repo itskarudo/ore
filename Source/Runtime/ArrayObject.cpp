@@ -41,16 +41,6 @@ void ArrayObject::put(PropertyKey key, Value value)
     Object::put(key, value);
 }
 
-bool ArrayObject::contains(PropertyKey key) const
-{
-  if (key.is_number())
-    return key.number() < m_elements.size();
-  else if (key.is_string())
-    return Object::contains(key);
-
-  ASSERT_NOT_REACHED();
-}
-
 std::string const ArrayObject::to_string() const
 {
   std::stringstream s;

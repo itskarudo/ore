@@ -24,10 +24,7 @@ ThrowResultOr<Value> Interpreter::get_variable(std::string const& name)
     if (frame->variables.contains(name))
       return frame->variables.at(name);
 
-  if (global_object()->contains(name))
-    return global_object()->get(name);
-
-  return throw_exception(ExceptionObject::reference_exception(), "Unknown Identifier");
+  return TRY(global_object()->get(name));
 }
 
 void Interpreter::set_variable(std::string const& name, Value value)

@@ -20,7 +20,6 @@ class Object : public GC::Cell {
   virtual ThrowResultOr<Value> get(PropertyKey key) const;
   virtual void put(PropertyKey key, Value value);
   virtual void put_native_function(PropertyKey key, std::function<ThrowResultOr<Value>(OreFuncParams)>);
-  virtual bool contains(PropertyKey key) const;
   virtual bool to_boolean() const { return !m_properties.empty(); }
   virtual std::string const to_string() const;
 
