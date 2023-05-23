@@ -9,5 +9,8 @@ class ArrayObjectShape : public Object {
 
   private:
   DECLARE_NATIVE_FUNCTION(append);
+  DECLARE_NATIVE_FUNCTION(pop);
+  DECLARE_NATIVE_FUNCTION(insert);
+  DECLARE_NATIVE_FUNCTION(remove);
 };
 }
