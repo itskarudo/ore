@@ -1,7 +1,5 @@
 #include <Ore.h>
-#include <chrono>
 #include <ctime>
-#include <thread>
 
 namespace Ore::Time {
 
@@ -18,7 +16,7 @@ ThrowResultOr<Value> sleep(OreFuncParams params)
   ARG_TYPE_NUMBER(0);
 
   int secs = params.args[0].as_number();
-  std::this_thread::sleep_for(std::chrono::milliseconds(secs));
+  ::sleep(secs);
   return ore_nil();
 }
 
