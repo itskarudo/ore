@@ -24,7 +24,7 @@ class PropertyKey {
   {
   }
 
-  std::string const string() const { return m_string; }
+  std::string const& string() const { return m_string; }
   int number() const { return m_number; }
 
   bool is_string() const { return m_type == Type::String; }
