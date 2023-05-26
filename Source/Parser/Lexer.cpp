@@ -142,10 +142,9 @@ Token Lexer::next()
     m_token_type = Token::TokenType::NumberLiteral;
     if (m_current_char == '0') {
       consume();
-      if (isdigit(m_current_char)) {
-        do {
+      if (isdigit(m_current_char) || m_current_char == '.') {
+        while (isdigit(m_current_char))
           consume();
-        } while (isdigit(m_current_char));
 
         if (m_current_char == '.') {
           do {
