@@ -27,7 +27,7 @@ ThrowResultOr<Value> Object::get(PropertyKey key) const
     object = object->shape();
   }
 
-  return interpreter().throw_exception(ExceptionObject::reference_exception(), "Unknown Identifier");
+  return interpreter().throw_exception(ExceptionObject::reference_exception(), fmt::format("Unknown identifier '{}'.", key.string()));
 }
 
 void Object::put(PropertyKey key, Value value)
