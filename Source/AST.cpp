@@ -187,12 +187,15 @@ void ReturnStatement::dump_impl(int indent) const
 {
   print_indent(indent);
   printf("\033[32m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
-  argument().dump_impl(indent + 1);
+  if (m_argument.has_value())
+    m_argument.value()->dump_impl(indent + 1);
 }
 
 Result ReturnStatement::execute(Interpreter& interpreter)
 {
-  auto argument_value = TRY(argument().execute(interpreter));
+  Value argument_value = ore_nil();
+  if (m_argument.has_value())
+    argument_value = TRY(m_argument.value()->execute(interpreter));
   return { Result::Type::Return, argument_value };
 }
 

@@ -7,6 +7,7 @@
 #include "Runtime/Object.h"
 #include "Runtime/Result.h"
 #include "Runtime/Value.h"
+#include "SourceRange.h"
 
 #define ENUMERATE_BINARY_OPS              \
   __ENUM_BI_OP(Add, "+")                  \
@@ -38,20 +39,45 @@ class ASTNode {
   virtual void dump_impl(int indent) const = 0;
   virtual Result execute(Interpreter&) = 0;
 
+  SourceRange const& source_range() const { return m_source_range; }
+
   virtual bool is_identifier() const { return false; }
   virtual bool is_member_expression() const { return false; }
   virtual bool is_function_declaration() const { return false; }
   virtual bool is_program() const { return false; }
+
+  protected:
+  explicit ASTNode(SourceRange source_range)
+      : m_source_range(source_range)
+  {
+  }
+
+  private:
+  SourceRange m_source_range;
 };
 
 class Statement : public ASTNode {
+  protected:
+  explicit Statement(SourceRange source_range)
+      : ASTNode(source_range)
+  {
+  }
 };
 
 class Expression : public Statement {
+  protected:
+  explicit Expression(SourceRange source_range)
+      : Statement(source_range)
+  {
+  }
 };
 
 class BlockStatement : public Statement {
   public:
+  explicit BlockStatement(SourceRange source_range)
+      : Statement(source_range)
+  {
+  }
   virtual char const* class_name() const override { return "BlockStatement"; };
   virtual void dump_impl(int indent) const override;
   virtual Result execute(Interpreter&) override;
@@ -76,17 +102,27 @@ class BlockStatement : public Statement {
 
 class Program : public BlockStatement {
   public:
+  explicit Program(SourceRange source_range)
+      : BlockStatement(source_range)
+  {
+  }
   virtual char const* class_name() const override { return "Program"; };
   virtual bool is_program() const override { return true; }
 };
 
 class Literal : public Expression {
+  protected:
+  explicit Literal(SourceRange source_range)
+      : Expression(source_range)
+  {
+  }
 };
 
 class NumberLiteral : public Literal {
   public:
-  NumberLiteral(double value)
-      : m_value(value)
+  NumberLiteral(SourceRange source_range, double value)
+      : Literal(source_range)
+      , m_value(value)
   {
   }
 
@@ -100,8 +136,9 @@ class NumberLiteral : public Literal {
 
 class BooleanLiteral : public Literal {
   public:
-  BooleanLiteral(bool value)
-      : m_value(value)
+  BooleanLiteral(SourceRange source_range, bool value)
+      : Literal(source_range)
+      , m_value(value)
   {
   }
 
@@ -115,8 +152,9 @@ class BooleanLiteral : public Literal {
 
 class StringLiteral : public Literal {
   public:
-  StringLiteral(std::string const& value)
-      : m_value(std::move(value))
+  StringLiteral(SourceRange source_range, std::string const& value)
+      : Literal(source_range)
+      , m_value(std::move(value))
   {
   }
 
@@ -130,7 +168,10 @@ class StringLiteral : public Literal {
 
 class NilLiteral : public Literal {
   public:
-  NilLiteral() { }
+  NilLiteral(SourceRange source_range)
+      : Literal(source_range)
+  {
+  }
 
   virtual char const* class_name() const override { return "NilLiteral"; }
   virtual void dump_impl(int indent) const override;
@@ -144,8 +185,9 @@ class FunctionDeclaration : public Expression {
     std::optional<std::unique_ptr<Expression>> default_value;
   };
 
-  FunctionDeclaration(std::optional<std::string> name, std::shared_ptr<BlockStatement> body, std::vector<Parameter> parameters = {})
-      : m_name(std::move(name))
+  FunctionDeclaration(SourceRange source_range, std::optional<std::string> name, std::shared_ptr<BlockStatement> body, std::vector<Parameter> parameters = {})
+      : Expression(source_range)
+      , m_name(std::move(name))
       , m_body(body)
       , m_parameters(std::move(parameters))
   {
@@ -170,8 +212,9 @@ class FunctionDeclaration : public Expression {
 
 class CallExpression : public Expression {
   public:
-  CallExpression(std::unique_ptr<ASTNode> callee, std::vector<std::unique_ptr<Expression>> arguments = {})
-      : m_callee(std::move(callee))
+  CallExpression(SourceRange source_range, std::unique_ptr<ASTNode> callee, std::vector<std::unique_ptr<Expression>> arguments = {})
+      : Expression(source_range)
+      , m_callee(std::move(callee))
       , m_arguments(std::move(arguments))
   {
   }
@@ -187,28 +230,26 @@ class CallExpression : public Expression {
 
 class ReturnStatement : public Statement {
   public:
-  ReturnStatement()
-      : m_argument(std::make_unique<AST::NilLiteral>())
+  ReturnStatement(SourceRange source_range, std::optional<std::unique_ptr<Expression>> argument)
+      : Statement(source_range)
+      , m_argument(std::move(argument))
   {
   }
 
-  ReturnStatement(std::unique_ptr<Expression> argument)
-      : m_argument(std::move(argument))
-  {
-  }
-
-  Expression& argument() const { return *m_argument; }
   virtual char const* class_name() const override { return "ReturnStatement"; }
   virtual void dump_impl(int indent) const override;
   virtual Result execute(Interpreter&) override;
 
   private:
-  std::unique_ptr<Expression> m_argument;
+  std::optional<std::unique_ptr<Expression>> m_argument;
 };
 
 class BreakStatement : public Statement {
   public:
-  BreakStatement() { }
+  BreakStatement(SourceRange source_range)
+      : Statement(source_range)
+  {
+  }
 
   virtual char const* class_name() const override { return "BreakStatement"; }
   virtual void dump_impl(int indent) const override;
@@ -217,7 +258,10 @@ class BreakStatement : public Statement {
 
 class ContinueStatement : public Statement {
   public:
-  ContinueStatement() { }
+  ContinueStatement(SourceRange source_range)
+      : Statement(source_range)
+  {
+  }
 
   virtual char const* class_name() const override { return "ContinueStatement"; }
   virtual void dump_impl(int indent) const override;
@@ -226,8 +270,9 @@ class ContinueStatement : public Statement {
 
 class IfStatement : public Statement {
   public:
-  IfStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> consequent, std::optional<std::unique_ptr<Statement>> alternate)
-      : m_test(std::move(test))
+  IfStatement(SourceRange source_range, std::unique_ptr<Expression> test, std::unique_ptr<Statement> consequent, std::optional<std::unique_ptr<Statement>> alternate)
+      : Statement(source_range)
+      , m_test(std::move(test))
       , m_consequent(std::move(consequent))
       , m_alternate(std::move(alternate))
   {
@@ -249,11 +294,12 @@ class IfStatement : public Statement {
 
 class ForStatement : public Statement {
   public:
-  ForStatement(std::optional<std::unique_ptr<Expression>> init,
+  ForStatement(SourceRange source_range, std::optional<std::unique_ptr<Expression>> init,
       std::optional<std::unique_ptr<Expression>> test,
       std::optional<std::unique_ptr<Expression>> update,
       std::unique_ptr<Statement> body)
-      : m_init(std::move(init))
+      : Statement(source_range)
+      , m_init(std::move(init))
       , m_test(std::move(test))
       , m_update(std::move(update))
       , m_body(std::move(body))
@@ -271,8 +317,9 @@ class ForStatement : public Statement {
 
 class WhileStatement : public Statement {
   public:
-  WhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> body)
-      : m_test(std::move(test))
+  WhileStatement(SourceRange source_range, std::unique_ptr<Expression> test, std::unique_ptr<Statement> body)
+      : Statement(source_range)
+      , m_test(std::move(test))
       , m_body(std::move(body))
   {
   }
@@ -291,8 +338,9 @@ class WhileStatement : public Statement {
 
 class DoWhileStatement : public Statement {
   public:
-  DoWhileStatement(std::unique_ptr<Expression> test, std::unique_ptr<Statement> body)
-      : m_test(std::move(test))
+  DoWhileStatement(SourceRange source_range, std::unique_ptr<Expression> test, std::unique_ptr<Statement> body)
+      : Statement(source_range)
+      , m_test(std::move(test))
       , m_body(std::move(body))
   {
   }
@@ -311,8 +359,9 @@ class DoWhileStatement : public Statement {
 
 class Identifier : public Expression {
   public:
-  Identifier(std::string const& name)
-      : m_name(std::move(name))
+  Identifier(SourceRange source_range, std::string const& name)
+      : Expression(source_range)
+      , m_name(std::move(name))
   {
   }
 
@@ -341,8 +390,9 @@ class AssignmentExpression : public Expression {
     ConcatAssignment
   };
 
-  AssignmentExpression(std::unique_ptr<ASTNode> lhs, Op op, std::unique_ptr<Expression> rhs)
-      : m_lhs(std::move(lhs))
+  AssignmentExpression(SourceRange source_range, std::unique_ptr<ASTNode> lhs, Op op, std::unique_ptr<Expression> rhs)
+      : Expression(source_range)
+      , m_lhs(std::move(lhs))
       , m_op(op)
       , m_rhs(std::move(rhs))
   {
@@ -363,8 +413,9 @@ class AssignmentExpression : public Expression {
 
 class GlobalStatement : public Statement {
   public:
-  GlobalStatement(std::unique_ptr<AssignmentExpression> assignment)
-      : m_assignment(std::move(assignment))
+  GlobalStatement(SourceRange source_range, std::unique_ptr<AssignmentExpression> assignment)
+      : Statement(source_range)
+      , m_assignment(std::move(assignment))
   {
   }
 
@@ -384,8 +435,9 @@ class UnaryExpression : public Expression {
     Length,
   };
 
-  UnaryExpression(Op op, std::unique_ptr<Expression> operand)
-      : m_op(op)
+  UnaryExpression(SourceRange source_range, Op op, std::unique_ptr<Expression> operand)
+      : Expression(source_range)
+      , m_op(op)
       , m_operand(std::move(operand))
   {
   }
@@ -407,8 +459,9 @@ class BinaryExpression : public Expression {
 #undef __ENUM_BI_OP
   };
 
-  BinaryExpression(std::unique_ptr<Expression> lhs, Op op, std::unique_ptr<Expression> rhs)
-      : m_lhs(std::move(lhs))
+  BinaryExpression(SourceRange source_range, std::unique_ptr<Expression> lhs, Op op, std::unique_ptr<Expression> rhs)
+      : Expression(source_range)
+      , m_lhs(std::move(lhs))
       , m_op(op)
       , m_rhs(std::move(rhs))
   {
@@ -425,8 +478,9 @@ class BinaryExpression : public Expression {
 
 class MemberExpression : public Expression {
   public:
-  explicit MemberExpression(std::unique_ptr<Expression> object, std::unique_ptr<Expression> property, bool computed = false)
-      : m_object(std::move(object))
+  explicit MemberExpression(SourceRange source_range, std::unique_ptr<Expression> object, std::unique_ptr<Expression> property, bool computed = false)
+      : Expression(source_range)
+      , m_object(std::move(object))
       , m_property(std::move(property))
       , m_computed(computed)
   {
@@ -453,8 +507,9 @@ class MemberExpression : public Expression {
 
 class ObjectExpression : public Expression {
   public:
-  ObjectExpression(std::map<std::string, std::unique_ptr<Expression>> properties = {})
-      : m_properties(std::move(properties))
+  ObjectExpression(SourceRange source_range, std::map<std::string, std::unique_ptr<Expression>> properties = {})
+      : Expression(source_range)
+      , m_properties(std::move(properties))
   {
   }
 
@@ -468,8 +523,9 @@ class ObjectExpression : public Expression {
 
 class ArrayExpression : public Expression {
   public:
-  ArrayExpression(std::vector<std::unique_ptr<Expression>> elements = {})
-      : m_elements(std::move(elements))
+  ArrayExpression(SourceRange source_range, std::vector<std::unique_ptr<Expression>> elements = {})
+      : Expression(source_range)
+      , m_elements(std::move(elements))
   {
   }
 
@@ -483,8 +539,9 @@ class ArrayExpression : public Expression {
 
 class ExportStatement : public Statement {
   public:
-  ExportStatement(std::unique_ptr<Expression> argument)
-      : m_argument(std::move(argument))
+  ExportStatement(SourceRange source_range, std::unique_ptr<Expression> argument)
+      : Statement(source_range)
+      , m_argument(std::move(argument))
   {
   }
 
@@ -498,8 +555,9 @@ class ExportStatement : public Statement {
 
 class CatchClause : public ASTNode {
   public:
-  CatchClause(std::string param, std::unique_ptr<BlockStatement> body)
-      : m_param(std::move(param))
+  CatchClause(SourceRange source_range, std::string param, std::unique_ptr<BlockStatement> body)
+      : ASTNode(source_range)
+      , m_param(std::move(param))
       , m_body(std::move(body))
   {
   }
@@ -518,8 +576,9 @@ class CatchClause : public ASTNode {
 
 class TryStatement : public Statement {
   public:
-  TryStatement(std::unique_ptr<BlockStatement> block, std::unique_ptr<CatchClause> handler, std::optional<std::unique_ptr<BlockStatement>> finalizer)
-      : m_block(std::move(block))
+  TryStatement(SourceRange source_range, std::unique_ptr<BlockStatement> block, std::unique_ptr<CatchClause> handler, std::optional<std::unique_ptr<BlockStatement>> finalizer)
+      : Statement(source_range)
+      , m_block(std::move(block))
       , m_handler(std::move(handler))
       , m_finalizer(std::move(finalizer))
   {

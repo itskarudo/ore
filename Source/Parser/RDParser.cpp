@@ -73,13 +73,13 @@ Ore::Parser::Token RDParser::ConsumeToken(Ore::Parser::Token::TokenType type, st
 }
 std::unique_ptr<AST::Program> RDParser::parse()
 {
-  auto Program = std::make_unique<AST::Program>();
+  auto Program = std::make_unique<AST::Program>(SourceRange {});
   while (!isAtEnd()) {
     auto Statement = ParseStatement();
     if (!ErrorFound)
       Program->append(std::move(Statement));
     else
-      return std::make_unique<AST::Program>();
+      return std::make_unique<AST::Program>(SourceRange {});
   }
   return std::move(Program);
 }
@@ -90,7 +90,7 @@ std::unique_ptr<AST::Statement> RDParser::ParseStatement()
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Else>()) {
     std::cout << "Error :  else must be preceded by an if block " << std::endl;
     ErrorFound = true;
-    return std::make_unique<AST::BlockStatement>();
+    return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::For>()) {
     return ParseForStatement();
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::While>()) {
@@ -110,17 +110,17 @@ std::unique_ptr<AST::Statement> RDParser::ParseStatement()
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Catch>()) {
     std::cout << "Error : Catch must be preceded by a try block " << std::endl;
     ErrorFound = true;
-    return std::make_unique<AST::BlockStatement>();
+    return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyOpen>()) {
     return ParseBlockStatement();
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyClose>()) {
     std::cout << "Error : } must be preceded by a  block " << std::endl;
     ErrorFound = true;
-    return std::make_unique<AST::BlockStatement>();
+    return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Switch, Ore::Parser::Token::TokenType::Case>()) {
     std::cout << "Error : Switch Case is not yet emplimented " << std::endl;
     ErrorFound = true;
-    return std::make_unique<AST::BlockStatement>();
+    return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else
     return ParseExpression();
 }
@@ -130,9 +130,9 @@ std::unique_ptr<AST::Statement> RDParser::ParseIfStatement()
   auto Consequent = ParseStatement();
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Else>()) {
     auto Alternate = ParseStatement();
-    return std::make_unique<AST::IfStatement>(std::move(Test), std::move(Consequent), std::move(Alternate));
+    return std::make_unique<AST::IfStatement>(SourceRange {}, std::move(Test), std::move(Consequent), std::move(Alternate));
   }
-  return std::make_unique<AST::IfStatement>(std::move(Test), std::move(Consequent), std::nullopt);
+  return std::make_unique<AST::IfStatement>(SourceRange {}, std::move(Test), std::move(Consequent), std::nullopt);
 }
 std::unique_ptr<AST::Statement> RDParser::ParseForStatement()
 {
@@ -147,20 +147,20 @@ std::unique_ptr<AST::Statement> RDParser::ParseForStatement()
         auto Update = ParseExpression();
         ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::move(Init), std::move(Test), std::move(Update), std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::move(Init), std::move(Test), std::move(Update), std::move(Body));
       } else {
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::move(Init), std::move(Test), std::nullopt, std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::move(Init), std::move(Test), std::nullopt, std::move(Body));
       }
     } else {
       if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenClose>()) {
         auto Update = ParseExpression();
         ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::move(Init), std::nullopt, std::move(Update), std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::move(Init), std::nullopt, std::move(Update), std::move(Body));
       } else {
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::move(Init), std::nullopt, std::nullopt, std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::move(Init), std::nullopt, std::nullopt, std::move(Body));
       }
     }
   } else {
@@ -171,20 +171,20 @@ std::unique_ptr<AST::Statement> RDParser::ParseForStatement()
         auto Update = ParseExpression();
         ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::nullopt, std::move(Test), std::move(Update), std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::nullopt, std::move(Test), std::move(Update), std::move(Body));
       } else {
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::nullopt, std::move(Test), std::nullopt, std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::nullopt, std::move(Test), std::nullopt, std::move(Body));
       }
     } else {
       if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenClose>()) {
         auto Update = ParseExpression();
         ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::nullopt, std::nullopt, std::move(Update), std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::nullopt, std::nullopt, std::move(Update), std::move(Body));
       } else {
         auto Body = ParseStatement();
-        return std::make_unique<AST::ForStatement>(std::nullopt, std::nullopt, std::nullopt, std::move(Body));
+        return std::make_unique<AST::ForStatement>(SourceRange {}, std::nullopt, std::nullopt, std::nullopt, std::move(Body));
       }
     }
   }
@@ -193,36 +193,36 @@ std::unique_ptr<AST::Statement> RDParser::ParseWhileStatement()
 {
   auto Test = ParseExpression();
   auto Body = ParseStatement();
-  return std::make_unique<AST::WhileStatement>(std::move(Test), std::move(Body));
+  return std::make_unique<AST::WhileStatement>(SourceRange {}, std::move(Test), std::move(Body));
 }
 std::unique_ptr<AST::Statement> RDParser::ParseDoWhileStatement()
 {
   auto Body = ParseStatement();
   ConsumeToken(Ore::Parser::Token::TokenType::While, "Error : expected while after do block");
   auto Test = ParseExpression();
-  return std::make_unique<AST::DoWhileStatement>(std::move(Test), std::move(Body));
+  return std::make_unique<AST::DoWhileStatement>(SourceRange {}, std::move(Test), std::move(Body));
 }
 std::unique_ptr<AST::Statement> RDParser::ParseReturnStatement()
 {
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
     auto Expr = ParseExpression();
     ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : Expected ) after ( taken");
-    return std::make_unique<AST::ReturnStatement>(std::move(Expr));
+    return std::make_unique<AST::ReturnStatement>(SourceRange {}, std::move(Expr));
   }
-  return std::make_unique<AST::ReturnStatement>();
+  return std::make_unique<AST::ReturnStatement>(SourceRange {}, std::nullopt);
 }
 std::unique_ptr<AST::Statement> RDParser::ParseExportStatement()
 {
   auto Expr = ParseExpression();
-  return std::make_unique<AST::ExportStatement>(std::move(Expr));
+  return std::make_unique<AST::ExportStatement>(SourceRange {}, std::move(Expr));
 }
 std::unique_ptr<AST::Statement> RDParser::ParseBreakStatement()
 {
-  return std::make_unique<AST::BreakStatement>();
+  return std::make_unique<AST::BreakStatement>(SourceRange {});
 }
 std::unique_ptr<AST::Statement> RDParser::ParseContinueStatement()
 {
-  return std::make_unique<AST::ContinueStatement>();
+  return std::make_unique<AST::ContinueStatement>(SourceRange {});
 }
 std::unique_ptr<AST::Statement> RDParser::ParseExceptionStatement()
 {
@@ -235,17 +235,17 @@ std::unique_ptr<AST::Statement> RDParser::ParseExceptionStatement()
   ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after variable name");
   ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : expected a block after catch");
   auto HandlerBlock = ParseBlockStatement();
-  auto Handler = std::make_unique<AST::CatchClause>(Exp, std::move(HandlerBlock));
+  auto Handler = std::make_unique<AST::CatchClause>(SourceRange {}, Exp, std::move(HandlerBlock));
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Finally>()) {
     ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : expected a block after finally");
     auto Finalizer = ParseBlockStatement();
-    return std::make_unique<AST::TryStatement>(std::move(Block), std::move(Handler), std::move(Finalizer));
+    return std::make_unique<AST::TryStatement>(SourceRange {}, std::move(Block), std::move(Handler), std::move(Finalizer));
   }
-  return std::make_unique<AST::TryStatement>(std::move(Block), std::move(Handler), std::nullopt);
+  return std::make_unique<AST::TryStatement>(SourceRange {}, std::move(Block), std::move(Handler), std::nullopt);
 }
 std::unique_ptr<AST::BlockStatement> RDParser::ParseBlockStatement()
 {
-  auto Block = std::make_unique<AST::BlockStatement>();
+  auto Block = std::make_unique<AST::BlockStatement>(SourceRange {});
   while (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyClose>()) {
     auto Statement = ParseStatement();
     Block->append(std::move(Statement));
@@ -265,7 +265,7 @@ std::unique_ptr<AST::Expression> RDParser::ParseFunction()
     auto ParamVector = std::move(ConsumeParameters());
     ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : function body needs to be a block statement ");
     std::shared_ptr<AST::BlockStatement> Body = std::move(ParseBlockStatement());
-    return std::make_unique<AST::FunctionDeclaration>(FuncName, Body, std::move(ParamVector));
+    return std::make_unique<AST::FunctionDeclaration>(SourceRange {}, FuncName, Body, std::move(ParamVector));
   }
   ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected ( after functon's name ");
   auto ParamVector = std::move(ConsumeParameters());
@@ -273,9 +273,9 @@ std::unique_ptr<AST::Expression> RDParser::ParseFunction()
   std::shared_ptr<AST::BlockStatement> Body = std::move(ParseBlockStatement());
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
     auto ArgVector = std::move(ConsumeArguments());
-    return std::make_unique<AST::CallExpression>(std::make_unique<AST::FunctionDeclaration>(std::nullopt, Body, std::move(ParamVector)), std::move(ArgVector));
+    return std::make_unique<AST::CallExpression>(SourceRange {}, std::make_unique<AST::FunctionDeclaration>(SourceRange {}, std::nullopt, Body, std::move(ParamVector)), std::move(ArgVector));
   }
-  return std::make_unique<AST::FunctionDeclaration>(std::nullopt, Body, std::move(ParamVector));
+  return std::make_unique<AST::FunctionDeclaration>(SourceRange {}, std::nullopt, Body, std::move(ParamVector));
 }
 
 std::vector<AST::FunctionDeclaration::Parameter> RDParser::ConsumeParameters()
@@ -385,7 +385,7 @@ std::unique_ptr<AST::Expression> RDParser::ParseExpression()
       ErrorFound = true;
     }
     auto Right = ParseExpression();
-    Left = std::make_unique<AST::AssignmentExpression>(std::move(Left), Operator, std::move(Right));
+    Left = std::make_unique<AST::AssignmentExpression>(SourceRange {}, std::move(Left), Operator, std::move(Right));
   }
   return Left;
 }
@@ -394,7 +394,7 @@ std::unique_ptr<AST::Expression> RDParser::OrExpression()
   auto Left = XorExpression();
   while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Or>()) {
     auto Right = XorExpression();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), AST::BinaryExpression::Op::Or, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), AST::BinaryExpression::Op::Or, std::move(Right));
   }
   return Left;
 }
@@ -403,7 +403,7 @@ std::unique_ptr<AST::Expression> RDParser::XorExpression()
   auto Left = AndExpression();
   while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Xor>()) {
     auto Right = AndExpression();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), AST::BinaryExpression::Op::Xor, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), AST::BinaryExpression::Op::Xor, std::move(Right));
   }
   return Left;
 }
@@ -412,7 +412,7 @@ std::unique_ptr<AST::Expression> RDParser::AndExpression()
   auto Left = EqExpression();
   while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::And>()) {
     auto Right = EqExpression();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), AST::BinaryExpression::Op::And, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), AST::BinaryExpression::Op::And, std::move(Right));
   }
   return Left;
 }
@@ -430,7 +430,7 @@ std::unique_ptr<AST::Expression> RDParser::EqExpression()
       break;
     }
     auto Right = CmpExpression();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), Operator, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), Operator, std::move(Right));
   }
   return Left;
 }
@@ -454,7 +454,7 @@ std::unique_ptr<AST::Expression> RDParser::CmpExpression()
       break;
     }
     auto Right = ShfExpression();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), Operator, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), Operator, std::move(Right));
   }
   return Left;
 }
@@ -472,7 +472,7 @@ std::unique_ptr<AST::Expression> RDParser::ShfExpression()
       break;
     }
     auto Right = AddExpression();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), Operator, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), Operator, std::move(Right));
   }
   return Left;
 }
@@ -493,7 +493,7 @@ std::unique_ptr<AST::Expression> RDParser::AddExpression()
       break;
     }
     auto Right = MulExpression();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), Operator, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), Operator, std::move(Right));
   }
   return Left;
 }
@@ -514,7 +514,7 @@ std::unique_ptr<AST::Expression> RDParser::MulExpression()
       break;
     }
     auto Right = Unary();
-    Left = std::make_unique<AST::BinaryExpression>(std::move(Left), Operator, std::move(Right));
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), Operator, std::move(Right));
   }
   return Left;
 }
@@ -533,7 +533,7 @@ std::unique_ptr<AST::Expression> RDParser::Unary()
       Operator = AST::UnaryExpression::Op::Negate;
       break;
     }
-    return std::make_unique<AST::UnaryExpression>(Operator, Unary());
+    return std::make_unique<AST::UnaryExpression>(SourceRange {}, Operator, Unary());
   }
   return Primitive();
 }
@@ -546,20 +546,20 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
     ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : Expected ) after grouping expression");
     return Expression;
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::NilLiteral>()) {
-    return std::make_unique<AST::NilLiteral>();
+    return std::make_unique<AST::NilLiteral>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BoolLiteral>()) {
-    return std::make_unique<AST::BooleanLiteral>((Previous.value() == "true") ? true : false);
+    return std::make_unique<AST::BooleanLiteral>(SourceRange {}, (Previous.value() == "true") ? true : false);
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::StringLiteral>()) {
-    return std::make_unique<AST::StringLiteral>(Previous.value().substr(1, Previous.value().length() - 2));
+    return std::make_unique<AST::StringLiteral>(SourceRange {}, Previous.value().substr(1, Previous.value().length() - 2));
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketOpen>()) {
     auto ExprVector = ConsumeElements();
-    return std::make_unique<AST::ArrayExpression>(std::move(ExprVector));
+    return std::make_unique<AST::ArrayExpression>(SourceRange {}, std::move(ExprVector));
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketClose>()) {
     ErrorFound = true;
     std::cout << "Error : expected [ before ] taken " << std::endl;
-    return std::make_unique<AST::NilLiteral>();
+    return std::make_unique<AST::NilLiteral>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::NumberLiteral>()) {
-    return std::make_unique<AST::NumberLiteral>(convertToDouble(Previous.value()));
+    return std::make_unique<AST::NumberLiteral>(SourceRange {}, convertToDouble(Previous.value()));
   } else {
     return Call();
   }
@@ -610,17 +610,17 @@ double RDParser::convertToDouble(std::string const& str)
 std::unique_ptr<AST::Expression> RDParser::Call()
 {
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Identifier>()) {
-    auto Aux = std::make_unique<AST::Identifier>(Previous.value());
+    auto Aux = std::make_unique<AST::Identifier>(SourceRange {}, Previous.value());
     if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
       auto args = ConsumeArguments();
-      return std::make_unique<AST::CallExpression>(std::move(Aux), std::move(args));
+      return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(Aux), std::move(args));
     }
     return Aux;
   } else {
     Advance();
     std::cout << "Error : syntax error, unhandled token" << std::endl;
     ErrorFound = true;
-    return std::make_unique<AST::BooleanLiteral>(false);
+    return std::make_unique<AST::BooleanLiteral>(SourceRange {}, false);
   }
 }
 }
