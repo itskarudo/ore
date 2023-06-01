@@ -15,7 +15,7 @@ class Object : public GC::Cell {
   Object() { }
   virtual ~Object() { }
 
-  std::map<std::string, Value> properties() const { return m_properties; }
+  std::map<std::string, Value> const& properties() const { return m_properties; }
 
   virtual ThrowResultOr<Value> get(PropertyKey key) const;
   virtual void put(PropertyKey key, Value value);

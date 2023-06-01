@@ -35,7 +35,7 @@ void Interpreter::set_variable(std::string const& name, Value value)
       return;
     }
 
-  if (m_scope_frames.size() == 0)
+  if (m_scope_frames.size() == 0 || global_object()->contains(name))
     global_object()->put(name, value);
   else
     current_scope().variables[name] = value;
