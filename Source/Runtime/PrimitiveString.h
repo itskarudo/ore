@@ -9,7 +9,7 @@ class PrimitiveString : public GC::Cell {
   {
   }
 
-  std::string string() const { return m_string; }
+  std::string const& string() const { return m_string; }
   virtual char const* class_name() const override { return "PrimitiveString"; }
 
   private:

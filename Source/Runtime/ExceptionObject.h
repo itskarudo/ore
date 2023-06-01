@@ -25,8 +25,8 @@ class ExceptionObject : public Object {
   virtual char const* class_name() const override { return "ExceptionObject"; }
   virtual bool is_exception() const override { return true; }
 
-  std::string type() const { return m_type; }
-  std::string message() const { return m_message; }
+  std::string const& type() const { return m_type; }
+  std::string const& message() const { return m_message; }
   std::vector<BacktraceFrame>& backtrace() { return m_backtrace; }
 
 #define __ENUM_EXCEPTION_TYPES(exception_type, ExceptionType) \

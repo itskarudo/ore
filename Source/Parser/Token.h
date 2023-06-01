@@ -87,7 +87,7 @@ class Token {
 
   TokenType type() const { return m_type; }
   char const* name() const;
-  std::string value() const { return m_value; }
+  std::string const& value() const { return m_value; }
   size_t line_number() const { return m_line_number; }
   size_t line_column() const { return m_line_column; }
 
