@@ -1,4 +1,6 @@
 #include "RDParser.h"
+#include "Token.h"
+#include <memory>
 /*
 code ::= {Statement};
 Statement ::=
@@ -499,7 +501,7 @@ std::unique_ptr<AST::Expression> RDParser::AddExpression()
 }
 std::unique_ptr<AST::Expression> RDParser::MulExpression()
 {
-  auto Left = Unary();
+  auto Left = ExpoExpression();
   while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Asterisk, Ore::Parser::Token::TokenType::Slash, Ore::Parser::Token::TokenType::Percent>()) {
     AST::BinaryExpression::Op Operator;
     switch (Previous.type()) {
@@ -513,8 +515,16 @@ std::unique_ptr<AST::Expression> RDParser::MulExpression()
       Operator = AST::BinaryExpression::Op::Modulo;
       break;
     }
-    auto Right = Unary();
+    auto Right = ExpoExpression();
     Left = std::make_unique<AST::BinaryExpression>(SourceRange {}, std::move(Left), Operator, std::move(Right));
+  }
+  return Left;
+}
+std::unique_ptr<AST::Expression> RDParser::ExpoExpression() {
+  auto Left = Unary();
+  if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::DoubleAsterisk>()){
+    auto Right = Unary();
+    Left = std::make_unique<AST::BinaryExpression>(SourceRange {},std::move(Left),AST::BinaryExpression::Op::Pow,std::move(Right));
   }
   return Left;
 }
@@ -614,6 +624,17 @@ std::unique_ptr<AST::Expression> RDParser::Call()
     if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
       auto args = ConsumeArguments();
       return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(Aux), std::move(args));
+    }
+    if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketOpen>()){
+      auto Index = ParseExpression();
+      ConsumeToken(Ore::Parser::Token::TokenType::BracketClose,"Error : ] expected");
+      auto Called = std::make_unique<AST::MemberExpression>(SourceRange {},std::move(Aux),std::move(Index),true);
+      while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketOpen>()){
+        Index = ParseExpression();
+        Called = std::make_unique<AST::MemberExpression>(SourceRange {},std::move(Called),std::move(Index),true);
+        ConsumeToken(Ore::Parser::Token::TokenType::BracketClose,"Error : ] expected");
+      }
+      return Called ;
     }
     return Aux;
   } else {

@@ -64,6 +64,7 @@ class RDParser {
   std::unique_ptr<AST::Expression> ShfExpression();
   std::unique_ptr<AST::Expression> AddExpression();
   std::unique_ptr<AST::Expression> MulExpression();
+  std::unique_ptr<AST::Expression> ExpoExpression();
   std::unique_ptr<AST::Expression> Unary();
   std::unique_ptr<AST::Expression> Primitive();
   std::vector<std::unique_ptr<AST::Expression>> ConsumeElements();
