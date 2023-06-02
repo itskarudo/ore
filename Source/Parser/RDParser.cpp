@@ -1,5 +1,6 @@
 #include "RDParser.h"
 #include "Token.h"
+#include <iterator>
 #include <memory>
 /*
 code ::= {Statement};
@@ -562,7 +563,8 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::StringLiteral>()) {
     return std::make_unique<AST::StringLiteral>(SourceRange {}, Previous.value().substr(1, Previous.value().length() - 2));
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketOpen>()) {
-    auto ExprVector = ConsumeElements();
+    auto ExprVector = ConsumeElements(); 
+    ConsumeToken(Ore::Parser::Token::TokenType::BracketClose,"Error : expected ] ");
     return std::make_unique<AST::ArrayExpression>(SourceRange {}, std::move(ExprVector));
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketClose>()) {
     ErrorFound = true;
@@ -570,6 +572,12 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
     return std::make_unique<AST::NilLiteral>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::NumberLiteral>()) {
     return std::make_unique<AST::NumberLiteral>(SourceRange {}, convertToDouble(Previous.value()));
+  } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyOpen>()) {
+    return Object();
+  } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyClose>()) {
+    ErrorFound = true;
+    std::cout << "Error : { expected before } " << std::endl;
+    return std::make_unique<AST::NilLiteral>(SourceRange {});
   } else {
     return Call();
   }
@@ -636,6 +644,10 @@ std::unique_ptr<AST::Expression> RDParser::Call()
       }
       return Called ;
     }
+    if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Dot>()){
+      auto mem = Call();
+      return std::make_unique<AST::MemberExpression>(SourceRange {},std::move(Aux),std::move(mem),false);
+    }
     return Aux;
   } else {
     Advance();
@@ -643,6 +655,20 @@ std::unique_ptr<AST::Expression> RDParser::Call()
     ErrorFound = true;
     return std::make_unique<AST::BooleanLiteral>(SourceRange {}, false);
   }
+}
+std::unique_ptr<AST::Expression> RDParser::Object() {
+  std::map<std::string,std::unique_ptr<AST::Expression>> Members;
+  while (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyClose>()){
+    ConsumeToken(Ore::Parser::Token::TokenType::Identifier,"Error : Expected identifier");
+    if (Previous.type() == Ore::Parser::Token::TokenType::Identifier) {
+      ConsumeToken(Ore::Parser::Token::TokenType::Colon,"Error : Expected : ") ;
+      Members[Previous.value()] = ParseExpression();
+      if (!Check(Ore::Parser::Token::TokenType::CurlyClose)) {
+        ConsumeToken(Ore::Parser::Token::TokenType::Comma,"Error : Expected comma between members");
+      }
+    } else break ;
+  }
+  return std::make_unique<AST::ObjectExpression>(SourceRange {},std::move(Members));
 }
 }
 /*

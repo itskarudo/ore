@@ -69,6 +69,7 @@ class RDParser {
   std::unique_ptr<AST::Expression> Primitive();
   std::vector<std::unique_ptr<AST::Expression>> ConsumeElements();
   std::unique_ptr<AST::Expression> Call();
+  std::unique_ptr<AST::Expression> Object();
   double convertToDouble(std::string const& str);
 };
 }
