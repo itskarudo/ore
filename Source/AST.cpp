@@ -362,7 +362,18 @@ Result Identifier::execute(Interpreter& interpreter)
 void AssignmentExpression::dump_impl(int indent) const
 {
   print_indent(indent);
-  printf("\033[35m%s \033[33m@ {%p}\033[0m\n", class_name(), this);
+  printf("\033[35m%s \033[33m@ {%p} \033[34m", class_name(), this);
+  switch (m_op) {
+#define __ENUM_ASSIGNMENT_OP(op, sym) \
+  case Op::op:                        \
+    printf(sym);                      \
+    break;
+    ENUMERATE_ASSIGNMENT_OPS
+#undef __ENUM_ASSIGNMENT_OP
+  }
+
+  printf("\033[0m\n");
+
   m_lhs->dump_impl(indent + 1);
   m_rhs->dump_impl(indent + 1);
 }

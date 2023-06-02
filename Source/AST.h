@@ -29,6 +29,16 @@
   __ENUM_BI_OP(StringConcat, "..")        \
   __ENUM_BI_OP(Modulo, "%%")
 
+#define ENUMERATE_ASSIGNMENT_OPS                    \
+  __ENUM_ASSIGNMENT_OP(Assignment, "=")             \
+  __ENUM_ASSIGNMENT_OP(AddAssignment, "+=")         \
+  __ENUM_ASSIGNMENT_OP(SubAssignment, "-=")         \
+  __ENUM_ASSIGNMENT_OP(MultAssignment, "*=")        \
+  __ENUM_ASSIGNMENT_OP(DivAssignment, "/=")         \
+  __ENUM_ASSIGNMENT_OP(ShiftLeftAssignment, "<<=")  \
+  __ENUM_ASSIGNMENT_OP(ShiftRightAssignment, ">>=") \
+  __ENUM_ASSIGNMENT_OP(ConcatAssignment, "..=")
+
 namespace Ore::AST {
 
 class ASTNode {
@@ -380,14 +390,9 @@ class Identifier : public Expression {
 class AssignmentExpression : public Expression {
   public:
   enum class Op {
-    Assignment,
-    AddAssignment,
-    SubAssignment,
-    MultAssignment,
-    DivAssignment,
-    ShiftLeftAssignment,
-    ShiftRightAssignment,
-    ConcatAssignment
+#define __ENUM_ASSIGNMENT_OP(op, sym) op,
+    ENUMERATE_ASSIGNMENT_OPS
+#undef __ENUM_ASSIGNMENT_OP
   };
 
   AssignmentExpression(SourceRange source_range, std::unique_ptr<ASTNode> lhs, Op op, std::unique_ptr<Expression> rhs)
