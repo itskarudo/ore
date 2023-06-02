@@ -59,6 +59,7 @@ Lexer::Lexer(std::string_view source)
     s_two_char_tokens[".."] = Token::TokenType::DoubleDot;
     s_two_char_tokens["<<"] = Token::TokenType::ShiftLeft;
     s_two_char_tokens[">>"] = Token::TokenType::ShiftRight;
+    s_two_char_tokens["**"] = Token::TokenType::DoubleAsterisk;
   }
 
   if (s_one_char_tokens.empty()) {

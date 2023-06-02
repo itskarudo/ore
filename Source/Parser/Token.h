@@ -33,6 +33,7 @@ namespace Ore::Parser {
   __ENUM_TOKEN_TYPES(PlusEquals, Operator)            \
   __ENUM_TOKEN_TYPES(MinusEquals, Operator)           \
   __ENUM_TOKEN_TYPES(AsteriskEquals, Operator)        \
+  __ENUM_TOKEN_TYPES(DoubleAsterisk, Operator)        \
   __ENUM_TOKEN_TYPES(SlashEquals, Operator)           \
   __ENUM_TOKEN_TYPES(ShiftLeftEquals, Operator)       \
   __ENUM_TOKEN_TYPES(ShiftRightEquals, Operator)      \
