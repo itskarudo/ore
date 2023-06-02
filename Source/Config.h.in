@@ -3,3 +3,7 @@
 #ifndef ORE_MODULES_DIR
 #  cmakedefine ORE_MODULES_DIR "@CMAKE_INSTALL_PREFIX@/@ORE_MODULES_DIR@"
 #endif
+
+#ifndef ON_UNIX
+#  cmakedefine01 ON_UNIX
+#endif

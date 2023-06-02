@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Config.h>
 #include <Ore.h>
 
 class REPLGlobalObjectShape final : public Ore::GlobalObjectShape {
@@ -10,5 +11,8 @@ class REPLGlobalObjectShape final : public Ore::GlobalObjectShape {
   private:
   DECLARE_NATIVE_FUNCTION(print);
   DECLARE_NATIVE_FUNCTION(input);
+
+#if ON_UNIX
   DECLARE_NATIVE_FUNCTION(import);
+#endif
 };

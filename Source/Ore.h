@@ -11,7 +11,6 @@
 #include "Parser/Token.h"
 #include "Runtime/ArrayObject.h"
 #include "Runtime/BooleanObject.h"
-#include "Runtime/FFIObject.h"
 #include "Runtime/FunctionObject.h"
 #include "Runtime/GlobalObject.h"
 #include "Runtime/NativeFunction.h"
@@ -21,6 +20,11 @@
 #include "Runtime/PropertyKey.h"
 #include "Runtime/StringObject.h"
 #include "Runtime/Value.h"
+#include <Config.h>
+
+#if ON_UNIX
+#  include "Runtime/FFIObject.h"
+#endif
 
 using OreFunctionDecl = Ore::ThrowResultOr<Ore::Value> (*)(OreFuncParams);
 

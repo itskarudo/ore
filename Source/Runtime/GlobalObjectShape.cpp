@@ -1,6 +1,7 @@
 #include "GlobalObjectShape.h"
+#include "../Interpreter.h"
+#include "ArrayObject.h"
 #include "ExceptionObject.h"
-#include "FFIObject.h"
 
 namespace Ore {
 GlobalObjectShape::GlobalObjectShape()

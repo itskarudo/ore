@@ -10,8 +10,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(ENABLE_CCACHE "Use ccache to improve recompilation speed" ON)
 
-set(HEAP_DEBUG OFF)
+if (MSVC)
+  message(FATAL_ERROR "Ore only supports gcc and clang currently.")
+endif()
+
+set(ON_UNIX OFF)
 set(ORE_MODULES_DIR ${CMAKE_INSTALL_LIBDIR}/ore/)
+
+if (UNIX)
+  set(ON_UNIX ON)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -36,7 +44,6 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Runtime/StringObject.cpp
             Source/Runtime/ArrayObject.cpp
             Source/Runtime/ArrayObjectShape.cpp
-            Source/Runtime/FFIObject.cpp
             Source/Runtime/ExceptionObject.cpp
             Source/GC/Cell.cpp
             Source/GC/Heap.cpp
@@ -44,6 +51,10 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Parser/Token.cpp
             Source/Parser/Lexer.cpp
             Source/Parser/RDParser.cpp)
+
+if (ON_UNIX)
+  list(APPEND LIB_SOURCES Source/Runtime/FFIObject.cpp)
+endif()
 
 
 file(GLOB_RECURSE ORE_INCLUDE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/Source "Source/*.h")
