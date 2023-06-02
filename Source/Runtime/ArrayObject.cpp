@@ -23,7 +23,7 @@ void ArrayObject::visit_graph(Visitor& visitor)
 ThrowResultOr<Value> ArrayObject::get(PropertyKey key) const
 {
   if (key.is_number()) {
-    if (key.number() >> m_elements.size())
+    if (key.number() >= m_elements.size())
       return interpreter().throw_exception(ExceptionObject::out_of_bounds_index_exception(), fmt::format("{} is out of bounds", key.number()));
     return m_elements[key.number()];
   }
