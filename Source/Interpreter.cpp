@@ -57,12 +57,17 @@ Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value>
   for (auto& child : block.children()) {
     auto last_value = child->execute(*this);
 
-    if (last_value.type() != Result::Type::Normal) {
+    if (last_value.type() == Result::Type::Return && type == ScopeType::Function) {
       return_value = { last_value.value() };
       break;
-    } else {
-      set_block_result(last_value.value());
     }
+
+    if (last_value.type() != Result::Type::Normal) {
+      return_value = last_value;
+      break;
+    }
+
+    set_block_result(last_value.value());
   }
 
   if (!block.is_program())

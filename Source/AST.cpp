@@ -279,10 +279,7 @@ Result ForStatement::execute(Interpreter& interpreter)
   while (test_value) {
     return_value = m_body->execute(interpreter);
 
-    if (return_value.is_exception())
-      return return_value;
-
-    if (return_value.type() == Result::Type::Break)
+    if (return_value.type() != Result::Type::Normal && return_value.type() != Result::Type::Continue)
       break;
 
     if (m_update.has_value()) {
@@ -312,10 +309,10 @@ Result WhileStatement::execute(Interpreter& interpreter)
   while (TRY(test().execute(interpreter)).to_boolean()) {
     return_value = body().execute(interpreter);
 
-    if (return_value.is_exception())
-      return return_value;
+    if (return_value.type() == Result::Type::Continue)
+      continue;
 
-    if (return_value.type() == Result::Type::Break)
+    if (return_value.type() != Result::Type::Normal)
       break;
   }
 
@@ -338,10 +335,10 @@ Result DoWhileStatement::execute(Interpreter& interpreter)
   do {
     return_value = body().execute(interpreter);
 
-    if (return_value.is_exception())
-      return return_value;
+    if (return_value.type() == Result::Type::Continue)
+      continue;
 
-    if (return_value.type() == Result::Type::Break)
+    if (return_value.type() != Result::Type::Normal)
       break;
   } while (TRY(test().execute(interpreter)).to_boolean());
 
@@ -725,7 +722,7 @@ Result TryStatement::execute(Interpreter& interpreter)
 
     std::map<std::string, Value> arguments;
     arguments[m_handler->param()] = return_value.value();
-    return_value = TRY(interpreter.run(m_handler->body(), std::move(arguments)));
+    return_value = interpreter.run(m_handler->body(), std::move(arguments));
   }
 
   if (m_finalizer.has_value())
