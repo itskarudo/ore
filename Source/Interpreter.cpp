@@ -58,7 +58,7 @@ Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value>
     auto last_value = child->execute(*this);
 
     if (last_value.type() != Result::Type::Normal) {
-      return_value = last_value;
+      return_value = { last_value.value() };
       break;
     } else {
       set_block_result(last_value.value());
