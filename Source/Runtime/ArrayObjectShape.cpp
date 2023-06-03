@@ -101,7 +101,7 @@ DEFINE_NATIVE_FUNCTION(ArrayObjectShape::map)
 DEFINE_NATIVE_FUNCTION(ArrayObjectShape::filter)
 {
 
-  ARGS_SIZE_GUARD(map, 2);
+  ARGS_SIZE_GUARD(filter, 2);
   ARG_TYPE_ARRAY(0);
   ARG_TYPE_FUNCTION(1);
 
