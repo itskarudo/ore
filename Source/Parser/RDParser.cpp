@@ -565,7 +565,6 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
     return std::make_unique<AST::StringLiteral>(SourceRange {}, Previous.value().substr(1, Previous.value().length() - 2));
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketOpen>()) {
     auto ExprVector = ConsumeElements();
-    ConsumeToken(Ore::Parser::Token::TokenType::BracketClose, "Error : expected ] ");
     return std::make_unique<AST::ArrayExpression>(SourceRange {}, std::move(ExprVector));
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketClose>()) {
     ErrorFound = true;
