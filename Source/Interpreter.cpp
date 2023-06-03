@@ -48,8 +48,7 @@ Result Interpreter::run(AST::BlockStatement& block, std::map<std::string, Value>
     enter_scope(block, arguments, type);
 
   if (type == ScopeType::Function) {
-    assert(function_name.has_value());
-    push_function_scope({ function_name.value() });
+    push_function_scope({ function_name.has_value() ? function_name.value() : "<unknown>" });
   }
 
   Result return_value = ore_nil();

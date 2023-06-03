@@ -170,9 +170,7 @@ Result CallExpression::execute(Interpreter& interpreter)
       }
     }
 
-    auto function_name = function.name().has_value() ? function.name().value() : "<unknown>";
-
-    return interpreter.run(*function.body(), passed_arguments, Interpreter::ScopeType::Function, function_name);
+    return interpreter.run(*function.body(), passed_arguments, Interpreter::ScopeType::Function, function.name());
 
   } else if (callee->is_native_function()) {
     auto& function = static_cast<NativeFunction&>(*callee);

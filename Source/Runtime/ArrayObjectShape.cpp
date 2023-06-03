@@ -12,6 +12,7 @@ ArrayObjectShape::ArrayObjectShape()
   REGISTER_NATIVE_FUNCTION(insert);
   REGISTER_NATIVE_FUNCTION(remove);
   REGISTER_NATIVE_FUNCTION(map);
+  REGISTER_NATIVE_FUNCTION(filter);
 }
 
 DEFINE_NATIVE_FUNCTION(ArrayObjectShape::append)
@@ -92,6 +93,35 @@ DEFINE_NATIVE_FUNCTION(ArrayObjectShape::map)
     auto result = TRY(params.interpreter.run(*callback->body(), arguments, Interpreter::ScopeType::Function, callback->name()));
 
     results[i] = result;
+  }
+
+  return Value(params.interpreter.heap().allocate<ArrayObject>(std::move(results)));
+}
+
+DEFINE_NATIVE_FUNCTION(ArrayObjectShape::filter)
+{
+
+  ARGS_SIZE_GUARD(map, 2);
+  ARG_TYPE_ARRAY(0);
+  ARG_TYPE_FUNCTION(1);
+
+  auto* self = static_cast<ArrayObject*>(params.args[0].as_object());
+  auto* callback = static_cast<FunctionObject*>(params.args[1].as_object());
+
+  std::vector<Value> results;
+
+  if (callback->parameters().size() != 2)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "Callback function takes exactly 2 parameters.");
+
+  for (size_t i = 0; i < self->elements().size(); i++) {
+    std::map<std::string, Value> arguments;
+    arguments[callback->parameters()[0].name] = self->elements()[i];
+    arguments[callback->parameters()[1].name] = ore_number(i);
+
+    auto result = TRY(params.interpreter.run(*callback->body(), arguments, Interpreter::ScopeType::Function, callback->name()));
+
+    if (result.to_boolean())
+      results.push_back(self->elements()[i]);
   }
 
   return Value(params.interpreter.heap().allocate<ArrayObject>(std::move(results)));

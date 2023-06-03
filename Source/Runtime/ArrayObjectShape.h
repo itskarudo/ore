@@ -13,5 +13,6 @@ class ArrayObjectShape : public Object {
   DECLARE_NATIVE_FUNCTION(insert);
   DECLARE_NATIVE_FUNCTION(remove);
   DECLARE_NATIVE_FUNCTION(map);
+  DECLARE_NATIVE_FUNCTION(filter);
 };
 }
