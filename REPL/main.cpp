@@ -9,35 +9,51 @@
 
 static bool s_fail_repl = false;
 static bool s_dump_ast = false;
+static bool s_disable_ansi = false;
 static int s_line_number = 1;
 static int s_repl_line_level = 0;
 static std::string s_history_path = {};
 
+static std::string colorize(std::string text, char const* color)
+{
+  if (s_disable_ansi)
+    return text;
+  else
+    return fmt::format("{}{}\033[0m", color, text);
+}
+
 static std::string get_prompt()
 {
   if (s_repl_line_level == 0) {
-    return fmt::format("\033[32m[{}]:\033[0m ", s_line_number);
+    return colorize(fmt::format("[{}]: ", s_line_number), "\033[32m");
   } else {
-    return "\033[32m...:\033[0m ";
+    return colorize("...: ", "\033[32m");
   }
 }
 
 static void log_exception(Ore::ExceptionObject& exception)
 {
-  std::cout << "\033[1m\033[31mBacktrace\033[0m (most recent calls first):" << std::endl;
+  std::cout << colorize("Backtrace", "\033[1m\033[31m") << " (most recent calls first):" << std::endl;
 
-  std::cout << "\033[34m";
+  if (!s_disable_ansi)
+    std::cout << "\033[34m";
+
   for (auto frame : exception.backtrace()) {
     std::cout << "  " << frame.function_name << std::endl;
   }
-  std::cout << "\033[1m\033[31m";
+
+  if (!s_disable_ansi)
+    std::cout << "\033[1m\033[31m";
 
   for (int i = 0; i < 30; ++i)
     std::cout << '-';
 
-  std::cout << "\033[0m\n";
+  if (!s_disable_ansi)
+    std::cout << "\033[0m";
 
-  std::cout << "\033[1m\033[31m" << exception.type() << "\033[0m: " << exception.message() << std::endl;
+  std::cout << std::endl;
+
+  std::cout << colorize(exception.type(), "\033[1m\033[31m") << ": " << exception.message() << std::endl;
 }
 
 static bool is_whitespace(std::string const& str)
@@ -144,6 +160,7 @@ int main(int argc, char** argv)
     ("d,dump", "Dump the script AST")
     ("g,gc-on-every-allocation", "GC on every allocation")
     ("p,debug-heap", "Debug the heap")
+    ("a,disable-ansi", "Disable ANSI color output")
     ("e,evaluate", "Evaluate argument as script", cxxopts::value<std::string>())
     ("h,help", "Print help")
     ("script", "Ore script to execute", cxxopts::value<std::string>())
@@ -158,6 +175,7 @@ int main(int argc, char** argv)
   bool gc_on_every_allocation = result.count("gc-on-every-allocation");
   bool debug_heap = result.count("debug-heap");
 
+  s_disable_ansi = result.count("disable-ansi");
   s_history_path = fmt::format("{}/.ore_history", std::getenv("HOME"));
   s_dump_ast = result.count("dump");
 
