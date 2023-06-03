@@ -36,28 +36,16 @@ DEFINE_NATIVE_FUNCTION(REPLGlobalObjectShape::import)
 
   auto filename = params.args[0].as_string()->string();
 
-  if (filename.starts_with('.') || filename.starts_with('/')) {
-    if (!std::filesystem::exists(filename))
-      return params.interpreter.throw_exception(Ore::ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", filename));
+  if (!filename.starts_with('.') && !filename.starts_with('/'))
+    filename = ORE_MODULES_DIR + filename;
 
-    if (filename.ends_with(".so")) {
-      auto* ffi_object = params.interpreter.heap().allocate<Ore::FFIObject>(filename);
-      return Ore::Value(ffi_object);
-    } else {
-      // TODO: implement importing ore source file.
-      ASSERT_NOT_REACHED();
-    }
+  if (!std::filesystem::exists(filename))
+    return params.interpreter.throw_exception(Ore::ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", filename));
+
+  if (filename.ends_with(".so")) {
+    auto* ffi_object = params.interpreter.heap().allocate<Ore::FFIObject>(filename);
+    return Ore::Value(ffi_object);
   } else {
-    auto full_filename = ORE_MODULES_DIR + filename;
-    if (!std::filesystem::exists(full_filename))
-      return params.interpreter.throw_exception(Ore::ExceptionObject::file_not_found_exception(), fmt::format("no file named {}", full_filename));
-
-    if (filename.ends_with(".so")) {
-      auto* ffi_object = params.interpreter.heap().allocate<Ore::FFIObject>(full_filename);
-      return Ore::Value(ffi_object);
-    } else {
-      // TODO: implement importing ore source file.
-      ASSERT_NOT_REACHED();
-    }
+    ASSERT_NOT_REACHED();
   }
 }
