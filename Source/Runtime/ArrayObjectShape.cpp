@@ -2,6 +2,7 @@
 #include "../Interpreter.h"
 #include "ArrayObject.h"
 #include "ExceptionObject.h"
+#include "FunctionObject.h"
 
 namespace Ore {
 ArrayObjectShape::ArrayObjectShape()
@@ -10,6 +11,7 @@ ArrayObjectShape::ArrayObjectShape()
   REGISTER_NATIVE_FUNCTION(pop);
   REGISTER_NATIVE_FUNCTION(insert);
   REGISTER_NATIVE_FUNCTION(remove);
+  REGISTER_NATIVE_FUNCTION(map);
 }
 
 DEFINE_NATIVE_FUNCTION(ArrayObjectShape::append)
@@ -66,5 +68,32 @@ DEFINE_NATIVE_FUNCTION(ArrayObjectShape::remove)
   self->elements().erase(self->elements().begin() + index);
 
   return ore_nil();
+}
+
+DEFINE_NATIVE_FUNCTION(ArrayObjectShape::map)
+{
+  ARGS_SIZE_GUARD(map, 2);
+  ARG_TYPE_ARRAY(0);
+  ARG_TYPE_FUNCTION(1);
+
+  auto* self = static_cast<ArrayObject*>(params.args[0].as_object());
+  auto* callback = static_cast<FunctionObject*>(params.args[1].as_object());
+
+  std::vector<Value> results(self->elements().size());
+
+  if (callback->parameters().size() != 2)
+    return params.interpreter.throw_exception(ExceptionObject::type_exception(), "Callback function takes exactly 2 parameters.");
+
+  for (size_t i = 0; i < self->elements().size(); i++) {
+    std::map<std::string, Value> arguments;
+    arguments[callback->parameters()[0].name] = self->elements()[i];
+    arguments[callback->parameters()[1].name] = ore_number(i);
+
+    auto result = TRY(params.interpreter.run(*callback->body(), arguments, Interpreter::ScopeType::Function, callback->name()));
+
+    results[i] = result;
+  }
+
+  return Value(params.interpreter.heap().allocate<ArrayObject>(std::move(results)));
 }
 }

@@ -88,3 +88,11 @@ struct OreFuncParams {
     if (!_tmp_object->is_array())                                                                                                \
       return params.interpreter.throw_exception(Ore::ExceptionObject::type_exception(), "argument " #index " is not an array."); \
   } while (0)
+
+#define ARG_TYPE_FUNCTION(index)                                                                                                   \
+  do {                                                                                                                             \
+    ARG_TYPE_OBJECT(index);                                                                                                        \
+    auto* _tmp_object = params.args[index].as_object();                                                                            \
+    if (!_tmp_object->is_function())                                                                                               \
+      return params.interpreter.throw_exception(Ore::ExceptionObject::type_exception(), "argument " #index " is not a function."); \
+  } while (0)

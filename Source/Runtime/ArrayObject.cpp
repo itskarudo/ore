@@ -6,7 +6,7 @@
 namespace Ore {
 
 ArrayObject::ArrayObject(std::vector<Value> elements)
-    : m_elements(elements)
+    : m_elements(std::move(elements))
 {
   set_shape(interpreter().array_object_shape());
 }
