@@ -42,6 +42,24 @@ Object* Value::to_object(GC::Heap& heap) const
   }
 }
 
+char const* Value::type_name() const
+{
+  switch (type()) {
+  case Value::Type::Number:
+    return "Number";
+  case Value::Type::Boolean:
+    return "Boolean";
+  case Value::Type::Nil:
+    return "Nil";
+  case Value::Type::String:
+    return "String";
+  case Value::Type::Object:
+    return as_object()->class_name();
+  default:
+    ASSERT_NOT_REACHED();
+  }
+}
+
 std::ostream& operator<<(std::ostream& os, Value const& value)
 {
   switch (value.type()) {

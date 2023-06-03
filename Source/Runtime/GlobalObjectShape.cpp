@@ -11,6 +11,7 @@ GlobalObjectShape::GlobalObjectShape()
   REGISTER_NATIVE_FUNCTION(throw);
   REGISTER_NATIVE_FUNCTION(all);
   REGISTER_NATIVE_FUNCTION(any);
+  REGISTER_NATIVE_FUNCTION(type);
 }
 
 DEFINE_NATIVE_FUNCTION(GlobalObjectShape::gc)
@@ -66,6 +67,12 @@ DEFINE_NATIVE_FUNCTION(GlobalObjectShape::any)
       return ore_boolean(true);
 
   return ore_boolean(false);
+}
+
+DEFINE_NATIVE_FUNCTION(GlobalObjectShape::type)
+{
+  ARGS_SIZE_GUARD(type, 1);
+  return ore_string(params.interpreter.heap(), params.args[0].type_name());
 }
 
 }

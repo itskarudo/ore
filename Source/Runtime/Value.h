@@ -60,6 +60,7 @@ class Value {
   }
 
   Type type() const { return m_type; }
+  char const* type_name() const;
 
   bool is_number() const { return type() == Type::Number; }
   bool is_string() const { return type() == Type::String; }
