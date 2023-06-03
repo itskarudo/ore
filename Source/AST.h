@@ -222,10 +222,11 @@ class FunctionDeclaration : public Expression {
 
 class CallExpression : public Expression {
   public:
-  CallExpression(SourceRange source_range, std::unique_ptr<ASTNode> callee, std::vector<std::unique_ptr<Expression>> arguments = {})
+  CallExpression(SourceRange source_range, std::unique_ptr<ASTNode> callee, std::vector<std::unique_ptr<Expression>> arguments, bool self = false)
       : Expression(source_range)
       , m_callee(std::move(callee))
       , m_arguments(std::move(arguments))
+      , m_self(self)
   {
   }
 
@@ -234,6 +235,7 @@ class CallExpression : public Expression {
   virtual Result execute(Interpreter&) override;
 
   private:
+  bool m_self { false };
   std::unique_ptr<ASTNode> m_callee;
   std::vector<std::unique_ptr<Expression>> const m_arguments;
 };

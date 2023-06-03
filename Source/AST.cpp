@@ -154,13 +154,19 @@ Result CallExpression::execute(Interpreter& interpreter)
 
     std::map<std::string, Value> passed_arguments;
 
+    size_t offset = 0;
+    if (m_self) {
+      passed_arguments[function.parameters()[0].name] = value;
+      offset = 1;
+    }
+
     for (size_t i = 0; i < function.parameters().size(); ++i) {
       if (i < m_arguments.size()) {
         auto argument_value = TRY(m_arguments[i]->execute(interpreter));
-        passed_arguments[function.parameters()[i].name] = argument_value;
+        passed_arguments[function.parameters()[i + offset].name] = argument_value;
       } else {
         assert(function.parameters()[i].default_value.has_value());
-        passed_arguments[function.parameters()[i].name] = function.parameters()[i].default_value.value();
+        passed_arguments[function.parameters()[i + offset].name] = function.parameters()[i].default_value.value();
       }
     }
 
