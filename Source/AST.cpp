@@ -156,7 +156,12 @@ Result CallExpression::execute(Interpreter& interpreter)
 
     size_t offset = 0;
     if (m_self) {
-      passed_arguments[function.parameters()[0].name] = value;
+      assert(m_callee->is_member_expression());
+
+      // this sucks but at least it works
+      auto self = TRY(static_cast<MemberExpression&>(*m_callee).object().execute(interpreter));
+
+      passed_arguments[function.parameters()[0].name] = self;
       offset = 1;
     }
 
@@ -176,6 +181,16 @@ Result CallExpression::execute(Interpreter& interpreter)
     auto& function = static_cast<NativeFunction&>(*callee);
 
     std::vector<Value> passed_arguments;
+
+    if (m_self) {
+      assert(m_callee->is_member_expression());
+
+      // this sucks but at least it works
+      auto self = TRY(static_cast<MemberExpression&>(*m_callee).object().execute(interpreter));
+
+      passed_arguments.push_back(self);
+    }
+
     for (auto& argument : m_arguments) {
       auto argument_value = TRY(argument->execute(interpreter));
       passed_arguments.push_back(argument_value);
