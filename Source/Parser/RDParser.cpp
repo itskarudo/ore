@@ -645,8 +645,24 @@ std::unique_ptr<AST::Expression> RDParser::Call()
       return Called;
     }
     if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Dot>()) {
-      auto mem = Call();
-      return std::make_unique<AST::MemberExpression>(SourceRange {}, std::move(Aux), std::move(mem), false);
+      ConsumeToken(Ore::Parser::Token::TokenType::Identifier,"Error: Expected identifier");
+      auto member = std::make_unique<AST::MemberExpression>(SourceRange {},std::move(Aux),std::make_unique<AST::Identifier>(SourceRange {},Previous.value()));
+      while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Dot>()) {
+        ConsumeToken(Ore::Parser::Token::TokenType::Identifier,"Error: Expected identifier");
+        member = std::make_unique<AST::MemberExpression>(SourceRange {},std::move(member),std::make_unique<AST::Identifier>(SourceRange {},Previous.value()));
+      }
+      if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()){
+        auto args = ConsumeArguments();
+        return std::make_unique<AST::CallExpression>(SourceRange {},std::move(member),std::move(args));
+      }
+      if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Colon>()){
+        ConsumeToken(Ore::Parser::Token::TokenType::Identifier,"Error : expected identifier");
+        member = std::make_unique<AST::MemberExpression>(SourceRange {},std::move(member),std::make_unique<AST::Identifier>(SourceRange {},Previous.value()));
+        ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen,"Error : expected (");
+        auto args = ConsumeArguments();
+        return std::make_unique<AST::CallExpression>(SourceRange {},std::move(member),std::move(args),true);
+      }
+      return member;
     }
     return Aux;
   } else {
