@@ -94,6 +94,8 @@ class Token {
 
   void set_value(std::string const& value) { m_value = value; }
 
+  void dump() const;
+
   private:
   TokenType m_type { TokenType::Invalid };
   std::string m_value;

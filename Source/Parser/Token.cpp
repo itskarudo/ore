@@ -1,4 +1,5 @@
 #include "Token.h"
+#include <iostream>
 
 namespace Ore::Parser {
 char const* Token::name() const
@@ -14,4 +15,13 @@ char const* Token::name() const
     return "Invalid";
   }
 }
+
+void Token::dump() const
+{
+  std::cout << "\033[34m# Token \033[33m(" << name() << ")\033[0m" << std::endl;
+
+  if (type() == TokenType::Identifier || type() == TokenType::NumberLiteral || type() == TokenType::BoolLiteral || type() == TokenType::StringLiteral)
+    std::cout << "  \033[31m" << value() << "\033[0m" << std::endl;
+}
+
 }

@@ -9,7 +9,7 @@
 namespace Ore::Parser {
 class RDParser {
   public:
-  explicit RDParser(Ore::Parser::Lexer&);
+  explicit RDParser(Ore::Parser::Lexer&, bool dump_tokens = false);
   std::unique_ptr<AST::Program> parse();
 
   private:
@@ -17,6 +17,7 @@ class RDParser {
   Ore::Parser::Token Current;
   Ore::Parser::Token Previous;
   bool ErrorFound = false;
+  bool m_dump_tokens { false };
   // Helper Functions
   Ore::Parser::Token Peek() { return Current; }
   bool isAtEnd() { return Peek().type() == Ore::Parser::Token::TokenType::Eof; }
@@ -25,6 +26,8 @@ class RDParser {
     if (!isAtEnd()) {
       Previous = Current;
       Current = Scanner.next();
+      if (m_dump_tokens)
+        Current.dump();
     }
     return Previous;
   }

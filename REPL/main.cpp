@@ -9,6 +9,7 @@
 
 static bool s_fail_repl = false;
 static bool s_dump_ast = false;
+static bool s_dump_token = false;
 static bool s_disable_ansi = false;
 static int s_line_number = 1;
 static int s_repl_line_level = 0;
@@ -66,7 +67,7 @@ static bool is_whitespace(std::string const& str)
 static void parse_and_run(Ore::Interpreter& interpreter, std::string source)
 {
   Ore::Parser::Lexer lexer(source);
-  Ore::Parser::RDParser parser(lexer);
+  Ore::Parser::RDParser parser(lexer, s_dump_token);
 
   auto program = parser.parse();
 
@@ -161,6 +162,7 @@ int main(int argc, char** argv)
     ("g,gc-on-every-allocation", "GC on every allocation")
     ("p,debug-heap", "Debug the heap")
     ("a,disable-ansi", "Disable ANSI color output")
+    ("t,tokens", "Dump lexer tokens")
     ("e,evaluate", "Evaluate argument as script", cxxopts::value<std::string>())
     ("h,help", "Print help")
     ("script", "Ore script to execute", cxxopts::value<std::string>())
@@ -178,6 +180,7 @@ int main(int argc, char** argv)
   s_disable_ansi = result.count("disable-ansi");
   s_history_path = fmt::format("{}/.ore_history", std::getenv("HOME"));
   s_dump_ast = result.count("dump");
+  s_dump_token = result.count("tokens");
 
   if (result.count("help")) {
     std::cout << options.help() << std::endl;
