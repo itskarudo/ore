@@ -101,7 +101,7 @@ class Value {
   }
 
   bool to_boolean() const;
-  Object* to_object(GC::Heap&) const;
+  ThrowResultOr<Object*> to_object(Interpreter&) const;
 
   friend std::ostream& operator<<(std::ostream& os, Value const& value);
 

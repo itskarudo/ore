@@ -26,19 +26,19 @@ bool Value::to_boolean() const
   }
 }
 
-Object* Value::to_object(GC::Heap& heap) const
+ThrowResultOr<Object*> Value::to_object(Interpreter& interpreter) const
 {
   switch (type()) {
   case Value::Type::Number:
-    return heap.allocate<NumberObject>(as_number());
+    return interpreter.heap().allocate<NumberObject>(as_number());
   case Value::Type::Boolean:
-    return heap.allocate<BooleanObject>(as_boolean());
+    return interpreter.heap().allocate<BooleanObject>(as_boolean());
   case Value::Type::String:
-    return heap.allocate<StringObject>(as_string());
+    return interpreter.heap().allocate<StringObject>(as_string());
   case Value::Type::Object:
     return as_object();
   default:
-    ASSERT_NOT_REACHED();
+    return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot convert value to an object");
   }
 }
 

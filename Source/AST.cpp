@@ -413,7 +413,7 @@ Result AssignmentExpression::execute(Interpreter& interpreter)
     auto& member_expression = static_cast<MemberExpression&>(*m_lhs);
 
     auto object_value = TRY(member_expression.object().execute(interpreter));
-    object = object_value.to_object(interpreter.heap());
+    object = TRY(object_value.to_object(interpreter));
 
     if (member_expression.is_computed()) {
       auto computed_value = TRY(member_expression.property().execute(interpreter));
@@ -626,7 +626,7 @@ Result MemberExpression::execute(Interpreter& interpreter)
   if (value.is_nil())
     return interpreter.throw_exception(ExceptionObject::type_exception(), "cannot access properties of nil");
 
-  auto obj = value.to_object(interpreter.heap());
+  auto obj = TRY(value.to_object(interpreter));
 
   PropertyKey key;
 
