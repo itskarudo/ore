@@ -32,6 +32,11 @@ static std::string get_prompt()
   }
 }
 
+static void log_error(std::string const& type, std::string const& message)
+{
+  std::cout << colorize(type, "\033[1m\033[31m") << ": " << message << std::endl;
+}
+
 static void log_exception(Ore::ExceptionObject& exception)
 {
   std::cout << colorize("Backtrace", "\033[1m\033[31m") << " (most recent calls first):" << std::endl;
@@ -54,7 +59,7 @@ static void log_exception(Ore::ExceptionObject& exception)
 
   std::cout << std::endl;
 
-  std::cout << colorize(exception.type(), "\033[1m\033[31m") << ": " << exception.message() << std::endl;
+  log_error(exception.type(), exception.message());
 }
 
 static bool is_whitespace(std::string const& str)
@@ -70,6 +75,11 @@ static void parse_and_run(Ore::Interpreter& interpreter, std::string source)
   Ore::Parser::RDParser parser(lexer, s_dump_token);
 
   auto program = parser.parse();
+
+  if (parser.error_found()) {
+    log_error(Ore::ExceptionObject::syntax_exception(), parser.error_message());
+    return;
+  }
 
   if (s_dump_ast)
     program->dump();

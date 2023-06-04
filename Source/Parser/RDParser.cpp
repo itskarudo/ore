@@ -1,5 +1,6 @@
 #include "RDParser.h"
 #include "Token.h"
+#include <fmt/core.h>
 #include <iterator>
 #include <memory>
 /*
@@ -74,7 +75,7 @@ Ore::Parser::Token RDParser::ConsumeToken(Ore::Parser::Token::TokenType type, st
   if (Check(type)) {
     return Advance();
   }
-  std::cout << ErrorMessage << std::endl;
+  m_error_message = ErrorMessage;
   ErrorFound = true;
   return Ore::Parser::Token {};
 }
@@ -95,7 +96,7 @@ std::unique_ptr<AST::Statement> RDParser::ParseStatement()
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::If>()) {
     return ParseIfStatement();
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Else>()) {
-    std::cout << "Error :  else must be preceded by an if block " << std::endl;
+    m_error_message = "Else must be preceded by an if block.";
     ErrorFound = true;
     return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::For>()) {
@@ -115,17 +116,17 @@ std::unique_ptr<AST::Statement> RDParser::ParseStatement()
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Try>()) {
     return ParseExceptionStatement();
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Catch>()) {
-    std::cout << "Error : Catch must be preceded by a try block " << std::endl;
+    m_error_message = "Catch must be preceded by a try block.";
     ErrorFound = true;
     return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyOpen>()) {
     return ParseBlockStatement();
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyClose>()) {
-    std::cout << "Error : } must be preceded by a  block " << std::endl;
+    m_error_message = "} must be preceded by a block.";
     ErrorFound = true;
     return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Switch, Ore::Parser::Token::TokenType::Case>()) {
-    std::cout << "Error : Switch Case is not yet emplimented " << std::endl;
+    m_error_message = "Switch Case is not yet emplimented.";
     ErrorFound = true;
     return std::make_unique<AST::BlockStatement>(SourceRange {});
   } else
@@ -143,16 +144,16 @@ std::unique_ptr<AST::Statement> RDParser::ParseIfStatement()
 }
 std::unique_ptr<AST::Statement> RDParser::ParseForStatement()
 {
-  ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected ( after for taken ");
+  ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected ( after for taken ");
   if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::SemiColon>()) {
     auto Init = ParseExpression();
-    ConsumeToken(Ore::Parser::Token::TokenType::SemiColon, "Error : expected ; after initilizer");
+    ConsumeToken(Ore::Parser::Token::TokenType::SemiColon, "expected ; after initilizer");
     if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::SemiColon>()) {
       auto Test = ParseExpression();
-      ConsumeToken(Ore::Parser::Token::TokenType::SemiColon, "Error : expected ; after Tester");
+      ConsumeToken(Ore::Parser::Token::TokenType::SemiColon, "expected ; after Tester");
       if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenClose>()) {
         auto Update = ParseExpression();
-        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
+        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "expected ) after for ");
         auto Body = ParseStatement();
         return std::make_unique<AST::ForStatement>(SourceRange {}, std::move(Init), std::move(Test), std::move(Update), std::move(Body));
       } else {
@@ -162,7 +163,7 @@ std::unique_ptr<AST::Statement> RDParser::ParseForStatement()
     } else {
       if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenClose>()) {
         auto Update = ParseExpression();
-        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
+        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "expected ) after for ");
         auto Body = ParseStatement();
         return std::make_unique<AST::ForStatement>(SourceRange {}, std::move(Init), std::nullopt, std::move(Update), std::move(Body));
       } else {
@@ -173,10 +174,10 @@ std::unique_ptr<AST::Statement> RDParser::ParseForStatement()
   } else {
     if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::SemiColon>()) {
       auto Test = ParseExpression();
-      ConsumeToken(Ore::Parser::Token::TokenType::SemiColon, "Error : expected ; after Tester");
+      ConsumeToken(Ore::Parser::Token::TokenType::SemiColon, "expected ; after Tester");
       if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenClose>()) {
         auto Update = ParseExpression();
-        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
+        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "expected ) after for ");
         auto Body = ParseStatement();
         return std::make_unique<AST::ForStatement>(SourceRange {}, std::nullopt, std::move(Test), std::move(Update), std::move(Body));
       } else {
@@ -186,7 +187,7 @@ std::unique_ptr<AST::Statement> RDParser::ParseForStatement()
     } else {
       if (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenClose>()) {
         auto Update = ParseExpression();
-        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after for ");
+        ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "expected ) after for ");
         auto Body = ParseStatement();
         return std::make_unique<AST::ForStatement>(SourceRange {}, std::nullopt, std::nullopt, std::move(Update), std::move(Body));
       } else {
@@ -205,7 +206,7 @@ std::unique_ptr<AST::Statement> RDParser::ParseWhileStatement()
 std::unique_ptr<AST::Statement> RDParser::ParseDoWhileStatement()
 {
   auto Body = ParseStatement();
-  ConsumeToken(Ore::Parser::Token::TokenType::While, "Error : expected while after do block");
+  ConsumeToken(Ore::Parser::Token::TokenType::While, "expected while after do block");
   auto Test = ParseExpression();
   return std::make_unique<AST::DoWhileStatement>(SourceRange {}, std::move(Test), std::move(Body));
 }
@@ -213,7 +214,7 @@ std::unique_ptr<AST::Statement> RDParser::ParseReturnStatement()
 {
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
     auto Expr = ParseExpression();
-    ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : Expected ) after ( taken");
+    ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Expected ) after ( taken");
     return std::make_unique<AST::ReturnStatement>(SourceRange {}, std::move(Expr));
   }
   return std::make_unique<AST::ReturnStatement>(SourceRange {}, std::nullopt);
@@ -233,18 +234,18 @@ std::unique_ptr<AST::Statement> RDParser::ParseContinueStatement()
 }
 std::unique_ptr<AST::Statement> RDParser::ParseExceptionStatement()
 {
-  ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : expected a block after try");
+  ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "expected a block after try");
   auto Block = ParseBlockStatement();
-  ConsumeToken(Ore::Parser::Token::TokenType::Catch, "Error : expected catch after try block");
-  ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected ( after catch");
+  ConsumeToken(Ore::Parser::Token::TokenType::Catch, "expected catch after try block");
+  ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected ( after catch");
   auto Exp = Current.value();
-  ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Error : expected name after catch");
-  ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : expected ) after variable name");
-  ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : expected a block after catch");
+  ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "expected name after catch");
+  ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "expected ) after variable name");
+  ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "expected a block after catch");
   auto HandlerBlock = ParseBlockStatement();
   auto Handler = std::make_unique<AST::CatchClause>(SourceRange {}, Exp, std::move(HandlerBlock));
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Finally>()) {
-    ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : expected a block after finally");
+    ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "expected a block after finally");
     auto Finalizer = ParseBlockStatement();
     return std::make_unique<AST::TryStatement>(SourceRange {}, std::move(Block), std::move(Handler), std::move(Finalizer));
   }
@@ -257,7 +258,7 @@ std::unique_ptr<AST::BlockStatement> RDParser::ParseBlockStatement()
     auto Statement = ParseStatement();
     Block->append(std::move(Statement));
     if (isAtEnd()) {
-      std::cout << " Error : } expected after a block " << std::endl;
+      m_error_message = "} expected after a block.";
       ErrorFound = true;
       return std::move(Block);
     }
@@ -268,15 +269,15 @@ std::unique_ptr<AST::Expression> RDParser::ParseFunction()
 {
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Identifier>()) {
     auto FuncName = Previous.value();
-    ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected ( after functon's name ");
+    ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected ( after functon's name ");
     auto ParamVector = std::move(ConsumeParameters());
-    ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : function body needs to be a block statement ");
+    ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "function body needs to be a block statement ");
     std::shared_ptr<AST::BlockStatement> Body = std::move(ParseBlockStatement());
     return std::make_unique<AST::FunctionDeclaration>(SourceRange {}, FuncName, Body, std::move(ParamVector));
   }
-  ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected ( after functon's name ");
+  ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected ( after functon's name ");
   auto ParamVector = std::move(ConsumeParameters());
-  ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "Error : function body needs to be a block statement ");
+  ConsumeToken(Ore::Parser::Token::TokenType::CurlyOpen, "function body needs to be a block statement ");
   std::shared_ptr<AST::BlockStatement> Body = std::move(ParseBlockStatement());
   if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
     auto ArgVector = std::move(ConsumeArguments());
@@ -293,45 +294,45 @@ std::vector<AST::FunctionDeclaration::Parameter> RDParser::ConsumeParameters()
     auto VarName = Current.value();
     for (std::string nm : VarNames) {
       if (nm == VarName) {
-        std::cout << "Error : multiple parameters can't have the same name" << std::endl;
+        m_error_message = "Multiple parameters can't have the same name.";
         ErrorFound = true;
       }
     }
     VarNames.push_back(VarName);
     if (Current.type() != Ore::Parser::Token::TokenType::Identifier) {
-      std::cout << "Error : variable name needs to be a string " << std::endl;
+      m_error_message = "Variable name needs to be a string.";
       ErrorFound = true;
       break;
     }
-    ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Error : expected variable name ");
+    ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "expected variable name ");
     if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Equals>()) {
       auto VarValue = std::move(ParseExpression());
       AST::FunctionDeclaration::Parameter Param { VarName, std::move(VarValue) };
       ParamVector.push_back(std::move(Param));
       if (!Check(Ore::Parser::Token::TokenType::ParenClose)) {
-        ConsumeToken(Ore::Parser::Token::TokenType::Comma, "Error : expected comma between arguments");
+        ConsumeToken(Ore::Parser::Token::TokenType::Comma, "expected comma between arguments");
         if (Check(Ore::Parser::Token::TokenType::ParenClose)) {
           ErrorFound = true;
-          std::cout << "Error : expected variable name between commas" << std::endl;
+          m_error_message = "Expected variable name between commas.";
         }
       }
       if (isAtEnd()) {
         ErrorFound = true;
-        std::cout << "Error : expected ) after arguments " << std::endl;
+        m_error_message = "expected ) after arguments.";
       }
     } else {
       AST::FunctionDeclaration::Parameter Param { VarName, std::nullopt };
       ParamVector.push_back(std::move(Param));
       if (!Check(Ore::Parser::Token::TokenType::ParenClose)) {
-        ConsumeToken(Ore::Parser::Token::TokenType::Comma, "Error : expected comma between arguments");
+        ConsumeToken(Ore::Parser::Token::TokenType::Comma, "expected comma between arguments");
         if (Check(Ore::Parser::Token::TokenType::ParenClose)) {
           ErrorFound = true;
-          std::cout << "Error : expected variable name between commas" << std::endl;
+          m_error_message = "Expected variable name between commas.";
         }
       }
       if (isAtEnd()) {
         ErrorFound = true;
-        std::cout << "Error : expected ) after arguments " << std::endl;
+        m_error_message = "Expected ) after arguments.";
       }
     }
   }
@@ -344,15 +345,15 @@ std::vector<std::unique_ptr<AST::Expression>> RDParser::ConsumeArguments()
     auto Expression = std::move(ParseExpression());
     Vector.push_back(std::move(Expression));
     if (!Check(Ore::Parser::Token::TokenType::ParenClose)) {
-      ConsumeToken(Ore::Parser::Token::TokenType::Comma, "Error : expected comma between arguments");
+      ConsumeToken(Ore::Parser::Token::TokenType::Comma, "expected comma between arguments");
       if (Check(Ore::Parser::Token::TokenType::ParenClose)) {
         ErrorFound = true;
-        std::cout << "Error : expected argument between commas" << std::endl;
+        m_error_message = "Expected argument between commas.";
       }
     }
     if (isAtEnd()) {
       ErrorFound = true;
-      std::cout << "Error : expected ) after arguments " << std::endl;
+      m_error_message = "Expected ) after arguments.";
     }
   }
   return Vector;
@@ -388,7 +389,7 @@ std::unique_ptr<AST::Expression> RDParser::ParseExpression()
       Operator = AST::AssignmentExpression::Op::ConcatAssignment;
       break;
     default:
-      std::cout << "Error : invalid assignment" << std::endl;
+      m_error_message = "Invalid assignment.";
       ErrorFound = true;
     }
     auto Right = ParseExpression();
@@ -559,7 +560,7 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
     return ParseFunction();
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::ParenOpen>()) {
     auto Expression = ParseExpression();
-    ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Error : Expected ) after grouping expression");
+    ConsumeToken(Ore::Parser::Token::TokenType::ParenClose, "Expected ) after grouping expression");
     return Expression;
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::NilLiteral>()) {
     return std::make_unique<AST::NilLiteral>(SourceRange {});
@@ -572,7 +573,7 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
     return std::make_unique<AST::ArrayExpression>(SourceRange {}, std::move(ExprVector));
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketClose>()) {
     ErrorFound = true;
-    std::cout << "Error : expected [ before ] taken " << std::endl;
+    m_error_message = "Expected [ before ] taken.";
     return std::make_unique<AST::NilLiteral>(SourceRange {});
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::NumberLiteral>()) {
     return std::make_unique<AST::NumberLiteral>(SourceRange {}, convertToDouble(Previous.value()));
@@ -580,7 +581,7 @@ std::unique_ptr<AST::Expression> RDParser::Primitive()
     return Object();
   } else if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyClose>()) {
     ErrorFound = true;
-    std::cout << "Error : { expected before } " << std::endl;
+    m_error_message = "Expected { before }.";
     return std::make_unique<AST::NilLiteral>(SourceRange {});
   } else {
     return Call();
@@ -592,15 +593,15 @@ std::vector<std::unique_ptr<AST::Expression>> RDParser::ConsumeElements()
   while (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketClose>()) {
     auto Expr = ParseExpression();
     if (!Check(Ore::Parser::Token::TokenType::BracketClose)) {
-      ConsumeToken(Ore::Parser::Token::TokenType::Comma, "Error : comma expected between array elements");
+      ConsumeToken(Ore::Parser::Token::TokenType::Comma, "comma expected between array elements");
       if (Check(Ore::Parser::Token::TokenType::BracketClose)) {
         ErrorFound = true;
-        std::cout << "Error : expected elements between commas" << std::endl;
+        m_error_message = "Expected elements between commas.";
       }
     }
     if (isAtEnd()) {
       ErrorFound = true;
-      std::cout << "Error : expected ] in array constructor" << std::endl;
+      m_error_message = "Expected ] in array constructor.";
     }
     Vector.push_back(std::move(Expr));
   }
@@ -648,9 +649,9 @@ std::unique_ptr<AST::Expression> RDParser::Call()
           return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(member), std::move(args));
         }
         if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Colon>()) {
-          ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Error : expected identifier");
+          ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "expected identifier");
           member = std::make_unique<AST::MemberExpression>(SourceRange {}, std::move(member), std::make_unique<AST::Identifier>(SourceRange {}, Previous.value()));
-          ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected (");
+          ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected (");
           auto args = ConsumeArguments();
           return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(member), std::move(args), true);
         }
@@ -660,12 +661,12 @@ std::unique_ptr<AST::Expression> RDParser::Call()
     }
     if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketOpen>()) {
       auto Index = ParseExpression();
-      ConsumeToken(Ore::Parser::Token::TokenType::BracketClose, "Error : ] expected");
+      ConsumeToken(Ore::Parser::Token::TokenType::BracketClose, "] expected");
       auto Called = std::make_unique<AST::MemberExpression>(SourceRange {}, std::move(Aux), std::move(Index), true);
       while (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::BracketOpen>()) {
         Index = ParseExpression();
         Called = std::make_unique<AST::MemberExpression>(SourceRange {}, std::move(Called), std::move(Index), true);
-        ConsumeToken(Ore::Parser::Token::TokenType::BracketClose, "Error : ] expected");
+        ConsumeToken(Ore::Parser::Token::TokenType::BracketClose, "] expected");
       }
       return Called;
     }
@@ -691,9 +692,9 @@ std::unique_ptr<AST::Expression> RDParser::Call()
             return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(member), std::move(args));
           }
           if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Colon>()) {
-            ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Error : expected identifier");
+            ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "expected identifier");
             member = std::make_unique<AST::MemberExpression>(SourceRange {}, std::move(member), std::make_unique<AST::Identifier>(SourceRange {}, Previous.value()));
-            ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected (");
+            ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected (");
             auto args = ConsumeArguments();
             return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(member), std::move(args), true);
           }
@@ -702,25 +703,25 @@ std::unique_ptr<AST::Expression> RDParser::Call()
         return call;
       }
       if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Colon>()) {
-        ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Error : expected identifier");
+        ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "expected identifier");
         member = std::make_unique<AST::MemberExpression>(SourceRange {}, std::move(member), std::make_unique<AST::Identifier>(SourceRange {}, Previous.value()));
-        ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected (");
+        ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected (");
         auto args = ConsumeArguments();
         return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(member), std::move(args), true);
       }
       return member;
     }
     if (AdvanceIfMatchAny<Ore::Parser::Token::TokenType::Colon>()) {
-      ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Error : expected identifier");
+      ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "expected identifier");
       auto member = std::make_unique<AST::MemberExpression>(SourceRange {}, std::move(Aux), std::make_unique<AST::Identifier>(SourceRange {}, Previous.value()));
-      ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "Error : expected (");
+      ConsumeToken(Ore::Parser::Token::TokenType::ParenOpen, "expected (");
       auto args = ConsumeArguments();
       return std::make_unique<AST::CallExpression>(SourceRange {}, std::move(member), std::move(args), true);
     }
     return Aux;
   } else {
     Advance();
-    std::cout << "Error : syntax error, unhandled token" << std::endl;
+    m_error_message = fmt::format("Unexpected token '{}'.", Previous.value());
     ErrorFound = true;
     return std::make_unique<AST::BooleanLiteral>(SourceRange {}, false);
   }
@@ -729,13 +730,13 @@ std::unique_ptr<AST::Expression> RDParser::Object()
 {
   std::map<std::string, std::unique_ptr<AST::Expression>> Members;
   while (!AdvanceIfMatchAny<Ore::Parser::Token::TokenType::CurlyClose>()) {
-    ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Error : Expected identifier");
+    ConsumeToken(Ore::Parser::Token::TokenType::Identifier, "Expected identifier");
     if (Previous.type() == Ore::Parser::Token::TokenType::Identifier) {
       auto key = Previous.value();
-      ConsumeToken(Ore::Parser::Token::TokenType::Colon, "Error : Expected : ");
+      ConsumeToken(Ore::Parser::Token::TokenType::Colon, "Expected : ");
       Members[key] = ParseExpression();
       if (!Check(Ore::Parser::Token::TokenType::CurlyClose)) {
-        ConsumeToken(Ore::Parser::Token::TokenType::Comma, "Error : Expected comma between members");
+        ConsumeToken(Ore::Parser::Token::TokenType::Comma, "Expected comma between members");
       }
     } else
       break;

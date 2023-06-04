@@ -12,10 +12,14 @@ class RDParser {
   explicit RDParser(Ore::Parser::Lexer&, bool dump_tokens = false);
   std::unique_ptr<AST::Program> parse();
 
+  std::string const& error_message() const { return m_error_message; }
+  bool error_found() const { return ErrorFound; }
+
   private:
   Ore::Parser::Lexer& Scanner;
   Ore::Parser::Token Current;
   Ore::Parser::Token Previous;
+  std::string m_error_message;
   bool ErrorFound = false;
   bool m_dump_tokens { false };
   // Helper Functions
