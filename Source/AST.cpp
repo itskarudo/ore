@@ -433,7 +433,7 @@ Result AssignmentExpression::execute(Interpreter& interpreter)
       prev_value = TRY(object->get(key));
 
   } else {
-    ASSERT_NOT_REACHED();
+    return interpreter.throw_exception(ExceptionObject::syntax_exception(), "Expected an identifier or member expression.");
   }
 
   switch (m_op) {

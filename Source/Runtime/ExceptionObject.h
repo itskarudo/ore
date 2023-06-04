@@ -11,7 +11,8 @@ namespace Ore {
   __ENUM_EXCEPTION_TYPES(file_not_found_exception, FileNotFoundException)          \
   __ENUM_EXCEPTION_TYPES(out_of_bounds_index_exception, OutOfBoundsIndexException) \
   __ENUM_EXCEPTION_TYPES(out_of_memory_exception, OutOfMemoryException)            \
-  __ENUM_EXCEPTION_TYPES(assertion_exception, AssertionException)
+  __ENUM_EXCEPTION_TYPES(assertion_exception, AssertionException)                  \
+  __ENUM_EXCEPTION_TYPES(syntax_exception, SyntaxException)
 
 struct BacktraceFrame {
   std::string function_name;
