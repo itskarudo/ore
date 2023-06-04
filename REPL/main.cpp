@@ -19,7 +19,7 @@ static std::string colorize(std::string text, char const* color)
   if (s_disable_ansi)
     return text;
   else
-    return fmt::format("{}{}\033[0m", color, text);
+    return fmt::format("\001{}\002{}\001\033[0m\002", color, text);
 }
 
 static std::string get_prompt()
