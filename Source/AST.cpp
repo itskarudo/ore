@@ -159,7 +159,7 @@ Result CallExpression::execute(Interpreter& interpreter)
       assert(m_callee->is_member_expression());
 
       // this sucks but at least it works
-      auto self = TRY(static_cast<MemberExpression&>(*m_callee).object().execute(interpreter));
+      auto* self = TRY(TRY(static_cast<MemberExpression&>(*m_callee).object().execute(interpreter)).to_object(interpreter));
 
       passed_arguments[function.parameters()[0].name] = self;
       offset = 1;
@@ -186,7 +186,7 @@ Result CallExpression::execute(Interpreter& interpreter)
       assert(m_callee->is_member_expression());
 
       // this sucks but at least it works
-      auto self = TRY(static_cast<MemberExpression&>(*m_callee).object().execute(interpreter));
+      auto* self = TRY(TRY(static_cast<MemberExpression&>(*m_callee).object().execute(interpreter)).to_object(interpreter));
 
       passed_arguments.push_back(self);
     }

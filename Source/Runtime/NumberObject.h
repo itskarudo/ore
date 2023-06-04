@@ -5,15 +5,7 @@
 namespace Ore {
 class NumberObject final : public Object {
   public:
-  explicit NumberObject(double value)
-      : m_value(value)
-  {
-  }
-
-  explicit NumberObject(int value)
-      : m_value(value)
-  {
-  }
+  explicit NumberObject(double value);
 
   virtual ~NumberObject() { }
 

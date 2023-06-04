@@ -43,7 +43,8 @@ struct OreFuncParams {
 
 #define ENUMERATE_OBJECT_SHAPES                                \
   __ENUM_OBJECT_SHAPES(global_object_shape, GlobalObjectShape) \
-  __ENUM_OBJECT_SHAPES(array_object_shape, ArrayObjectShape)
+  __ENUM_OBJECT_SHAPES(array_object_shape, ArrayObjectShape)   \
+  __ENUM_OBJECT_SHAPES(number_object_shape, NumberObjectShape)
 
 #define ARGS_SIZE_GUARD(func_name, args_size)                                                                                                \
   do {                                                                                                                                       \

@@ -7,6 +7,7 @@
 #include "Runtime/ExceptionObject.h"
 #include "Runtime/GlobalObject.h"
 #include "Runtime/GlobalObjectShape.h"
+#include "Runtime/NumberObjectShape.h"
 #include "Runtime/Object.h"
 #include "Runtime/Result.h"
 #include <vector>

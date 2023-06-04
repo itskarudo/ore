@@ -42,6 +42,8 @@ set(LIB_SOURCES Source/AST.cpp
             Source/Runtime/GlobalObject.cpp
             Source/Runtime/GlobalObjectShape.cpp
             Source/Runtime/StringObject.cpp
+            Source/Runtime/NumberObject.cpp
+            Source/Runtime/NumberObjectShape.cpp
             Source/Runtime/ArrayObject.cpp
             Source/Runtime/ArrayObjectShape.cpp
             Source/Runtime/ExceptionObject.cpp
