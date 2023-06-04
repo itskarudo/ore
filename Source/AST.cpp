@@ -165,12 +165,12 @@ Result CallExpression::execute(Interpreter& interpreter)
       offset = 1;
     }
 
-    for (size_t i = 0; i < function.parameters().size(); ++i) {
+    for (size_t i = 0; i + offset < function.parameters().size(); ++i) {
       if (i < m_arguments.size()) {
         auto argument_value = TRY(m_arguments[i]->execute(interpreter));
         passed_arguments[function.parameters()[i + offset].name] = argument_value;
       } else {
-        assert(function.parameters()[i].default_value.has_value());
+        assert(function.parameters()[i + offset].default_value.has_value());
         passed_arguments[function.parameters()[i + offset].name] = function.parameters()[i].default_value.value();
       }
     }
