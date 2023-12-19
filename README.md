@@ -134,7 +134,7 @@ a = >4    -- LSB
 
 ### String operations
 ```lua
-a = "zoubi " .. "zou" -- concatination
+a = "zoubi " .. "zou" -- concatenation
 strlen = #a
 t = [1,2,3]
 tblen = #t
